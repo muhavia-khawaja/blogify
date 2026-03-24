@@ -13,6 +13,7 @@ import {
   PlusCircle,
   ShieldCheck,
   User,
+  MessageCircle,
 } from 'lucide-react'
 import { logout } from '@/utils/actions'
 
@@ -32,6 +33,7 @@ export default function AdminLayout({
     { name: 'Articles', href: '/control/articles', icon: FileText },
     { name: 'Categories', href: '/control/categories', icon: Tags },
     { name: 'Reviews', href: '/control/reviews', icon: MessageSquare },
+    { name: 'Contacts', href: '/control/contact', icon: MessageCircle },
     { name: 'Authors', href: '/control/author', icon: User },
   ]
 

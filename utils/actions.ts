@@ -695,10 +695,16 @@ export const sendMessage = async (formData: FormData) => {
     throw new Error('All Fields are required!')
   }
 
-  // await prisma
+  await prisma.contact.create({
+    data: {
+      name,
+      email,
+      message
+    }
+  })
 
   revalidatePath('/contact')
-  redirect('"/contact?success="true"')
+  redirect('/contact?success=true')
 }
 
 export const deleteReview = async (formData: FormData) => {
@@ -715,4 +721,28 @@ export const deleteReview = async (formData: FormData) => {
   })
 
   revalidatePath('/control/reviews')
+}
+
+
+
+export const getContacts = async () => {
+  return await prisma.contact.findMany({
+    orderBy: { createdAt: 'desc' }
+  })
+}
+
+export const deleteContact = async (formData: FormData) => {
+  const id = formData.get('id') as string
+  await prisma.contact.delete({ where: { id } })
+  revalidatePath('/control/contacts')
+}
+
+export const sendEmailReply = async (formData: FormData) => {
+  const email = formData.get('email') as string
+  const message = formData.get('message') as string
+
+  console.log(`Sending email to ${email}: ${message}`)
+  
+  
+  return { success: true }
 }
