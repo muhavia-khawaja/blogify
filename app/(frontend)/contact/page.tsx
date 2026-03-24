@@ -4,7 +4,6 @@ import React, { useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { FiMail, FiMessageCircle } from 'react-icons/fi'
 import { sendMessage } from '@/utils/actions'
-import { useSearchParams } from 'next/navigation'
 
 export default function ContactPage() {
   const [formState, setFormState] = useState({
@@ -12,19 +11,12 @@ export default function ContactPage() {
     email: '',
     message: '',
   })
-  const searchParams = useSearchParams()
   const [submitted, setSubmitted] = useState(false)
   const [loading, setLoading] = useState(false)
 
   const handleChange = (key: string, value: string) => {
     setFormState((prev) => ({ ...prev, [key]: value }))
   }
-
-  useEffect(() => {
-    if (searchParams.get('success') === 'true') {
-      setSubmitted(true)
-    }
-  }, [searchParams])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
