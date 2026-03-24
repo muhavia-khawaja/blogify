@@ -1,16 +1,18 @@
+import { Metadata } from 'next'
 import './globals.css'
-import type { Metadata } from 'next'
-import { Analytics } from '@vercel/analytics/react'
 
 export const metadata: Metadata = {
-  title: {
-    default: 'Education With Hamza | Online Courses & Study Resources',
-    template: '%s | Education With Hamza',
-  },
+  title: 'Blogify - Modern Blog for Tech & Development Insights',
   description:
-    'Education With Hamza offers high-quality online courses and resources to help you excel in academics. Learn at your own pace with expertly crafted content for Pakistani students.',
-  keywords:
-    'online education, FSC notes, 1st year, 2nd year, board exam prep, education with hamza, study resources, e-learning, free study material',
+    'Discover insights on web development, design trends, technology, and modern development practices. Read articles from expert writers.',
+  keywords: 'blog, technology, web development, design, tutorials, insights',
+  openGraph: {
+    title: 'Blogify - Modern Blog for Tech Insights',
+    description:
+      'Discover insights on web development, design trends, and technology',
+    url: 'https://blogify.example.com',
+    type: 'website',
+  },
 }
 
 export default function RootLayout({
@@ -19,17 +21,9 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang='en' data-theme='light'>
-      <head>
-        <script
-          async
-          src='https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7339717436236652'
-          crossOrigin='anonymous'
-        ></script>
-      </head>
-      <body className='bg-gray-200'>
-        {children}
-        <Analytics />
+    <html lang='en'>
+      <body className='bg-white'>
+        <main>{children}</main>
       </body>
     </html>
   )

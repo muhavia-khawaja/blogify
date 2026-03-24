@@ -3,15 +3,15 @@ import { jwtVerify } from 'jose'
 
 export async function middleware(req: NextRequest) {
   const token = req.cookies.get('token')?.value
-  const role = req.cookies.get('role')?.value
+  const { pathname } = req.nextUrl
 
-  const isLoginPage = req.nextUrl.pathname === '/control/login'
-  const isControlRoute = req.nextUrl.pathname.startsWith('/control')
+  const isLoginPage = pathname === '/control/login'
+  const isControlRoute = pathname.startsWith('/control')
 
-  if (!token || !role) {
+  if (!token) {
     if (isControlRoute && !isLoginPage) {
       return NextResponse.redirect(
-        new URL('/control/login?error=unauthenticated', req.url)
+        new URL('/control/login?error=unauthenticated', req.url),
       )
     }
     return NextResponse.next()
@@ -19,39 +19,27 @@ export async function middleware(req: NextRequest) {
 
   try {
     const secretKey = process.env.JWT_SECRET
-    if (!secretKey) {
-      throw new Error('JWT_SECRET is not defined')
-    }
+    if (!secretKey) throw new Error('JWT_SECRET is not defined')
 
     const secret = new TextEncoder().encode(secretKey)
-    const { payload } = await jwtVerify(token, secret)
 
-    if (payload.role !== role) {
-      const res = NextResponse.redirect(
-        new URL('/control/login?error=role_mismatch', req.url)
-      )
-      res.cookies.set('token', '', { maxAge: -1 })
-      res.cookies.set('role', '', { maxAge: -1 })
-      return res
-    }
+    await jwtVerify(token, secret)
 
     if (isLoginPage) {
       return NextResponse.redirect(new URL('/control', req.url))
     }
-  } catch (error) {
-    console.error('JWT Verification Failed:', error)
 
+    return NextResponse.next()
+  } catch (error) {
+    console.error('Security Check Failed:', error)
     const res = NextResponse.redirect(
-      new URL('/control/login?error=invalid_token', req.url)
+      new URL('/control/login?error=session_expired', req.url),
     )
-    res.cookies.set('token', '', { maxAge: -1 })
-    res.cookies.set('role', '', { maxAge: -1 })
+    res.cookies.delete('token')
     return res
   }
-
-  return NextResponse.next()
 }
 
 export const config = {
-  matcher: ['/control/:path*', '/control/login'],
+  matcher: ['/control/:path*'],
 }
