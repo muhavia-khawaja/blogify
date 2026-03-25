@@ -1,5 +1,12 @@
 import React from 'react'
 import Link from 'next/link'
+import { Metadata } from 'next'
+
+export const metadata: Metadata = {
+  title: 'About Us ',
+  description:
+    'Blogify provides free, high-quality educational resources for Pakistani students from 9th to 2nd year.',
+}
 
 export default function AboutPage() {
   return (

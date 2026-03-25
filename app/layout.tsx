@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     title: 'Blogify - Modern Blog for Tech Insights',
     description:
       'Discover insights on web development, design trends, and technology',
-    url: 'https://blogify.example.com',
+    url: 'https://blogifyguides.vercel.app',
     type: 'website',
   },
 }

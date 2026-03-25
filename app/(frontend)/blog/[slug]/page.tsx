@@ -6,6 +6,7 @@ import { notFound } from 'next/navigation'
 import InteractionRail from '@/components/InteractionRail'
 import ReadAloud from '@/components/ReadAloud'
 import Image from 'next/image'
+import { Metadata } from 'next'
 
 const wrapWordsInHtml = (html: string) => {
   let wordCount = 0
@@ -15,6 +16,22 @@ const wrapWordsInHtml = (html: string) => {
     wordCount++
     return span
   })
+}
+
+type Props = {
+  params: { slug: string }
+}
+
+export const generateMetadata = async ({
+  params,
+}: Props): Promise<Metadata> => {
+  const article = await getArticleBySlug(params.slug)
+  if (!article) return { title: 'Article Not Found' }
+
+  return {
+    title: { absolute: `${article.title} ` },
+    description: article.short_desc,
+  }
 }
 
 export default async function BlogDetail({

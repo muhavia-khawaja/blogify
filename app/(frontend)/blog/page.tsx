@@ -5,6 +5,47 @@ import { BiSearch } from 'react-icons/bi'
 import { FiChevronLeft, FiChevronRight } from 'react-icons/fi'
 import { getBlogPageData } from '@/utils/actions'
 import { Flame, BookOpen, Hash } from 'lucide-react'
+import { Metadata } from 'next'
+
+export async function generateMetadata({
+  searchParams,
+}: {
+  searchParams: { page?: string; category?: string; search?: string }
+}): Promise<Metadata> {
+  const params = searchParams
+
+  const { categories = [] } = await getBlogPageData(params)
+
+  const activeCategory = categories.find((cat) => cat.slug === params.category)
+
+  if (activeCategory) {
+    return {
+      title: `${activeCategory.name} Articles | Blogify`,
+      description:
+        activeCategory.short ||
+        `Explore articles related to ${activeCategory.name}.`,
+      keywords: [
+        activeCategory.name,
+        `${activeCategory.name} articles`,
+        'study guides',
+        'education blog',
+      ],
+    }
+  }
+
+  if (params.search) {
+    return {
+      title: `Search "${params.search}" | Blogify`,
+      description: `Browse results for "${params.search}" articles and guides.`,
+    }
+  }
+
+  return {
+    title: 'Blogify Articles & Insights',
+    description:
+      'Read the latest articles, tips, and study guides across all categories.',
+  }
+}
 
 export default async function BlogPage({
   searchParams,
