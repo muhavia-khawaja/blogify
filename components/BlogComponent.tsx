@@ -6,17 +6,16 @@ import { FiArrowUpRight } from 'react-icons/fi'
 import { getBlogData } from '@/utils/actions'
 import { User } from 'lucide-react'
 
+export const revalidate = 0
+
 export default async function BlogSection() {
-  // Destructure the new data structure from getBlogData
   const { heroPost, featuredPosts = [], latestPosts = [] } = await getBlogData()
 
-  // If there's no hero post and no latest posts, show nothing
   if (!heroPost && !latestPosts.length) return null
 
   return (
     <section className='bg-white py-20'>
       <div className='max-w-7xl mx-auto px-6 lg:px-8'>
-        {/* HEADER & SEARCH */}
         <div className='flex flex-col items-center text-center mb-20'>
           <h1 className='text-4xl md:text-5xl font-bold text-[#111827] mb-6 tracking-tight'>
             Inside Design: Stories and interviews
