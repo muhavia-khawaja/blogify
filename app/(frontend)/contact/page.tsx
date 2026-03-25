@@ -5,14 +5,7 @@ import Link from 'next/link'
 import { FiMail, FiMessageCircle } from 'react-icons/fi'
 import { sendMessage } from '@/utils/actions'
 
-export const metadata = {
-  title: 'Contact Us | Get in Touch with Our Team',
-  description:
-    'Have questions or need support? Reach out to us via our contact form. We’re here to help you with any inquiries or assistance you need.',
-  keywords:
-    'contact form, reach out, customer support, get in touch, contact page, inquiries, support services',
-  author: 'Ameer Muhavia',
-}
+
 
 export default function ContactPage() {
   const [formState, setFormState] = useState({
