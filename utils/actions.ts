@@ -493,7 +493,7 @@ export const getBlogData = async () => {
         published: true,
         mainPost: true,
       },
-      include: { category: true, author: true },
+      include: { category: true, author: true, user: true },
       orderBy: { createdAt: 'desc' },
     }),
 
