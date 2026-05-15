@@ -614,7 +614,6 @@ export async function getRelatedPosts(
         image: true,
         createdAt: true,
         category: { select: { title: true, slug: true } },
-        user: { select: { name: true, image: true } },
       },
     })
 
@@ -633,7 +632,7 @@ export async function getRelatedPosts(
           image: true,
           createdAt: true,
           category: { select: { title: true, slug: true } },
-          user: { select: { name: true, image: true } },
+        },
       })
     }
 
