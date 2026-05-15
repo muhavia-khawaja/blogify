@@ -515,7 +515,7 @@ export const getBlogData = async () => {
       },
       orderBy: { createdAt: 'desc' },
       take: 5,
-      include: { category: true, author: true,  },
+      include: { category: true, author: true, user: true },
     }),
   ])
 
@@ -566,7 +566,7 @@ export async function getBlogPageData(searchParams: {
       skip,
       take: limit,
       orderBy: { createdAt: 'desc' },
-      include: { category: true, author: true },
+      include: { category: true, author: true, user: true },
     }),
     prisma.article.count({ where }),
     prisma.category.findMany({
@@ -614,6 +614,7 @@ export async function getRelatedPosts(
         image: true,
         createdAt: true,
         category: { select: { title: true, slug: true } },
+        user: { select: { name: true, image: true } },
       },
     })
 
@@ -632,7 +633,7 @@ export async function getRelatedPosts(
           image: true,
           createdAt: true,
           category: { select: { title: true, slug: true } },
-        },
+          user: { select: { name: true, image: true } },
       })
     }
 
