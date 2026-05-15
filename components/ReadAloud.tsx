@@ -1,6 +1,6 @@
 'use client'
 import { useState, useEffect, useRef } from 'react'
-import { FiVolume2, FiSquare, FiPlay } from 'react-icons/fi'
+import { FiVolume2, FiSquare, FiPlay, FiRefreshCw } from 'react-icons/fi'
 
 export default function ReadAloud({ text }: { text: string }) {
   const [isReading, setIsReading] = useState(false)
@@ -29,6 +29,8 @@ export default function ReadAloud({ text }: { text: string }) {
     const textToRead = plainText.slice(resumeIndex)
     const utterance = new SpeechSynthesisUtterance(textToRead)
 
+    utterance.rate = 0.9
+
     utterance.onboundary = (event) => {
       if (event.name === 'word') {
         const totalCharIndex = event.charIndex + resumeIndex
@@ -44,7 +46,7 @@ export default function ReadAloud({ text }: { text: string }) {
 
     utterance.onend = () => {
       setIsReading(false)
-      if (resumeIndex >= plainText.length - 5) {
+      if (resumeIndex >= plainText.length - 10) {
         setResumeIndex(0)
         clearHighlights()
       }
@@ -59,12 +61,12 @@ export default function ReadAloud({ text }: { text: string }) {
     const wordEl = document.querySelector(`[data-word-idx="${index}"]`)
     if (wordEl) {
       wordEl.classList.add(
-        'bg-blue-100',
-        'text-blue-900',
-        'font-bold',
-        'rounded-sm',
-        'ring-2',
-        'ring-blue-100',
+        'bg-emerald-50',
+        'text-emerald-900',
+        'border-b-2',
+        'border-emerald-500',
+        'transition-all',
+        'duration-300',
       )
       wordEl.scrollIntoView({ behavior: 'smooth', block: 'center' })
     }
@@ -73,37 +75,42 @@ export default function ReadAloud({ text }: { text: string }) {
   const clearHighlights = () => {
     document.querySelectorAll('.read-word').forEach((el) => {
       el.classList.remove(
-        'bg-blue-100',
-        'text-blue-900',
-        'font-bold',
-        'rounded-sm',
-        'ring-2',
-        'ring-blue-100',
+        'bg-emerald-50',
+        'text-emerald-900',
+        'border-b-2',
+        'border-emerald-500',
       )
     })
   }
 
   return (
-    <div className='flex flex-col items-center'>
-      <button
-        onClick={toggleRead}
-        className={`group w-16 h-16 rounded-2xl border flex flex-col items-center justify-center transition-all shadow-sm hover:shadow-xl hover:-translate-y-1 mt-4 ${
-          isReading
-            ? 'bg-blue-600 text-white border-blue-600'
-            : 'bg-white text-gray-400 border-gray-100 hover:text-blue-600 hover:border-blue-200'
-        }`}
-      >
-        {isReading ? (
-          <FiSquare size={16} />
-        ) : resumeIndex > 0 ? (
-          <FiPlay size={16} />
-        ) : (
-          <FiVolume2 size={16} />
+    <div className='flex flex-col items-center group'>
+      <div className='relative'>
+        {isReading && (
+          <span className='absolute inset-0 rounded-full bg-emerald-400/20 animate-ping' />
         )}
-        <span className='text-[10px] mt-1 font-bold uppercase'>
-          {isReading ? 'Stop' : resumeIndex > 0 ? 'Resume' : 'Listen'}
-        </span>
-      </button>
+
+        <button
+          onClick={toggleRead}
+          className={`relative z-10 w-14 h-14 rounded-full border-2 flex flex-col items-center justify-center transition-all duration-500 shadow-sm ${
+            isReading
+              ? 'bg-black text-white border-black scale-110 shadow-emerald-200/50'
+              : 'bg-white text-gray-400 border-gray-100 hover:border-emerald-500 hover:text-emerald-600 hover:shadow-xl hover:-translate-y-1'
+          }`}
+        >
+          {isReading ? (
+            <FiSquare size={14} className='animate-pulse' />
+          ) : resumeIndex > 0 ? (
+            <FiPlay size={14} className='ml-0.5' />
+          ) : (
+            <FiVolume2 size={16} />
+          )}
+        </button>
+      </div>
+
+      <p className='text-[9px] mt-4 font-black uppercase tracking-[0.2em] text-gray-400 group-hover:text-black transition-colors'>
+        {isReading ? 'Now Reading' : resumeIndex > 0 ? 'Resume' : 'Listen'}
+      </p>
 
       {resumeIndex > 0 && !isReading && (
         <button
@@ -111,9 +118,9 @@ export default function ReadAloud({ text }: { text: string }) {
             setResumeIndex(0)
             clearHighlights()
           }}
-          className='text-[9px] mt-2 text-gray-400 hover:text-red-500 font-bold uppercase tracking-tighter'
+          className='flex items-center gap-1 text-[8px] mt-3 text-gray-300 hover:text-emerald-600 font-bold uppercase tracking-widest transition-colors'
         >
-          Reset to start
+          <FiRefreshCw size={8} /> Reset
         </button>
       )}
     </div>

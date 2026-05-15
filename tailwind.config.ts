@@ -9,7 +9,8 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        hind: ['Hind'],
+        sans: ['var(--font-sans)', 'ui-sans-serif', 'system-ui'],
+        serif: ['var(--font-serif)', 'ui-serif', 'Georgia'],
       },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',

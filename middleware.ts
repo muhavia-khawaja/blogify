@@ -2,7 +2,11 @@ import { NextRequest, NextResponse } from 'next/server'
 import { jwtVerify } from 'jose'
 
 export async function middleware(req: NextRequest) {
-  const token = req.cookies.get('token')?.value
+  // Check for both old admin token and new user auth token
+  const adminToken = req.cookies.get('token')?.value
+  const userAuthToken = req.cookies.get('auth_token')?.value
+  const token = adminToken || userAuthToken
+
   const { pathname } = req.nextUrl
 
   const isLoginPage = pathname === '/control/login'
@@ -36,6 +40,7 @@ export async function middleware(req: NextRequest) {
       new URL('/control/login?error=session_expired', req.url),
     )
     res.cookies.delete('token')
+    res.cookies.delete('auth_token')
     return res
   }
 }

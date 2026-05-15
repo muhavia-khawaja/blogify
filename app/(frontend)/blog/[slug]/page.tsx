@@ -1,38 +1,20 @@
 import React from 'react'
 import Link from 'next/link'
-import { FiArrowLeft, FiClock, FiShare2, FiUser } from 'react-icons/fi'
-import { getArticleBySlug, getRelatedPosts } from '@/utils/actions'
+import Image from 'next/image'
+import { FiClock, FiCheck } from 'react-icons/fi'
+import { AiFillStar } from 'react-icons/ai'
+import { BookOpen } from 'lucide-react'
+import {
+  getArticleBySlug,
+  getRelatedPosts,
+  getCurrentUser,
+  isArticleLikedByUser,
+} from '@/utils/actions'
+
 import { notFound } from 'next/navigation'
 import InteractionRail from '@/components/InteractionRail'
 import ReadAloud from '@/components/ReadAloud'
-import Image from 'next/image'
-import { Metadata } from 'next'
-
-const wrapWordsInHtml = (html: string) => {
-  let wordCount = 0
-  return html.replace(/(<[^>]+>)|([^<>\s]+)/g, (match, tag, word) => {
-    if (tag) return tag
-    const span = `<span class="read-word" data-word-idx="${wordCount}">${word}</span>`
-    wordCount++
-    return span
-  })
-}
-
-type Props = {
-  params: { slug: string }
-}
-
-export const generateMetadata = async ({
-  params,
-}: Props): Promise<Metadata> => {
-  const article = await getArticleBySlug(params.slug)
-  if (!article) return { title: 'Article Not Found' }
-
-  return {
-    title: { absolute: `${article.title} ` },
-    description: article.short_desc,
-  }
-}
+import BlogInteraction from '@/components/BlogInteraction'
 
 export default async function BlogDetail({
   params,
@@ -40,239 +22,238 @@ export default async function BlogDetail({
   params: { slug: string }
 }) {
   const { slug } = await params
-  const blog = await getArticleBySlug(slug)
+
+  const [blog, user] = await Promise.all([
+    getArticleBySlug(slug),
+    getCurrentUser(),
+  ])
 
   if (!blog) notFound()
 
-  const processedContent = wrapWordsInHtml(blog.long_desc)
+  const [relatedPosts, isLikedInitial] = await Promise.all([
+    getRelatedPosts(blog.category?.id, blog.id),
+    isArticleLikedByUser(blog.id),
+  ])
 
-  const relatedPosts = await getRelatedPosts(blog.category?.id, blog.id)
+  const reviews = blog.reviews || []
 
   return (
-    <article className='bg-white min-h-screen font-sans antialiased text-[#111827]'>
-      <nav className='bg-white py-6 border-b border-gray-50'>
-        <div className='max-w-4xl mx-auto px-6 flex justify-between items-center'>
-          <Link
-            href='/blog'
-            className='flex items-center gap-2 text-sm font-semibold text-gray-500 hover:text-[#2563EB] transition-colors'
-          >
-            <FiArrowLeft />
-            All Posts
-          </Link>
-          <div className='flex items-center gap-4 text-gray-400'>
-            <FiShare2
-              className='cursor-pointer hover:text-[#2563EB]'
-              size={20}
-            />
-          </div>
-        </div>
-      </nav>
-
-      <header className='pt-16 pb-12 bg-white'>
-        <div className='max-w-4xl mx-auto px-6 text-center'>
-          <div className='flex items-center justify-center gap-3 mb-6'>
-            <span className='text-[#2563EB] text-sm font-bold uppercase tracking-widest'>
-              {blog.category?.title || 'Design'}
-            </span>
-            <span className='text-gray-300'>•</span>
-            <span className='text-gray-500 text-sm font-medium'>
-              {new Date(blog.createdAt).toLocaleDateString('en-GB', {
-                day: 'numeric',
-                month: 'short',
-                year: 'numeric',
-              })}
-            </span>
-          </div>
-
-          <h1 className='text-4xl md:text-5xl font-bold text-[#111827] mb-8 leading-[1.2] tracking-tight'>
-            {blog.title}
-          </h1>
-
-          <div className='flex items-center justify-center gap-6 mb-12'>
-            <div className='flex items-center gap-2 text-gray-400 text-sm'>
-              <FiClock /> {blog.readTime}
+    <article className='bg-[#FCFBF9] min-h-screen antialiased text-[#1A1A1A]'>
+      <header className='pt-32 md:pt-48 pb-16'>
+        <div className='max-w-4xl mx-auto px-6'>
+          <div className='flex flex-col items-center text-center mb-12'>
+            <div className='flex items-center gap-3 mb-8'>
+              <span className='h-px w-8 bg-emerald-500'></span>
+              <span className='text-[10px] font-black uppercase tracking-[0.3em] text-emerald-600'>
+                {new Date(blog.createdAt).toLocaleDateString('en-GB', {
+                  month: 'long',
+                  year: 'numeric',
+                })}
+              </span>
+              <span className='h-px w-8 bg-emerald-500'></span>
             </div>
+
+            <h1 className='text-4xl md:text-7xl font-serif font-bold leading-[1.1] tracking-tight mb-10'>
+              {blog.title}
+            </h1>
+
+            <p className='text-lg md:text-2xl font-serif italic text-gray-400 max-w-2xl leading-relaxed'>
+              {blog.short_desc}
+            </p>
+          </div>
+
+          <div className='relative w-full aspect-[16/9] md:aspect-[21/9] rounded-[2.5rem] md:rounded-[4rem] overflow-hidden shadow-2xl bg-gray-100'>
+            <Image
+              src={
+                blog.image && blog.image.length > 0
+                  ? blog.image
+                  : '/placeholder.jpg'
+              }
+              alt={blog.title}
+              fill
+              priority
+              className='object-cover hover:scale-105 transition-transform duration-[3s] ease-out'
+            />
           </div>
         </div>
       </header>
 
-      <div className='max-w-5xl mx-auto px-6 mb-20'>
-        <div className='relative aspect-video rounded-3xl overflow-hidden shadow-sm'>
-          <Image
-            src={blog.image || '/placeholder.jpg'}
-            alt={blog.title}
-            fill
-            priority
-            className='object-cover'
-          />
-        </div>
+      <div className='lg:hidden fixed bottom-8 left-1/2 -translate-x-1/2 z-[90] flex items-center gap-4 bg-white/90 backdrop-blur-xl border border-gray-100 p-3 px-6 rounded-full shadow-[0_20px_50px_rgba(0,0,0,0.1)]'>
+        <InteractionRail articleId={blog.id} initialIsLiked={isLikedInitial} />
+        <div className='w-px h-6 bg-gray-200 mx-2' />
+        <ReadAloud text={blog.long_desc} />
       </div>
 
-      <div className='max-w-7xl mx-auto px-6 pb-24'>
-        <div className='grid grid-cols-1 lg:grid-cols-12 gap-12'>
-          <aside className='lg:col-span-2 hidden lg:flex flex-col items-end sticky top-32 h-fit'>
-            <InteractionRail articleId={blog.id} />
-            <ReadAloud text={blog.long_desc} />
-          </aside>
-
-          <main className='lg:col-span-8'>
-            <div className='prose  max-w-none'>
-              <div
-                className='text-[#374151] text-lg selection:bg-blue-50 whitespace-pre-line'
-                dangerouslySetInnerHTML={{ __html: processedContent }}
-              />
-            </div>
-
-            <div className='mt-16 p-8 rounded-2xl bg-blue-50/50 border border-blue-100 flex flex-col md:flex-row gap-6 items-start'>
-              <div className='w-16 h-16 rounded-2xl overflow-hidden bg-white relative flex-shrink-0 shadow-sm border border-blue-100'>
-                {blog.author?.image ? (
+      <div className='max-w-7xl mx-auto px-6 pb-32'>
+        <div className='grid grid-cols-1 lg:grid-cols-12 gap-16'>
+          <aside className='lg:col-span-3 hidden lg:flex flex-col gap-12 sticky top-32 h-fit'>
+            <div className='space-y-6'>
+              <div className='w-16 h-16 rounded-2xl overflow-hidden relative grayscale hover:grayscale-0 transition-all duration-500 shadow-xl border border-gray-100'>
+                {blog.user?.image ? (
                   <Image
-                    src={blog.author.image}
-                    alt={blog.author.name}
+                    src={blog.user.image}
+                    alt={blog.user.name}
                     fill
                     className='object-cover'
                   />
                 ) : (
-                  <div className='w-full h-full flex items-center justify-center text-blue-300'>
-                    <FiUser size={24} />
+                  <div className='w-full h-full flex items-center justify-center bg-gray-200 text-gray-400'>
+                    <BookOpen size={16} />
                   </div>
                 )}
               </div>
-              <div className='space-y-2'>
-                <div className='flex items-center gap-2'>
-                  <h4 className='font-bold text-[#111827]'>
-                    About {blog.author?.name || 'the Author'}
-                  </h4>
-                  <span className='px-2 py-0.5 bg-blue-600 text-white text-[10px] font-bold rounded uppercase'>
-                    Author
-                  </span>
-                </div>
-                <p className='text-gray-600 text-sm leading-relaxed'>
-                  {blog.author?.bio ||
-                    'Expert contributor at Geology Insights. Specializing in design systems, emerging technologies, and user-centric storytelling.'}
+              <div>
+                <p className='text-[10px] font-black uppercase tracking-widest text-emerald-600 mb-1'>
+                  Authored By
                 </p>
-                <Link
-                  href={`/blog/?author=${blog?.author?.name}`}
-                  className='inline-flex items-center gap-1 text-xs font-bold text-blue-600 hover:text-blue-700 transition-colors pt-2'
-                >
-                  View all posts by {blog.author?.name?.split(' ')[0]} →
-                </Link>
+                <h4 className='font-serif font-bold text-lg'>
+                  {blog.user?.name}
+                </h4>
               </div>
             </div>
 
-            <section className='mt-24 pt-16 border-t border-gray-100'>
-              <div className='flex items-center justify-between mb-10'>
-                <h2 className='text-2xl font-bold text-[#111827]'>
-                  Community Insights
-                </h2>
-                <span className='px-4 py-1 bg-gray-50 text-gray-500 rounded-full text-xs font-bold'>
-                  {blog.reviews?.length || 0} Reviews
+            <div className='pt-8 border-t border-gray-100 flex flex-col gap-10'>
+              <div className='flex items-center gap-4 text-gray-300'>
+                <FiClock />
+                <span className='text-[10px] font-black uppercase tracking-widest'>
+                  {blog.readTime || '5 min reading'}
                 </span>
               </div>
 
-              {blog.reviews && blog.reviews.length > 0 ? (
-                <div className='space-y-6'>
-                  {blog.reviews.map((review: any) => (
-                    <div
-                      key={review.id}
-                      className='p-8 rounded-2xl bg-white border border-gray-100 shadow-sm'
-                    >
-                      <div className='flex justify-between items-start mb-4'>
-                        <div className='flex items-center gap-3'>
-                          <div className='w-10 h-10 rounded-full bg-[#111827] text-white flex items-center justify-center text-xs font-bold'>
-                            {review.name.charAt(0)}
-                          </div>
-                          <div>
-                            <h4 className='text-sm font-bold text-[#111827]'>
-                              {review.name}
-                            </h4>
-                            <p className='text-[10px] text-gray-400 font-bold uppercase tracking-widest'>
-                              {new Date(review.createdAt).toLocaleDateString()}
-                            </p>
-                          </div>
-                        </div>
-                        <div className='flex gap-0.5'>
-                          {[...Array(5)].map((_, i) => (
-                            <span
-                              key={i}
-                              className={
-                                i < review.rating
-                                  ? 'text-[#2563EB]'
-                                  : 'text-gray-200'
-                              }
-                            >
-                              ★
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                      <p className='text-gray-600 leading-relaxed text-sm italic border-l-2 border-blue-100 pl-4'>
-                        {review.content}
-                      </p>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <div className='text-center py-12 bg-[#F9FAFB] rounded-2xl border border-dashed border-gray-200'>
-                  <p className='text-gray-400 text-sm italic'>
-                    No reviews yet. Be the first to share your thoughts.
-                  </p>
-                </div>
-              )}
-            </section>
-
-            <div className='mt-24 p-12 bg-[#F9FAFB] rounded-3xl border border-gray-100 text-center'>
-              <h3 className='text-2xl font-bold mb-3'>
-                Subscribe to newsletter
-              </h3>
-              <p className='text-gray-500 mb-8'>
-                The latest blog posts delivered to your inbox every week.
-              </p>
-              <form className='flex flex-col sm:flex-row gap-3 max-w-md mx-auto'>
-                <input
-                  type='email'
-                  placeholder='Enter your email'
-                  className='flex-1 px-4 py-3 rounded-xl border border-gray-200 outline-none focus:ring-2 ring-blue-100'
+              <div className='space-y-8'>
+                <InteractionRail
+                  articleId={blog.id}
+                  initialIsLiked={isLikedInitial}
                 />
-                <button className='bg-[#111827] text-white px-6 py-3 rounded-xl font-bold hover:bg-[#2563EB] transition-all'>
-                  Subscribe
-                </button>
-              </form>
+                <ReadAloud text={blog.long_desc} />
+              </div>
             </div>
+          </aside>
+
+          <main className='lg:col-span-7'>
+            <div className='prose prose-lg max-w-none'>
+              <div
+                className='font-serif text-lg md:text-xl leading-[1.9] text-[#2C2C2C] selection:bg-emerald-100 first-letter:text-8xl first-letter:font-bold first-letter:mr-4 first-letter:float-left first-letter:text-black first-letter:mt-2'
+                dangerouslySetInnerHTML={{ __html: blog.long_desc }}
+              />
+            </div>
+
+            <div className='mt-24 pt-12 border-t border-gray-100 '>
+              <BlogInteraction articleId={blog.id} articleSlug={blog.slug} />
+            </div>
+
+            <section className='mt-32' id='reviews'>
+              <div className='flex items-end justify-between mb-16'>
+                <div className='space-y-4'>
+                  <span className='text-[10px] font-black uppercase tracking-[0.4em] text-emerald-600'>
+                    Public Response
+                  </span>
+                  <h2 className='text-4xl font-serif font-bold'>
+                    The Reader's Gallery
+                  </h2>
+                </div>
+                <div className='hidden md:block'>
+                  <span className='text-6xl font-serif italic text-gray-100 tabular-nums'>
+                    {reviews.length.toString().padStart(2, '0')}
+                  </span>
+                </div>
+              </div>
+
+              <div className='space-y-16'>
+                {reviews.length > 0 ? (
+                  reviews.map((review: any) => (
+                    <div key={review.id} className='group'>
+                      <div className='flex justify-between items-start mb-6'>
+                        <div className='space-y-1'>
+                          <h4 className='font-serif font-bold text-xl text-gray-900'>
+                            {review.name}
+                          </h4>
+                          <div className='flex gap-0.5'>
+                            {[...Array(5)].map((_, i) => (
+                              <AiFillStar
+                                key={i}
+                                size={12}
+                                className={
+                                  i < review.rating
+                                    ? 'text-emerald-500'
+                                    : 'text-gray-200'
+                                }
+                              />
+                            ))}
+                          </div>
+                        </div>
+                        <span className='text-[10px] font-bold text-gray-300 uppercase tracking-widest'>
+                          {new Date(review.createdAt).toLocaleDateString(
+                            'en-GB',
+                            {
+                              day: '2-digit',
+                              month: 'short',
+                              year: 'numeric',
+                            },
+                          )}
+                        </span>
+                      </div>
+                      <blockquote className='relative z-0'>
+                        <p className='text-lg md:text-xl text-gray-500 font-serif italic leading-relaxed border-l-2 border-emerald-50 pl-8 group-hover:border-emerald-500 transition-all duration-700'>
+                          "{review.content}"
+                        </p>
+                      </blockquote>
+                    </div>
+                  ))
+                ) : (
+                  <div className='py-20 px-8 rounded-[3rem] border-2 border-dashed border-gray-100 text-center bg-white/50'>
+                    <p className='text-gray-400 font-serif italic text-lg'>
+                      The gallery is silent. <br />
+                      <span className='text-sm not-italic font-sans font-bold uppercase tracking-widest text-emerald-600 mt-4 inline-block'>
+                        Add your perspective above
+                      </span>
+                    </p>
+                  </div>
+                )}
+              </div>
+            </section>
           </main>
+
+          <aside className='lg:col-span-2' />
         </div>
       </div>
 
-      <section className='bg-[#F9FAFB] py-24 border-t border-gray-100'>
-        <div className='max-w-6xl mx-auto px-6'>
-          <h2 className='text-2xl font-bold text-[#111827] mb-12 text-center'>
-            Recommended articles
-          </h2>
-          <div className='grid grid-cols-1 md:grid-cols-3 gap-8'>
+      <section className='bg-white py-32 border-t border-gray-50'>
+        <div className='max-w-7xl mx-auto px-6'>
+          <div className='flex items-end justify-between mb-16'>
+            <div className='space-y-4'>
+              <span className='text-[10px] font-black uppercase tracking-[0.4em] text-emerald-600'>
+                Extended Archive
+              </span>
+              <h2 className='text-4xl font-serif font-bold'>
+                Further Perspectives
+              </h2>
+            </div>
+            <Link
+              href='/blog'
+              className='hidden md:flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] border-b-2 border-black pb-1 hover:text-emerald-600 hover:border-emerald-600 transition-all'
+            >
+              Consult Full Archive
+            </Link>
+          </div>
+
+          <div className='grid grid-cols-1 md:grid-cols-3 gap-12'>
             {relatedPosts.slice(0, 3).map((post: any) => (
-              <Link
-                key={post.id}
-                href={`/blog/${post.slug}`}
-                className='group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all'
-              >
-                <div className='aspect-video overflow-hidden'>
-                  <img
-                    src={post.image}
-                    alt=''
-                    className='w-full h-full object-cover group-hover:scale-105 transition-transform duration-500'
+              <Link key={post.id} href={`/blog/${post.slug}`} className='group'>
+                <div className='aspect-video rounded-[2.5rem] overflow-hidden mb-6 relative shadow-sm group-hover:shadow-2xl transition-all duration-700'>
+                  <Image
+                    src={post.image || '/placeholder.jpg'}
+                    alt={post.title}
+                    fill
+                    className='object-cover group-hover:scale-110 transition-transform duration-[1.5s]'
                   />
                 </div>
-                <div className='p-6'>
-                  <p className='text-[#2563EB] text-xs font-bold uppercase mb-2'>
-                    {post.category?.title}
-                  </p>
-                  <h3 className='text-lg font-bold text-[#111827] group-hover:text-[#2563EB] transition-colors leading-snug'>
-                    {post.title}
-                  </h3>
-                  <p className='text-gray-400 text-xs mt-4'>
-                    {new Date(post.createdAt).toLocaleDateString()}
-                  </p>
-                </div>
+                <span className='text-[9px] font-black uppercase tracking-widest text-emerald-500 block mb-3'>
+                  {post.category?.title}
+                </span>
+                <h3 className='text-2xl font-serif font-bold leading-tight group-hover:text-emerald-700 transition-colors'>
+                  {post.title}
+                </h3>
               </Link>
             ))}
           </div>

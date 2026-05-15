@@ -5,18 +5,16 @@ import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
 import { cookies } from 'next/headers'
 import bcrypt from 'bcryptjs'
-import { SignJWT } from 'jose'
-import {
-  v2 as cloudinary,
-  UploadApiErrorResponse,
-  UploadApiResponse,
-} from 'cloudinary'
+import { jwtVerify, SignJWT } from 'jose'
+import { v2 as cloudinary, UploadApiResponse } from 'cloudinary'
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET,
 })
+
+const JWT_SECRET = process.env.JWT_SECRET || 'default_secret'
 
 export const getAllCategories = async () => {
   return await prisma.category.findMany({
@@ -93,15 +91,16 @@ export const updateCategory = async (formData: FormData) => {
     .trim()
     .replace(/[^\w\s-]/g, '')
     .replace(/[\s_-]+/g, '-')
+    .replace(/^-+|-+$/g, '')
 
-  let imageUrl = undefined
+  let imageUrl: string | undefined = undefined
 
   if (image && image.size > 0) {
     const imageBuffer = await image.arrayBuffer()
     const imageBuff = Buffer.from(imageBuffer)
     const result = await new Promise<UploadApiResponse>((resolve, reject) => {
       const stream = cloudinary.uploader.upload_stream(
-        { folder: 'geology/categories' },
+        { folder: 'geology/categories', resource_type: 'image' },
         (err, res) => (err ? reject(err) : resolve(res!)),
       )
       stream.end(imageBuff)
@@ -140,67 +139,94 @@ export const deleteCategory = async (formData: FormData) => {
 
 export const getAllArticles = async (query?: string) => {
   return await prisma.article.findMany({
-    where: query
-      ? {
-          title: { contains: query, mode: 'insensitive' },
-        }
-      : {},
-    include: { category: true },
+    where: {
+      published: true,
+      ...(query && {
+        title: {
+          contains: query,
+          mode: 'insensitive',
+        },
+      }),
+    },
+    include: {
+      category: true,
+      author: true,
+      user: true,
+    },
     orderBy: { createdAt: 'desc' },
   })
 }
 
+export const getArticles = async () => {
+  return await prisma.article.findMany({
+    include: {
+      user: true,
+      category: true,
+    },
+  })
+}
+
 export const createArticle = async (formData: FormData) => {
+  const currentUser = await getCurrentUser()
+  if (!currentUser) {
+    return { error: 'Authentication required.' }
+  }
+
   const title = formData.get('title') as string
   const short_desc = formData.get('short_desc') as string
   const long_desc = formData.get('long_desc') as string
   const categoryId = formData.get('categoryId') as string
-  const authorId = formData.get('authorId') as string
   const tagsStr = formData.get('tags') as string
+  const image = formData.get('image') as File
 
-  const featured = formData.get('featured') === 'on'
-  const mainPost = formData.get('mainPost') === 'on'
+  const adminRecord = await prisma.admin.findUnique({
+    where: { email: currentUser.email },
+  })
+  const isAdmin = !!adminRecord
 
   const intent = formData.get('intent') as string
-  const published = intent === 'publish'
-
-  const image = formData.get('image') as File
+  const status = isAdmin && intent === 'publish' ? 'PUBLISHED' : 'PENDING'
+  const published = status === 'PUBLISHED'
 
   const words = long_desc.split(/\s+/).length
   const minutes = Math.ceil(words / 200)
   const readTime = `${minutes} min read`
 
-  const slug = title
+  const slug = `${title
     .toLowerCase()
     .trim()
     .replace(/[^\w\s-]/g, '')
     .replace(/[\s_-]+/g, '-')
-    .replace(/^-+|-+$/g, '')
+    .replace(/^-+|-+$/g, '')}-${Date.now().toString().slice(-4)}`
 
   const tags = tagsStr ? tagsStr.split(',').map((t) => t.trim()) : []
 
   let imageUrl = ''
   if (image && image.size > 0) {
-    const imageBuffer = await image.arrayBuffer()
-    const imageBuff = Buffer.from(imageBuffer)
+    try {
+      const imageBuffer = await image.arrayBuffer()
+      const imageBuff = Buffer.from(imageBuffer)
 
-    const imageResult = await new Promise<UploadApiResponse>(
-      (resolve, reject) => {
-        const stream = cloudinary.uploader.upload_stream(
-          {
-            folder: 'geology/articles',
-            resource_type: 'image',
-          },
-          (error, result) => {
-            if (error || !result)
-              return reject(error || new Error('Upload failed'))
-            resolve(result)
-          },
-        )
-        stream.end(imageBuff)
-      },
-    )
-    imageUrl = imageResult.secure_url
+      const imageResult = await new Promise<UploadApiResponse>(
+        (resolve, reject) => {
+          const stream = cloudinary.uploader.upload_stream(
+            {
+              folder: 'education/articles',
+              resource_type: 'image',
+            },
+            (error, result) => {
+              if (error || !result)
+                return reject(error || new Error('Upload failed'))
+              resolve(result)
+            },
+          )
+          stream.end(imageBuff)
+        },
+      )
+      imageUrl = imageResult.secure_url
+    } catch (err) {
+      console.error('Cloudinary Error:', err)
+    }
   }
 
   await prisma.article.create({
@@ -209,9 +235,10 @@ export const createArticle = async (formData: FormData) => {
       short_desc,
       long_desc,
       categoryId: categoryId || null,
-      authorId: authorId || null,
-      featured,
-      mainPost,
+      userId: currentUser.id,
+      featured: isAdmin ? formData.get('featured') === 'on' : false,
+      mainPost: isAdmin ? formData.get('mainPost') === 'on' : false,
+      status,
       published,
       image: imageUrl,
       tags,
@@ -220,10 +247,17 @@ export const createArticle = async (formData: FormData) => {
     },
   })
 
-  revalidatePath('/control/articles')
   revalidatePath('/blog')
-  redirect('/control/articles?success=true')
+  revalidatePath('/profile')
+
+  if (isAdmin) {
+    revalidatePath('/control/articles')
+    redirect('/control/articles?success=true')
+  } else {
+    redirect('/profile?submitted=true')
+  }
 }
+
 export const deleteArticle = async (formData: FormData) => {
   const id = formData.get('id') as string
   await prisma.article.delete({ where: { id } })
@@ -256,15 +290,16 @@ export const updateArticle = async (formData: FormData) => {
     .trim()
     .replace(/[^\w\s-]/g, '')
     .replace(/[\s_-]+/g, '-')
+    .replace(/^-+|-+$/g, '')
 
-  let imageUrl = undefined
+  let imageUrl: string | undefined = undefined
 
   if (image && image.size > 0) {
     const imageBuffer = await image.arrayBuffer()
     const imageBuff = Buffer.from(imageBuffer)
     const result = await new Promise<UploadApiResponse>((resolve, reject) => {
       const stream = cloudinary.uploader.upload_stream(
-        { folder: 'geology/articles' },
+        { folder: 'geology/articles', resource_type: 'image' },
         (err, res) => (err ? reject(err) : resolve(res!)),
       )
       stream.end(imageBuff)
@@ -291,6 +326,7 @@ export const updateArticle = async (formData: FormData) => {
       mainPost,
       readTime,
       published: isPublished,
+      status: isPublished ? 'PUBLISHED' : 'PENDING',
       slug,
       tags,
       ...(imageUrl && { image: imageUrl }),
@@ -309,6 +345,7 @@ export const getArticleBySlug = async (slug: string) => {
       category: true,
       reviews: true,
       author: true,
+      user: true,
     },
   })
 }
@@ -341,6 +378,7 @@ export const createReview = async (data: ReviewInput) => {
     throw new Error('Could not save review')
   }
 }
+
 export const getAllReviews = async () => {
   return await prisma.review.findMany({
     orderBy: {
@@ -350,6 +388,22 @@ export const getAllReviews = async () => {
       article: true,
     },
   })
+}
+
+export const deleteReview = async (formData: FormData) => {
+  const reviewId = formData.get('reviewId')
+
+  if (!reviewId || typeof reviewId !== 'string') {
+    throw new Error('No Review Id Provided or invalid type')
+  }
+
+  await prisma.review.delete({
+    where: {
+      id: reviewId,
+    },
+  })
+
+  revalidatePath('/control/reviews')
 }
 
 export const login = async (formData: FormData) => {
@@ -362,13 +416,14 @@ export const login = async (formData: FormData) => {
   const isMatch = await bcrypt.compare(password, user.password)
   if (!isMatch) redirect('/login?error=Invalid credentials')
 
-  const secret = new TextEncoder().encode(process.env.JWT_SECRET)
+  const secret = new TextEncoder().encode(JWT_SECRET)
   const token = await new SignJWT({ id: user.id })
     .setProtectedHeader({ alg: 'HS256' })
     .setExpirationTime('2h')
     .sign(secret)
 
-  cookies().set('token', token, {
+  const cookieStore = await cookies()
+  cookieStore.set('token', token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     path: '/',
@@ -378,7 +433,8 @@ export const login = async (formData: FormData) => {
 }
 
 export const logout = async () => {
-  cookies().delete('token')
+  const cookieStore = await cookies()
+  cookieStore.delete('token')
   redirect('/control/login')
 }
 
@@ -386,8 +442,9 @@ export async function createFirstAdmin() {
   const isAlreadyAdmin = await prisma.admin.findFirst()
 
   if (isAlreadyAdmin) {
-    throw new Error('Admin ALready exists.')
+    throw new Error('Admin already exists.')
   }
+
   const hashedPassword = await bcrypt.hash('Admin@123', 10)
 
   const admin = await prisma.admin.create({
@@ -546,6 +603,7 @@ export async function getRelatedPosts(
       where: {
         categoryId: categoryId,
         id: { not: currentPostId },
+        published: true,
       },
       take: limit,
       orderBy: { createdAt: 'desc' },
@@ -563,6 +621,7 @@ export async function getRelatedPosts(
       return await prisma.article.findMany({
         where: {
           id: { not: currentPostId },
+          published: true,
         },
         take: limit,
         orderBy: { createdAt: 'desc' },
@@ -589,20 +648,21 @@ export const createAuthor = async (formData: FormData) => {
   const bio = formData.get('bio') as string
   const image = formData.get('image') as File
 
-  let imageUrl = undefined
+  let imageUrl: string | undefined = undefined
 
   if (image && image.size > 0) {
     const imageBuffer = await image.arrayBuffer()
     const imageBuff = Buffer.from(imageBuffer)
     const result = await new Promise<UploadApiResponse>((resolve, reject) => {
       const stream = cloudinary.uploader.upload_stream(
-        { folder: 'geology/categories' },
+        { folder: 'geology/authors', resource_type: 'image' },
         (err, res) => (err ? reject(err) : resolve(res!)),
       )
       stream.end(imageBuff)
     })
     imageUrl = result.secure_url
   }
+
   try {
     await prisma.author.create({
       data: {
@@ -618,7 +678,6 @@ export const createAuthor = async (formData: FormData) => {
 
   revalidatePath('/control/author')
   revalidatePath('/blog')
-
   redirect('/control/author')
 }
 
@@ -641,9 +700,7 @@ export const getAllAuthors = async () => {
 
 export const getAuthor = async (id: string) => {
   return await prisma.author.findUnique({
-    where: {
-      id,
-    },
+    where: { id },
   })
 }
 
@@ -653,7 +710,7 @@ export const updateAuthor = async (formData: FormData) => {
   const bio = formData.get('bio') as string
   const image = formData.get('image') as File | null
 
-  let imageUrl = undefined
+  let imageUrl: string | undefined = undefined
 
   if (image && image.size > 0) {
     const imageBuffer = await image.arrayBuffer()
@@ -663,6 +720,7 @@ export const updateAuthor = async (formData: FormData) => {
       const stream = cloudinary.uploader.upload_stream(
         {
           folder: 'geology/authors',
+          resource_type: 'image',
           transformation: [{ width: 400, height: 400, crop: 'fill' }],
         },
         (err, res) => (err ? reject(err) : resolve(res!)),
@@ -696,38 +754,16 @@ export const sendMessage = async (formData: FormData) => {
   }
 
   await prisma.contact.create({
-    data: {
-      name,
-      email,
-      message
-    }
+    data: { name, email, message },
   })
 
   revalidatePath('/contact')
   redirect('/contact?success=true')
 }
 
-export const deleteReview = async (formData: FormData) => {
-  const reviewId = formData.get('reviewId')
-
-  if (!reviewId || typeof reviewId !== 'string') {
-    throw new Error('No Review Id Provided or invalid type')
-  }
-
-  await prisma.review.delete({
-    where: {
-      id: reviewId,
-    },
-  })
-
-  revalidatePath('/control/reviews')
-}
-
-
-
 export const getContacts = async () => {
   return await prisma.contact.findMany({
-    orderBy: { createdAt: 'desc' }
+    orderBy: { createdAt: 'desc' },
   })
 }
 
@@ -742,7 +778,268 @@ export const sendEmailReply = async (formData: FormData) => {
   const message = formData.get('message') as string
 
   console.log(`Sending email to ${email}: ${message}`)
-  
-  
+
   return { success: true }
+}
+
+export const registerUser = async (formData: FormData) => {
+  const name = formData.get('name') as string
+  const email = formData.get('email') as string
+  const password = formData.get('password') as string
+  const confirmPassword = formData.get('confirmPassword') as string
+
+  if (!name || !email || !password || !confirmPassword) {
+    return { error: 'All fields are required to join the archive.' }
+  }
+
+  if (password !== confirmPassword) {
+    return { error: 'Secrets do not match.' }
+  }
+
+  if (password.length < 6) {
+    return { error: 'Secret must be at least 6 characters.' }
+  }
+
+  try {
+    const existingUser = await prisma.user.findUnique({ where: { email } })
+    if (existingUser) {
+      return { error: 'This identity is already cataloged.' }
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10)
+    const user = await prisma.user.create({
+      data: { name, email, password: hashedPassword },
+    })
+
+    const secret = new TextEncoder().encode(JWT_SECRET)
+    const token = await new SignJWT({ userId: user.id, email: user.email })
+      .setProtectedHeader({ alg: 'HS256' })
+      .setExpirationTime('7d')
+      .sign(secret)
+
+    const cookieStore = await cookies()
+    cookieStore.set('auth_token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 60 * 60 * 24 * 7,
+    })
+  } catch (err) {
+    console.error(err)
+    return { error: 'The system failed to register your signature.' }
+  }
+
+  revalidatePath('/')
+  redirect('/?status=registered')
+}
+
+export const loginUser = async (formData: FormData) => {
+  const email = formData.get('email') as string
+  const password = formData.get('password') as string
+
+  if (!email || !password) {
+    return { error: 'Identity and secret are required.' }
+  }
+
+  try {
+    const user = await prisma.user.findUnique({ where: { email } })
+
+    if (!user) {
+      return { error: 'Invalid identity or secret.' }
+    }
+
+    const passwordMatch = await bcrypt.compare(password, user.password)
+    if (!passwordMatch) {
+      return { error: 'Invalid identity or secret.' }
+    }
+
+    const secret = new TextEncoder().encode(JWT_SECRET)
+    const token = await new SignJWT({ userId: user.id, email: user.email })
+      .setProtectedHeader({ alg: 'HS256' })
+      .setExpirationTime('7d')
+      .sign(secret)
+
+    const cookieStore = await cookies()
+    cookieStore.set('auth_token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 60 * 60 * 24 * 7,
+    })
+  } catch (err) {
+    console.error(err)
+    return { error: 'Authentication protocol failed.' }
+  }
+
+  revalidatePath('/')
+  redirect('/')
+}
+
+export const logoutUser = async () => {
+  const cookieStore = await cookies()
+  cookieStore.delete('auth_token')
+  revalidatePath('/')
+  redirect('/')
+}
+
+export const getCurrentUser = async () => {
+  const cookieStore = await cookies()
+  const token = cookieStore.get('auth_token')?.value
+
+  if (!token) return null
+
+  try {
+    const secret = new TextEncoder().encode(JWT_SECRET)
+    const { payload } = await jwtVerify(token, secret)
+
+    const user = await prisma.user.findUnique({
+      where: { id: payload.userId as string },
+      include: {
+        _count: {
+          select: {
+            likes: true,
+            citations: true,
+          },
+        },
+        articles: true,
+      },
+    })
+
+    return user
+  } catch (error) {
+    return null
+  }
+}
+
+export const toggleLike = async (articleId: string) => {
+  try {
+    const user = await getCurrentUser()
+    if (!user) {
+      return { error: 'Authorization required to record preference.' }
+    }
+
+    const existingLike = await prisma.like.findUnique({
+      where: { articleId_userId: { articleId, userId: user.id } },
+    })
+
+    if (existingLike) {
+      await prisma.like.delete({
+        where: { id: existingLike.id },
+      })
+    } else {
+      await prisma.like.create({
+        data: { articleId, userId: user.id },
+      })
+    }
+
+    revalidatePath(`/blog/[slug]`, 'page')
+    return { success: true }
+  } catch (error) {
+    console.error('Like toggle error:', error)
+    return { error: 'Failed to update system logs.' }
+  }
+}
+
+export const getArticleLikes = async (articleId: string) => {
+  return await prisma.like.count({ where: { articleId } })
+}
+
+export const isArticleLikedByUser = async (articleId: string) => {
+  const user = await getCurrentUser()
+  if (!user) return false
+
+  const like = await prisma.like.findUnique({
+    where: { articleId_userId: { articleId, userId: user.id } },
+  })
+
+  return !!like
+}
+
+export const addCitation = async (articleId: string, format: string) => {
+  try {
+    const user = await getCurrentUser()
+    if (!user) {
+      return { error: 'Authentication required to log citation.' }
+    }
+
+    await prisma.citation.create({
+      data: { articleId, userId: user.id, format },
+    })
+
+    revalidatePath(`/blog/[slug]`, 'page')
+    return { success: true }
+  } catch (error) {
+    console.error('Citation error:', error)
+    return { error: 'The citation registry is currently unavailable.' }
+  }
+}
+
+export const getCitationFormat = async (
+  articleId: string,
+  format: string,
+): Promise<string> => {
+  const article = await prisma.article.findUnique({
+    where: { id: articleId },
+    include: { author: true },
+  })
+
+  if (!article) return ''
+
+  const authorName = article.author?.name || 'Anonymous'
+  const year = article.createdAt.getFullYear()
+  const fullDate = article.createdAt.toLocaleDateString('en-GB', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  })
+
+  const baseUrl =
+    process.env.NEXT_PUBLIC_SITE_URL || 'https://blogifyguides.vercel.app'
+  const url = `${baseUrl}/blog/${article.slug}`
+
+  switch (format) {
+    case 'APA':
+      return `${authorName}. (${year}). ${article.title}. Retrieved from ${url}`
+
+    case 'MLA':
+      return `${authorName}. "${article.title}." Journal Archive, ${fullDate}, ${url}.`
+
+    case 'Chicago':
+      return `${authorName}. "${article.title}." Accessed ${fullDate}. ${url}.`
+
+    case 'Harvard':
+      return `${authorName}, ${year}. '${article.title}', Journal Archive. [online] Available at: ${url} [Accessed ${fullDate}].`
+
+    default:
+      return ''
+  }
+}
+
+export const subscribeToNewsletter = async (formData: FormData) => {
+  const email = formData.get('email') as string
+
+  if (!email) {
+    throw new Error('Email is required')
+  }
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  if (!emailRegex.test(email)) {
+    throw new Error('Invalid email format')
+  }
+
+  const existingSubscription = await prisma.subscription.findUnique({
+    where: { email },
+  })
+
+  if (existingSubscription) {
+    throw new Error('Email already subscribed')
+  }
+
+  await prisma.subscription.create({ data: { email } })
+
+  return { success: true }
+}
+
+export const getAllUsers = async () => {
+  return await prisma.user.findMany({})
 }

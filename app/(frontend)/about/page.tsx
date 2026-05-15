@@ -1,103 +1,126 @@
 import React from 'react'
 import Link from 'next/link'
 import { Metadata } from 'next'
+import { FiBookOpen, FiUsers, FiTrendingUp, FiArrowRight } from 'react-icons/fi'
 
 export const metadata: Metadata = {
-  title: 'About Us ',
+  title: 'Our Mission | The Archive',
   description:
-    'Blogify provides free, high-quality educational resources for Pakistani students from 9th to 2nd year.',
+    'Dedicated to providing premium educational resources for Pakistani students, fostering a modern learning ecosystem.',
 }
 
 export default function AboutPage() {
   return (
-    <section className='bg-gradient-to-b from-white to-gray-50 min-h-screen py-20'>
+    <section className='bg-[#FCFBF9] min-h-screen antialiased text-[#1A1A1A] pt-32 pb-20'>
       <div className='max-w-6xl mx-auto px-6 lg:px-8'>
-        <div className='grid gap-16 lg:grid-cols-2 lg:items-center'>
+        <div className='grid gap-20 lg:grid-cols-2 lg:items-start'>
           <div>
-            <p className='text-sm font-black uppercase tracking-widest text-blue-600 mb-4'>
-              About Blogify
-            </p>
-            <h1 className='text-4xl md:text-5xl font-black text-gray-900 leading-tight tracking-tight mb-6'>
-              A modern space for thoughtful stories and practical insights.
+            <div className='flex items-center gap-3 mb-6'>
+              <span className='h-px w-8 bg-emerald-500'></span>
+              <span className='text-[10px] font-black uppercase tracking-[0.4em] text-emerald-600'>
+                Our Manifesto
+              </span>
+            </div>
+
+            <h1 className='text-5xl md:text-6xl font-serif font-bold leading-[1.1] tracking-tight mb-8'>
+              Elevating the standard of{' '}
+              <span className='italic font-medium'>digital learning.</span>
             </h1>
-            <p className='text-lg text-gray-600 leading-relaxed mb-8'>
-              Blogify is built for curious developers, designers, and creators
-              who want to stay ahead of the curve. We publish hand‑crafted
-              articles on topics like web development, UX, tooling, and
-              productivity.
+
+            <p className='text-xl font-serif italic text-gray-500 leading-relaxed mb-12'>
+              Education with Hamza is more than a repository; it is a curated
+              ecosystem designed for the next generation of Pakistani scholars,
+              developers, and thinkers.
             </p>
-            <div className='space-y-4'>
-              <div className='flex items-start gap-4'>
-                <div className='w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center font-black'>
-                  1
+
+            <div className='space-y-10'>
+              <div className='flex items-start gap-6 group'>
+                <div className='w-12 h-12 shrink-0 bg-white border border-gray-100 rounded-2xl flex items-center justify-center shadow-sm group-hover:bg-emerald-500 group-hover:text-white transition-all duration-500'>
+                  <FiBookOpen size={20} />
                 </div>
                 <div>
-                  <h3 className='font-semibold text-gray-900'>
-                    Curated content
+                  <h3 className='text-sm font-black uppercase tracking-widest mb-2'>
+                    Curated Exhibits
                   </h3>
-                  <p className='text-sm text-gray-600 leading-relaxed'>
-                    Every article is reviewed and edited for clarity, relevance,
-                    and actionable takeaways.
+                  <p className='text-sm text-gray-500 leading-relaxed font-serif'>
+                    Every lesson is meticulously crafted to move beyond static
+                    text, offering interactive insights that bridge the gap
+                    between theory and practice.
                   </p>
                 </div>
               </div>
-              <div className='flex items-start gap-4'>
-                <div className='w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center font-black'>
-                  2
+
+              <div className='flex items-start gap-6 group'>
+                <div className='w-12 h-12 shrink-0 bg-white border border-gray-100 rounded-2xl flex items-center justify-center shadow-sm group-hover:bg-emerald-500 group-hover:text-white transition-all duration-500'>
+                  <FiUsers size={20} />
                 </div>
                 <div>
-                  <h3 className='font-semibold text-gray-900'>
-                    Community first
+                  <h3 className='text-sm font-black uppercase tracking-widest mb-2'>
+                    Student-Centric Logic
                   </h3>
-                  <p className='text-sm text-gray-600 leading-relaxed'>
-                    Reader feedback shapes what we publish — share your insights
-                    and help others learn.
+                  <p className='text-sm text-gray-500 leading-relaxed font-serif'>
+                    Our architecture is shaped by real student feedback,
+                    ensuring that every tool—from AI planners to math
+                    solvers—solves a genuine need.
                   </p>
                 </div>
               </div>
-              <div className='flex items-start gap-4'>
-                <div className='w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center font-black'>
-                  3
+
+              <div className='flex items-start gap-6 group'>
+                <div className='w-12 h-12 shrink-0 bg-white border border-gray-100 rounded-2xl flex items-center justify-center shadow-sm group-hover:bg-emerald-500 group-hover:text-white transition-all duration-500'>
+                  <FiTrendingUp size={20} />
                 </div>
                 <div>
-                  <h3 className='font-semibold text-gray-900'>
-                    Always growing
+                  <h3 className='text-sm font-black uppercase tracking-widest mb-2'>
+                    Infinite Iteration
                   </h3>
-                  <p className='text-sm text-gray-600 leading-relaxed'>
-                    We update existing guides and add fresh content every week
-                    to keep you in the know.
+                  <p className='text-sm text-gray-500 leading-relaxed font-serif'>
+                    The Archive is a living entity. We update existing resources
+                    and deploy new pedagogical tools every week to keep you at
+                    the forefront.
                   </p>
                 </div>
               </div>
             </div>
 
-            <div className='mt-12 flex flex-col sm:flex-row gap-4'>
+            <div className='mt-16 flex flex-col sm:flex-row gap-6'>
               <Link
                 href='/blog'
-                className='inline-flex items-center justify-center rounded-full bg-blue-600 px-8 py-3 text-sm font-black text-white shadow-lg hover:bg-blue-700 transition-all'
+                className='inline-flex items-center justify-center gap-3 rounded-full bg-black px-10 py-4 text-[10px] font-black uppercase tracking-widest text-white hover:bg-emerald-600 transition-all duration-500 shadow-xl'
               >
-                Explore Articles
+                Enter the Archive <FiArrowRight />
               </Link>
               <Link
-                href='/subscribe'
-                className='inline-flex items-center justify-center rounded-full border border-blue-600 px-8 py-3 text-sm font-black text-blue-600 hover:bg-blue-50 transition-all'
+                href='/register'
+                className='inline-flex items-center justify-center rounded-full border border-gray-200 bg-white px-10 py-4 text-[10px] font-black uppercase tracking-widest text-black hover:border-black transition-all'
               >
-                Subscribe
+                Join the Community
               </Link>
             </div>
           </div>
 
-          <div className='relative rounded-[2.5rem] overflow-hidden shadow-2xl'>
-            <div className='h-96 bg-gradient-to-br from-blue-600 to-purple-600'></div>
-            <div className='absolute inset-0 flex items-center justify-center p-10'>
-              <div className='bg-white/10 backdrop-blur-xl rounded-3xl p-8 max-w-md text-center'>
-                <h2 className='text-2xl font-black text-white mb-4'>
-                  Start building your idea today
-                </h2>
-                <p className='text-sm text-white/80'>
-                  Join thousands of readers who build, ship, and grow on
-                  Blogify.
-                </p>
+          <div className='sticky top-32'>
+            <div className='relative aspect-[4/5] rounded-[3rem] overflow-hidden shadow-2xl group'>
+              <div className='absolute inset-0 bg-[#1A1A1A]'>
+                <div className='absolute inset-0 opacity-40 bg-[url("https://www.transparenttextures.com/patterns/carbon-fibre.png")]'></div>
+              </div>
+
+              <div className='absolute inset-0 flex items-center justify-center p-12'>
+                <div className='bg-white/5 backdrop-blur-md border border-white/10 rounded-[2.5rem] p-10 text-center transform group-hover:scale-105 transition-transform duration-700'>
+                  <div className='w-16 h-1 w-16 bg-emerald-500 mx-auto mb-8 rounded-full'></div>
+                  <h2 className='text-3xl font-serif font-bold text-white mb-6 leading-tight'>
+                    Transforming curiosity into{' '}
+                    <span className='italic'>competence.</span>
+                  </h2>
+                  <p className='text-[10px] font-black uppercase tracking-[0.3em] text-white/50 mb-8'>
+                    Established MMXXIV
+                  </p>
+                  <div className='pt-8 border-t border-white/10'>
+                    <p className='text-sm text-white/70 italic font-serif leading-relaxed'>
+                      The archive flourishes when the archivist is complete.
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
