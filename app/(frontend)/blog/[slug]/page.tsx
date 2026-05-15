@@ -79,7 +79,7 @@ export default async function BlogDetail({
       </header>
 
       <div className='lg:hidden fixed bottom-8 left-1/2 -translate-x-1/2 z-[90] flex items-center gap-4 bg-white/90 backdrop-blur-xl border border-gray-100 p-3 px-6 rounded-full shadow-[0_20px_50px_rgba(0,0,0,0.1)]'>
-        <InteractionRail articleId={blog.id} initialIsLiked={isLikedInitial} />
+        <InteractionRail articleId={blog.id} />
         <div className='w-px h-6 bg-gray-200 mx-2' />
         <ReadAloud text={blog.long_desc} />
       </div>
