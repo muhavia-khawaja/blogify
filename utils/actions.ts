@@ -505,7 +505,7 @@ export const getBlogData = async () => {
       },
       orderBy: { createdAt: 'desc' },
       take: 4,
-      include: { category: true, author: true },
+      include: { category: true, author: true, user: true },
     }),
 
     prisma.article.findMany({
@@ -515,7 +515,7 @@ export const getBlogData = async () => {
       },
       orderBy: { createdAt: 'desc' },
       take: 5,
-      include: { category: true, author: true },
+      include: { category: true, author: true,  },
     }),
   ])
 
