@@ -23,6 +23,7 @@
     "cloudinary": "^2.5.1",
     "eslint": "8.57.1",
     "eslint-config-next": "14.2.14",
+    "framer-motion": "^12.38.0",
     "gray-matter": "^4.0.3",
     "jose": "^6.0.8",
     "js": "^0.1.0",
