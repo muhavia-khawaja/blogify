@@ -121,10 +121,7 @@ export default async function BlogDetail({
               </div>
 
               <div className='space-y-8'>
-                <InteractionRail
-                  articleId={blog.id}
-                  initialIsLiked={isLikedInitial}
-                />
+                <InteractionRail articleId={blog.id} />
                 <ReadAloud text={blog.long_desc} />
               </div>
             </div>
