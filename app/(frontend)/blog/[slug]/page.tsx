@@ -149,7 +149,7 @@ export default async function BlogDetail({
                     Public Response
                   </span>
                   <h2 className='text-4xl font-serif font-bold'>
-                    The Reader's Gallery
+                    The Reader&apos;s Gallery
                   </h2>
                 </div>
                 <div className='hidden md:block'>
