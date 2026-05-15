@@ -143,12 +143,7 @@ const Navbar = () => {
                   label='The Archive'
                   onClick={() => setMobileMenuOpen(false)}
                 />
-                <MobileLink
-                  href='/categories'
-                  icon={<Sparkles size={20} />}
-                  label='Trending Topics'
-                  onClick={() => setMobileMenuOpen(false)}
-                />
+
                 <MobileLink
                   href='/control/articles'
                   icon={<PenBox size={20} />}
