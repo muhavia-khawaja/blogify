@@ -195,7 +195,7 @@ export default async function BlogDetail({
                       </div>
                       <blockquote className='relative z-0'>
                         <p className='text-lg md:text-xl text-gray-500 font-serif italic leading-relaxed border-l-2 border-emerald-50 pl-8 group-hover:border-emerald-500 transition-all duration-700'>
-                          "{review.content}"
+                          {review.content}
                         </p>
                       </blockquote>
                     </div>
