@@ -70,7 +70,7 @@ const Navbar = () => {
 
             <div className='flex items-center gap-5'>
               <Link
-                href='/control/write'
+                href='/write'
                 className='flex items-center gap-2 text-gray-600 hover:text-black transition-colors'
               >
                 <PenBox size={18} />
@@ -145,7 +145,7 @@ const Navbar = () => {
                 />
 
                 <MobileLink
-                  href='/control/articles'
+                  href='/write'
                   icon={<PenBox size={20} />}
                   label='Write a Story'
                   onClick={() => setMobileMenuOpen(false)}

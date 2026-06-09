@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { useState } from 'react'
 import { registerUser } from '@/utils/actions'
 import { useRouter } from 'next/navigation'
-import { FiArrowLeft, FiUserPlus } from 'react-icons/fi'
+import { FiArrowLeft } from 'react-icons/fi'
 
 export default function SignUpPage() {
   const [loading, setLoading] = useState(false)
@@ -31,7 +31,7 @@ export default function SignUpPage() {
         setError(result.error)
         setLoading(false)
       } else {
-        router.push('/dashboard')
+        router.push('/profile')
         router.refresh()
       }
     } catch (err) {
@@ -43,47 +43,96 @@ export default function SignUpPage() {
   }
 
   return (
-    <div className='min-h-screen bg-[#FCFBF9] antialiased text-[#1A1A1A] flex flex-col justify-center px-6 py-12'>
-      <nav className='fixed top-0 w-full p-8'>
-        <Link
-          href='/'
-          className='group flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 hover:text-black transition-all'
-        >
-          <FiArrowLeft className='group-hover:-translate-x-1 transition-transform' />
-          Return to Archive
-        </Link>
-      </nav>
+    <div className='min-h-screen bg-[#FCFBF9] antialiased text-[#1A1A1A] flex'>
+      <div className='hidden lg:flex lg:w-1/2 relative bg-[#0F0F0F] flex-col justify-between p-14 overflow-hidden'>
+        <div
+          className='absolute inset-0 opacity-[0.04]'
+          style={{
+            backgroundImage:
+              'linear-gradient(#fff 1px,transparent 1px),linear-gradient(90deg,#fff 1px,transparent 1px)',
+            backgroundSize: '48px 48px',
+          }}
+        />
 
-      <div className='max-w-md w-full mx-auto'>
-        <div className='text-center mb-12'>
-          <div className='flex justify-center mb-8'>
-            <div className='w-14 h-14 bg-white border border-gray-100 rounded-3xl flex items-center justify-center shadow-xl -rotate-3'>
-              <FiUserPlus className='text-emerald-500' size={24} />
-            </div>
-          </div>
+        <div className='absolute bottom-0 right-0 text-[22rem] font-serif font-bold leading-none text-white/[0.03] select-none pointer-events-none'>
+          J
+        </div>
 
-          <span className='text-[10px] font-black uppercase tracking-[0.4em] text-emerald-600 block mb-4'>
-            New Enrollment
+        <div>
+          <span className='text-[10px] font-black uppercase tracking-[0.4em] text-emerald-500'>
+            The Journal
           </span>
-          <h1 className='text-5xl font-serif font-bold tracking-tight mb-4'>
-            Join the{' '}
-            <span className='italic font-normal text-gray-400'>Journal.</span>
-          </h1>
-          <p className='text-gray-400 font-serif italic text-lg'>
-            Create your unique signature today.
+        </div>
+
+        <div className='space-y-8 relative z-10'>
+          <div className='h-px w-12 bg-emerald-500' />
+          <blockquote className='font-serif text-3xl font-bold text-white leading-snug max-w-xs'>
+            Every great author began with a single signature.
+          </blockquote>
+          <p className='text-[11px] font-black uppercase tracking-[0.3em] text-white/30'>
+            Join the Archive
           </p>
         </div>
 
-        <div className='bg-white border border-gray-100 rounded-[3rem] p-10 shadow-[0_20px_50px_rgba(0,0,0,0.05)]'>
+        <div className='flex gap-10 relative z-10'>
+          {[
+            ['∞', 'Articles'],
+            ['24h', 'Publishing'],
+            ['Open', 'Access'],
+          ].map(([val, label]) => (
+            <div key={label}>
+              <p className='text-2xl font-serif font-bold text-white'>{val}</p>
+              <p className='text-[9px] font-black uppercase tracking-widest text-white/30 mt-1'>
+                {label}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className='flex-1 flex flex-col justify-center px-6 py-16 lg:px-20 xl:px-28'>
+        <nav className='absolute top-0 left-0 w-full p-8 lg:hidden'>
+          <Link
+            href='/'
+            className='group flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 hover:text-black transition-all'
+          >
+            <FiArrowLeft className='group-hover:-translate-x-1 transition-transform' />
+            Return to Archive
+          </Link>
+        </nav>
+        <nav className='absolute top-0 right-0 p-8 hidden lg:block'>
+          <Link
+            href='/'
+            className='group flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 hover:text-black transition-all'
+          >
+            <FiArrowLeft className='group-hover:-translate-x-1 transition-transform' />
+            Return to Archive
+          </Link>
+        </nav>
+
+        <div className='max-w-sm w-full mx-auto'>
+          <div className='mb-10'>
+            <span className='text-[9px] font-black uppercase tracking-[0.4em] text-emerald-600 block mb-5'>
+              New Enrollment
+            </span>
+            <h1 className='text-4xl font-serif font-bold tracking-tight leading-tight mb-3'>
+              Join the{' '}
+              <span className='italic font-normal text-gray-400'>Journal.</span>
+            </h1>
+            <p className='text-gray-400 font-serif italic'>
+              Create your unique signature today.
+            </p>
+          </div>
+
           {error && (
-            <div className='mb-8 p-4 bg-red-50 border-l-4 border-red-400 text-red-600 text-[11px] font-bold uppercase tracking-widest'>
+            <div className='mb-6 px-5 py-4 bg-red-50 border-l-4 border-red-400 rounded-xl text-red-600 text-[11px] font-bold uppercase tracking-widest'>
               {error}
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className='space-y-6'>
-            <div className='space-y-2'>
-              <label className='block text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 ml-2'>
+          <form onSubmit={handleSubmit} className='space-y-5'>
+            <div className='space-y-1.5'>
+              <label className='block text-[9px] font-black uppercase tracking-[0.25em] text-gray-400 ml-1'>
                 Legal Name
               </label>
               <input
@@ -91,12 +140,12 @@ export default function SignUpPage() {
                 name='name'
                 required
                 placeholder='John Doe'
-                className='w-full px-6 py-4 bg-[#F9F8F6] border-none rounded-2xl text-sm font-serif outline-none focus:ring-2 ring-emerald-100 transition-all'
+                className='w-full px-5 py-4 bg-white border border-gray-100 rounded-2xl text-sm font-serif outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-50 transition-all placeholder:text-gray-300 text-[#1A1A1A]'
               />
             </div>
 
-            <div className='space-y-2'>
-              <label className='block text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 ml-2'>
+            <div className='space-y-1.5'>
+              <label className='block text-[9px] font-black uppercase tracking-[0.25em] text-gray-400 ml-1'>
                 Email Identifier
               </label>
               <input
@@ -104,41 +153,40 @@ export default function SignUpPage() {
                 name='email'
                 required
                 placeholder='you@example.com'
-                className='w-full px-6 py-4 bg-[#F9F8F6] border-none rounded-2xl text-sm font-serif outline-none focus:ring-2 ring-emerald-100 transition-all'
+                className='w-full px-5 py-4 bg-white border border-gray-100 rounded-2xl text-sm font-serif outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-50 transition-all placeholder:text-gray-300 text-[#1A1A1A]'
               />
             </div>
 
-            <div className='grid grid-cols-1 gap-6'>
-              <div className='space-y-2'>
-                <label className='block text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 ml-2'>
-                  Secret Key
-                </label>
-                <input
-                  type='password'
-                  name='password'
-                  required
-                  placeholder='••••••••'
-                  className='w-full px-6 py-4 bg-[#F9F8F6] border-none rounded-2xl text-sm font-serif outline-none focus:ring-2 ring-emerald-100 transition-all'
-                />
-              </div>
-              <div className='space-y-2'>
-                <label className='block text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 ml-2'>
-                  Confirm Secret
-                </label>
-                <input
-                  type='password'
-                  name='confirmPassword'
-                  required
-                  placeholder='••••••••'
-                  className='w-full px-6 py-4 bg-[#F9F8F6] border-none rounded-2xl text-sm font-serif outline-none focus:ring-2 ring-emerald-100 transition-all'
-                />
-              </div>
+            <div className='space-y-1.5'>
+              <label className='block text-[9px] font-black uppercase tracking-[0.25em] text-gray-400 ml-1'>
+                Secret Key
+              </label>
+              <input
+                type='password'
+                name='password'
+                required
+                placeholder='••••••••'
+                className='w-full px-5 py-4 bg-white border border-gray-100 rounded-2xl text-sm font-serif outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-50 transition-all placeholder:text-gray-300 text-[#1A1A1A]'
+              />
+            </div>
+
+            <div className='space-y-1.5'>
+              <label className='block text-[9px] font-black uppercase tracking-[0.25em] text-gray-400 ml-1'>
+                Confirm Secret
+              </label>
+              <input
+                type='password'
+                name='confirmPassword'
+                required
+                placeholder='••••••••'
+                className='w-full px-5 py-4 bg-white border border-gray-100 rounded-2xl text-sm font-serif outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-50 transition-all placeholder:text-gray-300 text-[#1A1A1A]'
+              />
             </div>
 
             <button
               type='submit'
               disabled={loading}
-              className='group relative w-full py-6 bg-black text-white rounded-full font-black uppercase tracking-[0.2em] text-[10px] overflow-hidden transition-all active:scale-[0.98] disabled:opacity-50 mt-4'
+              className='group relative w-full py-5 mt-2 bg-[#0F0F0F] text-white rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] overflow-hidden transition-all active:scale-[0.98] disabled:opacity-50'
             >
               <span className='relative z-10'>
                 {loading ? 'Processing...' : 'Register Signature'}
@@ -147,18 +195,20 @@ export default function SignUpPage() {
             </button>
           </form>
 
-          <div className='relative my-10'>
+          <div className='relative my-8'>
             <div className='absolute inset-0 flex items-center'>
-              <div className='w-full border-t border-gray-100'></div>
+              <div className='w-full border-t border-gray-100' />
             </div>
-            <div className='relative flex justify-center text-[9px] font-black uppercase tracking-[0.2em]'>
-              <span className='px-4 bg-white text-gray-300'>Recognized?</span>
+            <div className='relative flex justify-center'>
+              <span className='px-4 bg-[#FCFBF9] text-[9px] font-black uppercase tracking-[0.2em] text-gray-300'>
+                Already enrolled?
+              </span>
             </div>
           </div>
 
           <Link
             href='/login'
-            className='block w-full text-center py-5 border-2 border-gray-100 hover:border-emerald-500 rounded-full text-[10px] font-black uppercase tracking-[0.2em] transition-all hover:text-emerald-600'
+            className='block w-full text-center py-4 border border-gray-200 hover:border-emerald-500 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all hover:text-emerald-600 text-gray-500'
           >
             Authorize Existing Account
           </Link>

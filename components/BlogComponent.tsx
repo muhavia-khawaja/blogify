@@ -106,7 +106,7 @@ export default function BlogSection({ data }: any) {
               The Latest Feed
             </h2>
             <Link
-              href='/ablogrchive'
+              href='/blog'
               className='text-sm font-bold flex items-center gap-1 border-b-2 border-black pb-1'
             >
               View All Archive <FiArrowUpRight />

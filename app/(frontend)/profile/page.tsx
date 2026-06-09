@@ -91,13 +91,6 @@ export default function ProfilePage() {
           </div>
 
           <div className='mt-10 pt-10 border-t border-gray-50 flex flex-col md:flex-row gap-4'>
-            <Link
-              href='/edit-profile'
-              className='flex-1 flex items-center justify-center gap-2 py-4 bg-black text-white rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-gray-800 transition-all shadow-lg'
-            >
-              <FiEdit3 /> Edit Signature
-            </Link>
-
             <form action={logoutUser} className='flex-1'>
               <button
                 type='submit'

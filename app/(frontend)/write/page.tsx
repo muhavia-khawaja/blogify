@@ -2,7 +2,14 @@
 
 import React, { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { FiSend, FiImage, FiLock, FiX, FiChevronDown } from 'react-icons/fi'
+import {
+  FiSend,
+  FiImage,
+  FiLock,
+  FiX,
+  FiChevronDown,
+  FiArrowLeft,
+} from 'react-icons/fi'
 import {
   createArticle,
   getAllCategories,
@@ -20,6 +27,7 @@ export default function WritePage() {
   const [authChecking, setAuthChecking] = useState(true)
   const [imageFile, setImageFile] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
+  const [step, setStep] = useState<1 | 2>(1)
 
   const [form, setForm] = useState({
     title: '',
@@ -63,7 +71,6 @@ export default function WritePage() {
     e.preventDefault()
     if (!form.categoryId) return alert('Select a department.')
     setLoading(true)
-
     try {
       const formData = new FormData()
       formData.append('title', form.title)
@@ -72,7 +79,6 @@ export default function WritePage() {
       formData.append('tags', form.tags)
       formData.append('categoryId', form.categoryId)
       if (imageFile) formData.append('image', imageFile)
-
       await createArticle(formData)
     } catch (err) {
       console.error('Submission failed:', err)
@@ -80,153 +86,341 @@ export default function WritePage() {
     }
   }
 
-  if (authChecking)
+  /* ── Loading state ── */
+  if (authChecking) {
     return (
-      <div className='min-h-screen flex items-center justify-center font-serif italic'>
-        Verifying...
-      </div>
-    )
-
-  if (!user) {
-    return (
-      <div className='min-h-screen bg-[#FCFBF9] flex items-center justify-center p-6'>
-        <div className='max-w-md w-full bg-white rounded-[3rem] p-12 shadow-2xl text-center border border-gray-100'>
-          <FiLock size={32} className='mx-auto text-red-500 mb-6' />
-
-          <h2 className='text-3xl font-serif font-bold mb-4'>Archival Lock</h2>
-          <p className='text-gray-500 mb-8'>
-            Sign in to contribute to the archive.
+      <div className='min-h-screen bg-[#FCFBF9] flex items-center justify-center'>
+        <div className='text-center space-y-4'>
+          <div className='w-8 h-8 border-2 border-gray-200 border-t-emerald-500 rounded-full animate-spin mx-auto' />
+          <p className='text-[10px] font-black uppercase tracking-[0.3em] text-gray-400'>
+            Verifying Access
           </p>
-          <Link
-            href='/login'
-            className='block w-full py-4 bg-black text-white rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-emerald-600 transition-all'
-          >
-            Identify Yourself
-          </Link>
         </div>
       </div>
     )
   }
 
+  /* ── Auth wall ── */
+  if (!user) {
+    return (
+      <div className='min-h-screen bg-[#FCFBF9] flex'>
+        <div className='hidden lg:flex lg:w-1/2 bg-[#0F0F0F] flex-col justify-between p-14 relative overflow-hidden'>
+          <div
+            className='absolute inset-0 opacity-[0.04]'
+            style={{
+              backgroundImage:
+                'linear-gradient(#fff 1px,transparent 1px),linear-gradient(90deg,#fff 1px,transparent 1px)',
+              backgroundSize: '48px 48px',
+            }}
+          />
+          <div className='absolute bottom-0 right-0 text-[20rem] font-serif font-bold leading-none text-white/[0.03] select-none pointer-events-none'>
+            W
+          </div>
+          <span className='text-[10px] font-black uppercase tracking-[0.4em] text-emerald-500 relative z-10'>
+            The Journal
+          </span>
+          <div className='space-y-6 relative z-10'>
+            <div className='h-px w-12 bg-emerald-500' />
+            <p className='font-serif text-3xl font-bold text-white leading-snug max-w-xs'>
+              Every voice deserves a place in the archive.
+            </p>
+            <p className='text-[11px] font-black uppercase tracking-[0.3em] text-white/30'>
+              Contributor Access Required
+            </p>
+          </div>
+          <div />
+        </div>
+
+        <div className='flex-1 flex items-center justify-center px-6'>
+          <div className='max-w-sm w-full text-center space-y-8'>
+            <div className='w-16 h-16 rounded-3xl bg-red-50 border border-red-100 flex items-center justify-center mx-auto'>
+              <FiLock size={24} className='text-red-400' />
+            </div>
+            <div>
+              <span className='text-[9px] font-black uppercase tracking-[0.4em] text-red-400 block mb-4'>
+                Archival Lock
+              </span>
+              <h2 className='text-3xl font-serif font-bold mb-3'>
+                Access Restricted
+              </h2>
+              <p className='text-gray-400 font-serif italic'>
+                Sign in to contribute to the archive.
+              </p>
+            </div>
+            <div className='space-y-3'>
+              <Link
+                href='/login'
+                className='group relative block w-full py-5 bg-[#0F0F0F] text-white rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] overflow-hidden transition-all'
+              >
+                <span className='relative z-10'>Identify Yourself</span>
+                <div className='absolute inset-0 bg-emerald-600 translate-y-full group-hover:translate-y-0 transition-transform duration-500' />
+              </Link>
+              <Link
+                href='/'
+                className='flex items-center justify-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 hover:text-black transition-colors py-3'
+              >
+                <FiArrowLeft size={12} />
+                Return to Archive
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  /* ── Write page ── */
   return (
-    <section className='min-h-screen bg-[#FCFBF9] pt-32 pb-20 text-[#1A1A1A]'>
-      <div className='max-w-4xl mx-auto px-6'>
-        <form onSubmit={handleSubmit} className='space-y-12'>
-          {/* IMAGE UPLOAD */}
-          <div className='relative group'>
-            {imagePreview ? (
-              <div className='relative w-full aspect-[21/9] rounded-[2.5rem] overflow-hidden shadow-2xl'>
-                <Image
-                  src={imagePreview}
-                  alt='Preview'
-                  fill
-                  className='object-cover'
+    <section className='min-h-screen bg-[#FCFBF9] text-[#1A1A1A]'>
+      <div className='fixed top-0 left-0 right-0 z-50 bg-[#FCFBF9]/90 backdrop-blur-md border-b border-gray-100'>
+        <div className='max-w-4xl mx-auto px-6 h-16 flex items-center justify-between'>
+          <Link
+            href='/blog'
+            className='group flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 hover:text-black transition-colors'
+          >
+            <FiArrowLeft
+              size={13}
+              className='group-hover:-translate-x-1 transition-transform'
+            />
+            Archive
+          </Link>
+
+          <div className='flex items-center gap-3'>
+            <button
+              type='button'
+              onClick={() => setStep(1)}
+              className={`text-[9px] font-black uppercase tracking-widest transition-colors ${
+                step === 1
+                  ? 'text-emerald-600'
+                  : 'text-gray-300 hover:text-gray-500'
+              }`}
+            >
+              01 · Details
+            </button>
+            <span className='h-px w-6 bg-gray-200' />
+            <button
+              type='button'
+              onClick={() => {
+                if (form.title && form.categoryId) setStep(2)
+              }}
+              className={`text-[9px] font-black uppercase tracking-widest transition-colors ${
+                step === 2
+                  ? 'text-emerald-600'
+                  : 'text-gray-300 hover:text-gray-500'
+              }`}
+            >
+              02 · Manuscript
+            </button>
+          </div>
+
+          <div className='flex items-center gap-2'>
+            <span className='text-[10px] font-black uppercase tracking-widest text-gray-400'>
+              {user.name}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <form onSubmit={handleSubmit}>
+        {step === 1 && (
+          <div className='pt-28 pb-20'>
+            <div className='max-w-4xl mx-auto px-6 space-y-10'>
+              <div className='mb-4'>
+                <span className='text-[9px] font-black uppercase tracking-[0.4em] text-emerald-600 block mb-3'>
+                  New Submission
+                </span>
+                <h1 className='text-4xl md:text-5xl font-serif font-bold leading-tight'>
+                  Compose your{' '}
+                  <span className='italic font-normal text-gray-400'>
+                    manuscript.
+                  </span>
+                </h1>
+              </div>
+
+              <div>
+                <label className='block text-[9px] font-black uppercase tracking-[0.25em] text-gray-400 mb-3 ml-1'>
+                  Cover Image
+                </label>
+                {imagePreview ? (
+                  <div className='relative w-full aspect-[21/9] rounded-[2rem] overflow-hidden shadow-lg'>
+                    <Image
+                      src={imagePreview}
+                      alt='Preview'
+                      fill
+                      className='object-cover'
+                    />
+                    <button
+                      type='button'
+                      onClick={() => {
+                        setImagePreview(null)
+                        setImageFile(null)
+                      }}
+                      className='absolute top-4 right-4 w-9 h-9 bg-black/60 text-white rounded-full flex items-center justify-center hover:bg-black transition-colors'
+                    >
+                      <FiX size={15} />
+                    </button>
+                  </div>
+                ) : (
+                  <label className='flex flex-col items-center justify-center w-full aspect-[21/9] rounded-[2rem] border-2 border-dashed border-gray-200 bg-white cursor-pointer hover:border-emerald-400 hover:bg-emerald-50/30 transition-all group'>
+                    <div className='w-14 h-14 rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-center mb-4 group-hover:border-emerald-200 transition-colors'>
+                      <FiImage
+                        className='text-gray-300 group-hover:text-emerald-400 transition-colors'
+                        size={22}
+                      />
+                    </div>
+                    <p className='text-[10px] font-black uppercase tracking-widest text-gray-400'>
+                      Attach Thumbnail
+                    </p>
+                    <p className='text-[9px] text-gray-300 mt-1'>
+                      JPG, PNG, WEBP
+                    </p>
+                    <input
+                      type='file'
+                      className='hidden'
+                      accept='image/*'
+                      onChange={handleImageChange}
+                    />
+                  </label>
+                )}
+              </div>
+
+              <div>
+                <label className='block text-[9px] font-black uppercase tracking-[0.25em] text-gray-400 mb-3 ml-1'>
+                  Title
+                </label>
+                <input
+                  type='text'
+                  placeholder='The Title...'
+                  required
+                  className='w-full bg-white border border-gray-100 rounded-2xl px-7 py-5 text-3xl md:text-4xl font-serif font-bold outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-50 transition-all placeholder:text-gray-200 text-[#1A1A1A]'
+                  value={form.title}
+                  onChange={(e) => setForm({ ...form, title: e.target.value })}
                 />
+              </div>
+
+              <div>
+                <label className='block text-[9px] font-black uppercase tracking-[0.25em] text-gray-400 mb-3 ml-1'>
+                  Abstract
+                </label>
+                <textarea
+                  rows={3}
+                  placeholder='A brief description of what this piece is about...'
+                  className='w-full rounded-2xl border border-gray-100 bg-white px-6 py-5 outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-50 transition-all font-serif italic text-lg resize-none placeholder:text-gray-300 text-[#1A1A1A]'
+                  value={form.short_desc}
+                  onChange={(e) =>
+                    setForm({ ...form, short_desc: e.target.value })
+                  }
+                />
+              </div>
+
+              <div className='grid md:grid-cols-2 gap-6'>
+                <div>
+                  <label className='block text-[9px] font-black uppercase tracking-[0.25em] text-gray-400 mb-3 ml-1'>
+                    Department
+                  </label>
+                  <div className='relative'>
+                    <select
+                      required
+                      value={form.categoryId}
+                      onChange={(e) =>
+                        setForm({ ...form, categoryId: e.target.value })
+                      }
+                      className='w-full rounded-2xl border border-gray-100 bg-white px-6 py-5 appearance-none outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-50 transition-all text-sm text-[#1A1A1A]'
+                    >
+                      <option value=''>Select Category</option>
+                      {categories.map((cat) => (
+                        <option key={cat.id} value={cat.id}>
+                          {cat.title}
+                        </option>
+                      ))}
+                    </select>
+                    <FiChevronDown className='absolute right-6 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none' />
+                  </div>
+                </div>
+
+                <div>
+                  <label className='block text-[9px] font-black uppercase tracking-[0.25em] text-gray-400 mb-3 ml-1'>
+                    Keywords
+                  </label>
+                  <input
+                    type='text'
+                    placeholder='Python, SEO, Design...'
+                    className='w-full rounded-2xl border border-gray-100 bg-white px-6 py-5 outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-50 transition-all text-sm placeholder:text-gray-300 text-[#1A1A1A]'
+                    value={form.tags}
+                    onChange={(e) => setForm({ ...form, tags: e.target.value })}
+                  />
+                </div>
+              </div>
+
+              <div className='flex justify-end pt-4'>
                 <button
                   type='button'
                   onClick={() => {
-                    setImagePreview(null)
-                    setImageFile(null)
+                    if (!form.title) return alert('Add a title first.')
+                    if (!form.categoryId) return alert('Select a department.')
+                    setStep(2)
                   }}
-                  className='absolute top-4 right-4 p-2 bg-black/50 text-white rounded-full'
+                  className='group relative flex items-center gap-3 rounded-2xl bg-[#0F0F0F] px-10 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-white overflow-hidden transition-all active:scale-[0.98]'
                 >
-                  <FiX />
+                  <span className='relative z-10'>Continue to Manuscript</span>
+                  <FiSend size={13} className='relative z-10' />
+                  <div className='absolute inset-0 bg-emerald-600 translate-y-full group-hover:translate-y-0 transition-transform duration-500' />
                 </button>
               </div>
-            ) : (
-              <label className='flex flex-col items-center justify-center w-full aspect-[21/9] rounded-[2.5rem] border-2 border-dashed border-gray-200 bg-white cursor-pointer hover:border-emerald-500 transition-all'>
-                <FiImage className='text-gray-300 mb-4' size={40} />
-                <p className='text-[10px] font-black uppercase tracking-widest text-gray-400'>
-                  Attach Thumbnail
-                </p>
-                <input
-                  type='file'
-                  className='hidden'
-                  accept='image/*'
-                  onChange={handleImageChange}
-                />
-              </label>
-            )}
+            </div>
           </div>
+        )}
 
-          <input
-            type='text'
-            placeholder='The Title...'
-            required
-            className='w-full bg-transparent text-5xl font-serif font-bold border-none focus:ring-0 outline-none'
-            value={form.title}
-            onChange={(e) => setForm({ ...form, title: e.target.value })}
-          />
+        {step === 2 && (
+          <div className='pt-28 pb-20'>
+            <div className='max-w-4xl mx-auto px-6 space-y-8'>
+              <div className='pb-8 border-b border-gray-100'>
+                <p className='text-[9px] font-black uppercase tracking-[0.4em] text-emerald-600 mb-2'>
+                  Writing
+                </p>
+                <h2 className='text-2xl font-serif font-bold text-[#1A1A1A] truncate'>
+                  {form.title || 'Untitled Manuscript'}
+                </h2>
+              </div>
 
-          <div className='grid md:grid-cols-2 gap-8'>
-            <div className='space-y-2'>
-              <label className='text-[10px] font-black uppercase text-gray-400 ml-2'>
-                Department
-              </label>
-              <div className='relative'>
-                <select
-                  required
-                  value={form.categoryId}
-                  onChange={(e) =>
-                    setForm({ ...form, categoryId: e.target.value })
+              <div>
+                <label className='block text-[9px] font-black uppercase tracking-[0.25em] text-gray-400 mb-3 ml-1'>
+                  The Manuscript
+                </label>
+                <RichTextEditor
+                  value={form.long_desc}
+                  onChange={(content) =>
+                    setForm({ ...form, long_desc: content })
                   }
-                  className='w-full rounded-2xl border border-gray-100 bg-white px-6 py-4 appearance-none outline-none focus:border-emerald-400'
+                />
+              </div>
+
+              <div className='flex items-center justify-between pt-6 border-t border-gray-100'>
+                <button
+                  type='button'
+                  onClick={() => setStep(1)}
+                  className='flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 hover:text-black transition-colors'
                 >
-                  <option value=''>Select Category</option>
-                  {categories.map((cat) => (
-                    <option key={cat.id} value={cat.id}>
-                      {cat.title}
-                    </option>
-                  ))}
-                </select>
-                <FiChevronDown className='absolute right-6 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none' />
+                  <FiArrowLeft size={13} />
+                  Back to Details
+                </button>
+
+                <button
+                  type='submit'
+                  disabled={loading}
+                  className='group relative flex items-center gap-3 rounded-2xl bg-[#0F0F0F] px-10 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-white overflow-hidden transition-all active:scale-[0.98] disabled:opacity-50'
+                >
+                  <span className='relative z-10'>
+                    {loading ? 'Transmitting...' : 'Dispatch Manuscript'}
+                  </span>
+                  <FiSend size={13} className='relative z-10' />
+                  <div className='absolute inset-0 bg-emerald-600 translate-y-full group-hover:translate-y-0 transition-transform duration-500' />
+                </button>
               </div>
             </div>
-
-            <div className='space-y-2'>
-              <label className='text-[10px] font-black uppercase text-gray-400 ml-2'>
-                Keywords
-              </label>
-              <input
-                type='text'
-                placeholder='Python, SEO...'
-                className='w-full rounded-2xl border border-gray-100 bg-white px-6 py-4 outline-none focus:border-emerald-400'
-                value={form.tags}
-                onChange={(e) => setForm({ ...form, tags: e.target.value })}
-              />
-            </div>
           </div>
-
-          <textarea
-            rows={2}
-            placeholder='Abstract...'
-            className='w-full rounded-2xl border border-gray-100 bg-white px-6 py-4 outline-none focus:border-emerald-400 font-serif italic'
-            value={form.short_desc}
-            onChange={(e) => setForm({ ...form, short_desc: e.target.value })}
-          />
-
-          <div className='space-y-2'>
-            <label className='text-[10px] font-black uppercase text-gray-400 ml-2'>
-              The Manuscript
-            </label>
-            <RichTextEditor
-              value={form.long_desc}
-              onChange={(content) => setForm({ ...form, long_desc: content })}
-            />
-          </div>
-
-          <div className='flex justify-end pt-10'>
-            <button
-              type='submit'
-              disabled={loading}
-              className='flex items-center gap-4 rounded-full bg-black px-14 py-6 text-[10px] font-black uppercase tracking-[0.2em] text-white shadow-2xl hover:bg-emerald-600 disabled:opacity-50'
-            >
-              {loading ? 'Transmitting...' : 'Dispatch Manuscript'}
-              <FiSend />
-            </button>
-          </div>
-        </form>
-      </div>
+        )}
+      </form>
     </section>
   )
 }

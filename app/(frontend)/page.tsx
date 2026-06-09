@@ -2,6 +2,8 @@ import BlogSection from '@/components/BlogComponent'
 import { getAllArticles } from '@/utils/actions'
 import React from 'react'
 
+export const revalidate = 0
+
 export default async function Page() {
   const articles = await getAllArticles()
 
