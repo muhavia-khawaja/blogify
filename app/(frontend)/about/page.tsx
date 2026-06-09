@@ -91,7 +91,7 @@ export default function AboutPage() {
                 Enter the Archive <FiArrowRight />
               </Link>
               <Link
-                href='/register'
+                href='/signup'
                 className='inline-flex items-center justify-center rounded-full border border-gray-200 bg-white px-10 py-4 text-[10px] font-black uppercase tracking-widest text-black hover:border-black transition-all'
               >
                 Join the Community
