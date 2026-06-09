@@ -108,10 +108,6 @@ export default function ReadAloud({ text }: { text: string }) {
         </button>
       </div>
 
-      <p className='text-[9px] mt-4 font-black uppercase tracking-[0.2em] text-gray-400 group-hover:text-black transition-colors'>
-        {isReading ? 'Now Reading' : resumeIndex > 0 ? 'Resume' : 'Listen'}
-      </p>
-
       {resumeIndex > 0 && !isReading && (
         <button
           onClick={() => {

@@ -155,13 +155,29 @@ const Navbar = () => {
               <div className='mt-auto space-y-4'>
                 <div className='p-4 bg-gray-50 rounded-2xl border border-gray-100'>
                   <p className='text-xs text-gray-500 font-medium leading-relaxed'>
-                    Join 5,000+ readers getting weekly insights directly in
-                    their inbox.
+                    {/* small */}
+                    Join the Journal to read your favorite stories.
                   </p>
                 </div>
-                <button className='w-full bg-black text-white py-4 rounded-2xl font-bold active:scale-95 transition-transform'>
-                  Get Unlimited Access
-                </button>
+
+                <hr className='border-gray-200' />
+                {user ? (
+                  <Link
+                    href='/profile'
+                    className='flex items-center gap-2 text-gray-600 hover:text-black transition-colors'
+                  >
+                    <Bell size={18} />
+                    <span className=' text-black'>{user.name}</span>
+                  </Link>
+                ) : (
+                  <Link
+                    href='/login'
+                    className='flex items-center gap-2 text-gray-600 hover:text-black transition-colors'
+                  >
+                    <Bell size={18} />
+                    <span className='text-black'>Login</span>
+                  </Link>
+                )}
               </div>
             </motion.div>
           </>
@@ -185,7 +201,7 @@ const MobileLink = ({
   <Link
     href={href}
     onClick={onClick}
-    className='flex items-center gap-4 text-2xl font-bold text-gray-900 hover:text-emerald-500 transition-colors py-2'
+    className='flex items-center gap-4 text-xl font-bold text-gray-900 hover:text-emerald-500 transition-colors py-2'
   >
     <span className='text-gray-300'>{icon}</span>
     {label}

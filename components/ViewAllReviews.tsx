@@ -104,7 +104,7 @@ function ReviewsModal({
                   </span>
                 </div>
                 <blockquote>
-                  <p className='text-lg text-gray-500 font-serif italic leading-relaxed border-l-2 border-emerald-100 pl-6 group-hover:border-emerald-500 transition-all duration-500'>
+                  <p className='text-base sm:text-lg md:text-xl text-gray-500 font-serif italic leading-relaxed border-l-2 border-emerald-50 pl-4 sm:pl-7 group-hover:border-emerald-500 transition-all duration-700 break-words max-w-full'>
                     {review.content}
                   </p>
                 </blockquote>

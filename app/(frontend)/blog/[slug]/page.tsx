@@ -113,12 +113,6 @@ export default async function BlogDetail({
           </div>
         </header>
 
-        <div className='lg:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-[90] flex items-center gap-3 bg-white/95 backdrop-blur-xl border border-gray-100 p-3 px-5 rounded-full shadow-[0_8px_32px_rgba(0,0,0,0.12)]'>
-          <InteractionRail articleId={blog.id} />
-          <span className='w-px h-5 bg-gray-200' />
-          <ReadAloud text={blog.long_desc} />
-        </div>
-
         <div className='max-w-7xl mx-auto px-6 pb-32'>
           <div className='grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16'>
             <aside className='lg:col-span-3 hidden lg:flex flex-col gap-10 sticky top-28 h-fit'>
@@ -273,7 +267,7 @@ export default async function BlogDetail({
                             </span>
                           </div>
                           <blockquote>
-                            <p className='text-lg md:text-xl text-gray-500 font-serif italic leading-relaxed border-l-2 border-emerald-50 pl-7 group-hover:border-emerald-500 transition-all duration-700'>
+                            <p className='text-base sm:text-lg md:text-xl text-gray-500 font-serif italic leading-relaxed border-l-2 border-emerald-50 pl-4 sm:pl-7 group-hover:border-emerald-500 transition-all duration-700 break-words max-w-full'>
                               {review.content}
                             </p>
                           </blockquote>
