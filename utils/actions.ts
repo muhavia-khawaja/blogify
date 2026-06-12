@@ -1041,5 +1041,16 @@ export const subscribeToNewsletter = async (formData: FormData) => {
 }
 
 export const getAllUsers = async () => {
-  return await prisma.user.findMany({})
+  return await prisma.user.findMany({
+    include: {
+      articles: true,
+      _count: {
+        select: {
+          articles: true,
+          likes: true,
+          citations: true,
+        },
+      },
+    },
+  })
 }

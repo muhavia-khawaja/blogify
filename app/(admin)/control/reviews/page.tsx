@@ -5,117 +5,184 @@ import {
   Trash2,
   User,
   Mail,
-  Link as LinkIcon,
+  ArrowUpRight,
 } from 'lucide-react'
 import { deleteReview, getAllReviews } from '@/utils/actions'
+import Link from 'next/link'
 
 export default async function ReviewsPage() {
   const reviews = await getAllReviews()
 
   const avgRating =
     reviews.length > 0
-      ? (
-          reviews.reduce((acc, curr) => acc + curr.rating, 0) / reviews.length
-        ).toFixed(1)
+      ? reviews.reduce((acc, curr) => acc + curr.rating, 0) / reviews.length
       : 0
 
-  return (
-    <div className='max-w-6xl mx-auto space-y-6'>
-      <div className='flex flex-col md:flex-row justify-between items-start md:items-center gap-4'>
-        <div>
-          <h1 className='text-2xl font-bold text-gray-900'>User Reviews</h1>
-          <p className='text-gray-500 text-sm'>
-            Manage feedback left by readers on your articles.
-          </p>
-        </div>
+  const fiveStars = reviews.filter((r) => r.rating === 5).length
 
-        <div className='flex gap-4'>
-          <div className='bg-white px-4 py-2 rounded-lg border border-gray-200 shadow-sm'>
-            <p className='text-xs text-gray-500 font-medium'>Average Rating</p>
-            <p className='text-xl font-bold text-yellow-500 flex items-center gap-1'>
-              {avgRating} <Star size={16} fill='currentColor' />
+  return (
+    <div className='min-h-screen bg-[#FCFBF9] antialiased text-[#1A1A1A]'>
+      <div className='max-w-5xl mx-auto px-6 py-12 space-y-10'>
+        <div className='flex flex-col sm:flex-row sm:items-end justify-between gap-6'>
+          <div>
+            <span className='text-[9px] font-black uppercase tracking-[0.4em] text-emerald-600 block mb-3'>
+              Control Panel
+            </span>
+            <h1 className='text-4xl md:text-5xl font-serif font-bold leading-tight'>
+              Reader{' '}
+              <span className='italic font-normal text-gray-400'>Gallery.</span>
+            </h1>
+            <p className='text-gray-400 font-serif italic mt-2'>
+              {reviews.length} review{reviews.length !== 1 ? 's' : ''} in the
+              archive
             </p>
           </div>
-          <div className='bg-white px-4 py-2 rounded-lg border border-gray-200 shadow-sm'>
-            <p className='text-xs text-gray-500 font-medium'>Total Reviews</p>
-            <p className='text-xl font-bold text-gray-900'>{reviews.length}</p>
-          </div>
-        </div>
-      </div>
 
-      {reviews.length === 0 ? (
-        <div className='bg-white border-2 border-dashed border-gray-200 rounded-2xl p-16 flex flex-col items-center justify-center text-center'>
-          <MessageSquare size={48} className='text-gray-200 mb-4' />
-          <h3 className='text-lg font-medium text-gray-900'>No reviews yet</h3>
-          <p className='text-gray-500 mt-1'>
-            When users comment on your blog, they will appear here.
-          </p>
-        </div>
-      ) : (
-        <div className='grid gap-4'>
-          {reviews.map((review) => (
-            <div
-              key={review.id}
-              className='bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden group'
-            >
-              <div className='p-5 flex flex-col md:flex-row gap-6'>
-                <div className='md:w-1/4 space-y-2'>
-                  <div className='flex items-center gap-2 text-gray-900 font-bold'>
-                    <User size={16} className='text-gray-400' />
-                    {review.name}
-                  </div>
-                  <div className='flex items-center gap-2 text-sm text-gray-500'>
-                    <Mail size={14} />
-                    {review.email}
-                  </div>
-                  <div className='flex gap-1 mt-2'>
-                    {[...Array(5)].map((_, i) => (
-                      <Star
-                        key={i}
-                        size={14}
-                        className={
-                          i < review.rating
-                            ? 'text-yellow-400 fill-current'
-                            : 'text-gray-200'
-                        }
-                      />
-                    ))}
-                  </div>
-                </div>
-
-                <div className='flex-1 space-y-3'>
-                  <div className='flex items-start justify-between gap-4'>
-                    <p className='text-gray-700 leading-relaxed'>
-                      {review.content}
-                    </p>
-                    <form action={deleteReview}>
-                      <input type='hidden' name='reviewId' value={review.id} />
-                      <button className='text-gray-300 hover:text-red-600 transition-colors p-1'>
-                        <Trash2 size={18} />
-                      </button>
-                    </form>
-                  </div>
-
-                  {review.article && (
-                    <div className='pt-3 border-t border-gray-50 flex items-center gap-2 text-xs'>
-                      <span className='text-gray-400 uppercase font-semibold'>
-                        Article:
-                      </span>
-                      <a
-                        href={`/blog/${review.article.slug}`}
-                        className='text-blue-600 hover:underline flex items-center gap-1'
-                      >
-                        <LinkIcon size={12} />
-                        {review.article.title}
-                      </a>
-                    </div>
-                  )}
+          {reviews.length > 0 && (
+            <div className='flex gap-4 shrink-0'>
+              <div className='bg-white rounded-2xl border border-gray-100 shadow-sm px-6 py-4 text-center'>
+                <p className='text-[9px] font-black uppercase tracking-[0.3em] text-gray-400 mb-1'>
+                  Avg Rating
+                </p>
+                <div className='flex items-center justify-center gap-1.5'>
+                  <span className='text-2xl font-serif font-bold text-[#1A1A1A]'>
+                    {avgRating.toFixed(1)}
+                  </span>
+                  <Star
+                    size={14}
+                    className='text-emerald-500 fill-emerald-500'
+                  />
                 </div>
               </div>
+              <div className='bg-white rounded-2xl border border-gray-100 shadow-sm px-6 py-4 text-center'>
+                <p className='text-[9px] font-black uppercase tracking-[0.3em] text-gray-400 mb-1'>
+                  5-Star
+                </p>
+                <span className='text-2xl font-serif font-bold text-[#1A1A1A]'>
+                  {fiveStars}
+                </span>
+              </div>
+              <div className='bg-white rounded-2xl border border-gray-100 shadow-sm px-6 py-4 text-center'>
+                <p className='text-[9px] font-black uppercase tracking-[0.3em] text-gray-400 mb-1'>
+                  Total
+                </p>
+                <span className='text-2xl font-serif font-bold text-[#1A1A1A]'>
+                  {reviews.length}
+                </span>
+              </div>
             </div>
-          ))}
+          )}
         </div>
-      )}
+
+        {reviews.length === 0 ? (
+          <div className='flex flex-col items-center justify-center py-32 px-8 rounded-[3rem] border-2 border-dashed border-gray-100 bg-white/50 text-center'>
+            <div className='w-20 h-20 rounded-3xl bg-gray-50 border border-gray-100 flex items-center justify-center mb-6'>
+              <MessageSquare size={28} className='text-gray-300' />
+            </div>
+            <span className='text-[9px] font-black uppercase tracking-[0.4em] text-emerald-600 block mb-3'>
+              Gallery Empty
+            </span>
+            <h3 className='text-2xl font-serif font-bold text-[#1A1A1A] mb-2'>
+              No reviews yet
+            </h3>
+            <p className='text-gray-400 font-serif italic max-w-xs leading-relaxed'>
+              When readers respond to articles, their perspectives will appear
+              here.
+            </p>
+          </div>
+        ) : (
+          <div className='space-y-4'>
+            {reviews.map((review) => (
+              <div
+                key={review.id}
+                className='group bg-white rounded-[2rem] border border-gray-100 shadow-sm hover:shadow-md hover:shadow-black/5 transition-all duration-300 overflow-hidden'
+              >
+                <div className='p-7 flex flex-col md:flex-row gap-8'>
+                  <div className='md:w-52 shrink-0 space-y-3'>
+                    <div className='flex items-center gap-2.5'>
+                      <div className='w-9 h-9 rounded-xl bg-gray-100 flex items-center justify-center shrink-0'>
+                        <User size={15} className='text-gray-400' />
+                      </div>
+                      <div>
+                        <p className='text-sm font-serif font-bold text-[#1A1A1A] leading-tight'>
+                          {review.name}
+                        </p>
+                        <p className='text-[10px] font-bold text-gray-400 truncate max-w-[140px]'>
+                          {review.email}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className='flex gap-0.5'>
+                      {[...Array(5)].map((_, i) => (
+                        <Star
+                          key={i}
+                          size={13}
+                          className={
+                            i < review.rating
+                              ? 'text-emerald-500 fill-emerald-500'
+                              : 'text-gray-200 fill-gray-200'
+                          }
+                        />
+                      ))}
+                    </div>
+
+                    <p className='text-[9px] font-black uppercase tracking-widest text-gray-300'>
+                      {new Date(review.createdAt).toLocaleDateString('en-GB', {
+                        day: '2-digit',
+                        month: 'short',
+                        year: 'numeric',
+                      })}
+                    </p>
+                  </div>
+
+                  <div className='flex-1 flex flex-col justify-between gap-5'>
+                    <div className='flex items-start justify-between gap-4'>
+                      <blockquote className='border-l-2 border-emerald-100 pl-5 group-hover:border-emerald-400 transition-colors duration-500'>
+                        <p className='font-serif italic text-gray-600 leading-relaxed text-[1.05rem]'>
+                          {review.content}
+                        </p>
+                      </blockquote>
+
+                      <form action={deleteReview} className='shrink-0'>
+                        <input
+                          type='hidden'
+                          name='reviewId'
+                          value={review.id}
+                        />
+                        <button
+                          type='submit'
+                          className='w-8 h-8 rounded-xl bg-gray-50 hover:bg-red-50 text-gray-300 hover:text-red-500 flex items-center justify-center transition-colors'
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </form>
+                    </div>
+
+                    {review.article && (
+                      <div className='flex items-center justify-between pt-4 border-t border-gray-50'>
+                        <p className='text-[9px] font-black uppercase tracking-[0.3em] text-gray-400'>
+                          Article
+                        </p>
+                        <Link
+                          href={`/blog/${review.article.slug}`}
+                          target='_blank'
+                          className='flex items-center gap-1.5 text-[10px] font-black uppercase tracking-[0.2em] text-emerald-600 hover:text-emerald-800 transition-colors'
+                        >
+                          {review.article.title.length > 40
+                            ? review.article.title.slice(0, 40) + '...'
+                            : review.article.title}
+                          <ArrowUpRight size={11} />
+                        </Link>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
     </div>
   )
 }

@@ -2,10 +2,10 @@ import React from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { UserPlus, Edit, Trash2, Mail, User } from 'lucide-react'
-import { getAllAuthors } from '@/utils/actions'
+import { getAllUsers } from '@/utils/actions'
 
 export default async function AuthorsPage() {
-  const authors = await getAllAuthors()
+  const authors = await getAllUsers()
 
   return (
     <div className='max-w-6xl mx-auto py-10 px-6'>
@@ -72,12 +72,13 @@ export default async function AuthorsPage() {
                   </td>
                   <td className='px-8 py-6 max-w-md'>
                     <p className='text-sm text-gray-500 line-clamp-2 leading-relaxed'>
-                      {author.bio || 'No biography provided.'}
+                      {author.email || 'No email provided.'}
                     </p>
                   </td>
                   <td className='px-8 py-6 text-center'>
                     <span className='inline-flex items-center justify-center bg-blue-50 text-blue-600 text-xs font-bold px-3 py-1 rounded-full'>
-                      {author._count?.articles || 0}
+                      {author._count?.articles || 0} Article
+                      {author._count?.articles !== 1 && 's'}
                     </span>
                   </td>
                   <td className='px-8 py-6'>

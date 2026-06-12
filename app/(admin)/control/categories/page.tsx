@@ -7,135 +7,199 @@ import {
   Layers,
   Calendar,
   Hash,
+  ArrowRight,
 } from 'lucide-react'
 import { deleteCategory, getAllCategories } from '@/utils/actions'
 import Link from 'next/link'
+import Image from 'next/image'
 
 export default async function CategoriesPage() {
   const categories = await getAllCategories()
 
   return (
-    <div className='p-4 md:p-8 max-w-7xl mx-auto space-y-10'>
-      <div className='flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 bg-base-100 p-6 rounded-2xl border border-base-200 shadow-sm'>
-        <div className='flex items-center gap-4'>
-          <div className='p-3 bg-primary/10 text-primary rounded-xl'>
-            <Layers size={32} />
-          </div>
+    <div className='min-h-screen bg-[#FCFBF9] antialiased text-[#1A1A1A]'>
+      <div className='max-w-7xl mx-auto px-6 py-12 space-y-12'>
+        <div className='flex flex-col sm:flex-row sm:items-end justify-between gap-6'>
           <div>
-            <h1 className='text-3xl font-black tracking-tight text-base-content'>
-              Categories
+            <span className='text-[9px] font-black uppercase tracking-[0.4em] text-emerald-600 block mb-3'>
+              Control Panel
+            </span>
+            <h1 className='text-4xl md:text-5xl font-serif font-bold leading-tight text-[#1A1A1A]'>
+              Content{' '}
+              <span className='italic font-normal text-gray-400'>
+                Departments.
+              </span>
             </h1>
-            <p className='text-base-content/60 text-sm font-medium'>
-              Manage and organize your content topics
+            <p className='text-gray-400 font-serif italic mt-2'>
+              {categories.length} department{categories.length !== 1 ? 's' : ''}{' '}
+              in the archive
             </p>
           </div>
+
+          <Link
+            href='/control/categories/new'
+            className='group relative inline-flex items-center gap-3 bg-[#0F0F0F] text-white rounded-2xl px-8 py-4 text-[10px] font-black uppercase tracking-[0.2em] overflow-hidden transition-all active:scale-[0.98] shrink-0'
+          >
+            <Plus size={14} strokeWidth={3} className='relative z-10' />
+            <span className='relative z-10'>New Department</span>
+            <div className='absolute inset-0 bg-emerald-600 translate-y-full group-hover:translate-y-0 transition-transform duration-500' />
+          </Link>
         </div>
 
-        <Link
-          href='/control/categories/new'
-          className='btn btn-primary btn-md md:btn-lg shadow-lg shadow-primary/20 gap-2 normal-case rounded-xl hover:scale-105 transition-transform'
-        >
-          <Plus size={20} strokeWidth={3} />
-          New Category
-        </Link>
-      </div>
-
-      <div>
+        {/* ── Empty state ── */}
         {categories.length === 0 ? (
-          <div className='flex flex-col items-center justify-center py-20 px-4 bg-base-200/30 border-2 border-dashed border-base-300 rounded-3xl'>
-            <div className='bg-base-100 p-6 rounded-full shadow-inner mb-6'>
-              <FolderTree size={64} className='text-base-content/20' />
+          <div className='flex flex-col items-center justify-center py-32 px-8 rounded-[3rem] border-2 border-dashed border-gray-100 bg-white/50 text-center'>
+            <div className='w-20 h-20 rounded-3xl bg-gray-50 border border-gray-100 flex items-center justify-center mb-6'>
+              <FolderTree size={32} className='text-gray-300' />
             </div>
-            <h3 className='text-2xl font-bold text-base-content'>
-              No categories yet
+            <span className='text-[9px] font-black uppercase tracking-[0.4em] text-emerald-600 block mb-3'>
+              Archive Empty
+            </span>
+            <h3 className='text-2xl font-serif font-bold text-[#1A1A1A] mb-2'>
+              No departments yet
             </h3>
-            <p className='text-base-content/50 max-w-sm text-center mt-2 mb-8'>
-              Create your first category to start organizing your blog articles
-              effectively.
+            <p className='text-gray-400 font-serif italic max-w-xs mb-8 leading-relaxed'>
+              Create your first department to begin organising the archive.
             </p>
             <Link
               href='/control/categories/new'
-              className='btn btn-outline btn-wide rounded-xl'
+              className='group relative inline-flex items-center gap-3 bg-[#0F0F0F] text-white rounded-2xl px-8 py-4 text-[10px] font-black uppercase tracking-[0.2em] overflow-hidden transition-all'
             >
-              Add First Category
+              <Plus size={13} strokeWidth={3} className='relative z-10' />
+              <span className='relative z-10'>Create First Department</span>
+              <div className='absolute inset-0 bg-emerald-600 translate-y-full group-hover:translate-y-0 transition-transform duration-500' />
             </Link>
           </div>
         ) : (
-          <div className='grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6'>
-            {categories.map((cat) => (
-              <div
-                key={cat.id}
-                className='card bg-base-100 border border-base-200 shadow-sm hover:shadow-xl hover:border-primary/30 transition-all duration-300 group'
-              >
-                <figure className='h-48 relative overflow-hidden bg-base-300'>
-                  {cat.image ? (
-                    <img
-                      src={cat.image}
-                      alt={cat.title}
-                      className='w-full h-full object-cover group-hover:scale-110 transition-transform duration-500'
-                    />
-                  ) : (
-                    <div className='flex flex-col items-center justify-center opacity-20'>
-                      <Layers size={48} />
-                    </div>
-                  )}
+          <>
+            {/* ── Stats row ── */}
+            <div className='grid grid-cols-3 gap-4'>
+              {[
+                { label: 'Total Departments', value: categories.length },
+                { label: 'Active', value: categories.length },
+                {
+                  label: 'Last Added',
+                  value: new Date(
+                    categories[categories.length - 1]?.createdAt,
+                  ).toLocaleDateString('en-GB', {
+                    day: '2-digit',
+                    month: 'short',
+                  }),
+                },
+              ].map((s) => (
+                <div
+                  key={s.label}
+                  className='bg-white rounded-2xl border border-gray-100 px-6 py-5 shadow-sm'
+                >
+                  <p className='text-[9px] font-black uppercase tracking-[0.3em] text-gray-400 mb-1'>
+                    {s.label}
+                  </p>
+                  <p className='text-2xl font-serif font-bold text-[#1A1A1A]'>
+                    {s.value}
+                  </p>
+                </div>
+              ))}
+            </div>
 
-                  <div className='absolute top-3 right-3 flex gap-2 opacity-0 group-hover:opacity-100 transition-all transform translate-y-[-10px] group-hover:translate-y-0'>
-                    <div className='flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity'>
+            {/* ── Grid ── */}
+            <div className='grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6'>
+              {categories.map((cat, i) => (
+                <div
+                  key={cat.id}
+                  className='group bg-white rounded-[2rem] border border-gray-100 overflow-hidden shadow-sm hover:shadow-xl hover:shadow-black/5 hover:-translate-y-1 transition-all duration-300'
+                >
+                  {/* Image */}
+                  <div className='relative h-44 bg-gray-50 overflow-hidden'>
+                    {cat.image ? (
+                      <Image
+                        src={cat.image}
+                        alt={cat.title}
+                        fill
+                        className='object-cover group-hover:scale-105 transition-transform duration-[1.5s]'
+                      />
+                    ) : (
+                      <div className='absolute inset-0 flex items-center justify-center'>
+                        {/* Decorative index number */}
+                        <span className='text-[6rem] font-serif font-bold text-gray-100 select-none leading-none'>
+                          {String(i + 1).padStart(2, '0')}
+                        </span>
+                      </div>
+                    )}
+
+                    {/* Gradient overlay */}
+                    <div className='absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500' />
+
+                    {/* Action buttons — appear on hover */}
+                    <div className='absolute top-3 right-3 flex gap-2 translate-y-[-8px] opacity-0 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300'>
                       <Link
                         href={`/control/categories/${cat.slug}`}
-                        className='p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors'
+                        className='w-8 h-8 bg-white rounded-xl flex items-center justify-center shadow-md hover:bg-emerald-50 hover:text-emerald-600 text-gray-500 transition-colors'
                       >
-                        <Pencil size={18} />
+                        <Pencil size={14} />
                       </Link>
-
                       <form action={deleteCategory}>
                         <input type='hidden' name='id' value={cat.id} />
                         <button
                           type='submit'
-                          className='p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors'
+                          className='w-8 h-8 bg-white rounded-xl flex items-center justify-center shadow-md hover:bg-red-50 hover:text-red-500 text-gray-500 transition-colors'
                         >
-                          <Trash2 size={18} />
+                          <Trash2 size={14} />
                         </button>
                       </form>
                     </div>
+
+                    {/* Active badge */}
+                    <div className='absolute bottom-3 left-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300'>
+                      <span className='text-[9px] font-black uppercase tracking-widest bg-emerald-500 text-white px-2.5 py-1 rounded-full'>
+                        Active
+                      </span>
+                    </div>
                   </div>
-                </figure>
 
-                <div className='card-body p-6'>
-                  <div className='flex justify-between items-start'>
-                    <h2 className='card-title text-xl font-bold truncate pr-4 text-base-content'>
-                      {cat.title}
-                    </h2>
-                  </div>
-
-                  <p className='text-sm text-base-content/60 line-clamp-2 mt-1 min-h-[40px]'>
-                    {cat.short_desc ||
-                      'No description provided for this category.'}
-                  </p>
-
-                  <div className='divider my-2'></div>
-
-                  <div className='flex flex-wrap items-center justify-between gap-3 mt-auto'>
-                    <div className='flex flex-col gap-1'>
-                      <div className='flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider text-base-content/40'>
-                        <Hash size={12} />
-                        {cat.id.slice(-6)}
-                      </div>
-                      <div className='flex items-center gap-1.5 text-xs font-medium text-base-content/60'>
-                        <Calendar size={12} />
-                        {new Date(cat.createdAt).toLocaleDateString()}
-                      </div>
+                  {/* Body */}
+                  <div className='p-6 space-y-4'>
+                    <div>
+                      <h2 className='text-xl font-serif font-bold text-[#1A1A1A] leading-snug mb-1.5'>
+                        {cat.title}
+                      </h2>
+                      <p className='text-sm font-serif italic text-gray-400 line-clamp-2 leading-relaxed min-h-[40px]'>
+                        {cat.short_desc ||
+                          'No description provided for this department.'}
+                      </p>
                     </div>
 
-                    <div className='badge badge-primary badge-outline font-bold'>
-                      Active
+                    <div className='pt-4 border-t border-gray-50 flex items-center justify-between'>
+                      <div className='space-y-1'>
+                        <div className='flex items-center gap-1.5 text-[9px] font-black uppercase tracking-widest text-gray-300'>
+                          <Hash size={10} />
+                          {cat.id.slice(-6)}
+                        </div>
+                        <div className='flex items-center gap-1.5 text-[10px] font-bold text-gray-400'>
+                          <Calendar size={10} />
+                          {new Date(cat.createdAt).toLocaleDateString('en-GB', {
+                            day: '2-digit',
+                            month: 'short',
+                            year: 'numeric',
+                          })}
+                        </div>
+                      </div>
+
+                      <Link
+                        href={`/control/categories/${cat.slug}`}
+                        className='group/btn flex items-center gap-1.5 text-[9px] font-black uppercase tracking-[0.25em] text-gray-400 hover:text-emerald-600 transition-colors'
+                      >
+                        Edit
+                        <ArrowRight
+                          size={11}
+                          className='group-hover/btn:translate-x-0.5 transition-transform'
+                        />
+                      </Link>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          </>
         )}
       </div>
     </div>
