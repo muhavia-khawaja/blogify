@@ -5,70 +5,73 @@ import {
   FiInstagram,
   FiLinkedin,
   FiGithub,
-  FiArrowUpRight,
 } from 'react-icons/fi'
 import { getAllCategories } from '@/utils/actions'
-import { link } from 'fs'
+
+const NAV_LINKS = [
+  { text: 'Home', href: '/' },
+  { text: 'Archive', href: '/blog' },
+  { text: 'Our Story', href: '/about' },
+  { text: 'Contact', href: '/contact' },
+]
+
+const SOCIAL = [
+  { icon: FiTwitter, href: 'https://twitter.com', label: 'Twitter' },
+  { icon: FiInstagram, href: 'https://instagram.com', label: 'Instagram' },
+  { icon: FiLinkedin, href: 'https://linkedin.com', label: 'LinkedIn' },
+  { icon: FiGithub, href: 'https://github.com', label: 'GitHub' },
+]
 
 export default async function Footer() {
   const categories = await getAllCategories()
-  const displayCategories = categories?.slice(0, 4) || []
-  const links = [
-    { text: 'Home', link: '/' },
-    { text: 'Archive', link: '/blog' },
-    { text: 'Our Story', link: '/about' },
-    { text: 'Contact', link: '/contact' },
-  ]
+  const displayCategories = categories?.slice(0, 5) || []
 
   return (
     <footer className='bg-[#0A0A0A] text-[#F9F7F2] border-t border-white/5'>
-      <div className='max-w-7xl mx-auto px-6 pt-24 pb-12'>
-        <div className='grid grid-cols-1 lg:grid-cols-12 gap-16 mb-24'>
-          <div className='lg:col-span-5 space-y-8'>
-            <Link href='/' className='inline-flex items-center gap-3'>
+      <div className='max-w-7xl mx-auto px-6 pt-20 pb-10'>
+        <div className='grid grid-cols-1 lg:grid-cols-12 gap-12 pb-16 border-b border-white/5'>
+          <div className='lg:col-span-5 space-y-7'>
+            <Link href='/' className='inline-block'>
               <span className='text-3xl font-serif italic font-bold tracking-tighter'>
                 Journal<span className='text-emerald-500 not-italic'>.</span>
               </span>
             </Link>
-            <p className='text-lg text-gray-400 font-serif italic leading-relaxed max-w-sm'>
+
+            <p className='text-base font-serif italic text-gray-500 leading-relaxed max-w-xs'>
               Curating thoughts on design, architecture, and the digital
               lifestyle.
             </p>
-          </div>
 
-          <div className='lg:col-span-7 bg-white/5 p-8 rounded-[2rem] border border-white/10 backdrop-blur-sm'>
-            <h3 className='text-xl font-serif font-bold mb-2'>
-              Join the Journal
-            </h3>
-            <p className='text-sm text-gray-400 mb-6'>
-              Get curated monthly insights directly to your inbox.
-            </p>
-            <form className='flex flex-col sm:flex-row gap-3'>
-              <input
-                type='email'
-                placeholder='email@example.com'
-                className='bg-transparent border border-white/20 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-emerald-500 flex-1 transition-all'
-              />
-              <button className='bg-[#F9F7F2] text-black px-6 py-3 rounded-xl text-sm font-bold hover:bg-emerald-400 transition-all flex items-center justify-center gap-2'>
-                Subscribe <FiArrowUpRight />
-              </button>
-            </form>
+            <div className='flex items-center gap-3'>
+              {SOCIAL.map(({ icon: Icon, href, label }) => (
+                <a
+                  key={label}
+                  href={href}
+                  target='_blank'
+                  rel='noopener noreferrer'
+                  aria-label={label}
+                  className='w-9 h-9 rounded-xl border border-white/10 flex items-center justify-center text-gray-500 hover:text-white hover:border-white/30 transition-all'
+                >
+                  <Icon size={15} />
+                </a>
+              ))}
+            </div>
           </div>
         </div>
 
-        <div className='grid grid-cols-2 md:grid-cols-4 gap-12 mb-24 border-t border-white/10 pt-16'>
+        <div className='grid grid-cols-2 md:grid-cols-4 gap-10 py-16 border-b border-white/5'>
           <div>
-            <h3 className='text-[10px] font-black uppercase tracking-[0.3em] text-emerald-500 mb-8'>
+            <h4 className='text-[9px] font-black uppercase tracking-[0.35em] text-emerald-500 mb-7'>
               Navigation
-            </h3>
-            <ul className='space-y-4 font-medium text-sm'>
-              {links.map((link) => (
-                <li key={link.text}>
+            </h4>
+            <ul className='space-y-3.5'>
+              {NAV_LINKS.map(({ text, href }) => (
+                <li key={text}>
                   <Link
-                    href={link.link}
-                    className='text-gray-400 hover:text-white transition-colors'
+                    href={href}
+                    className='text-sm font-serif text-gray-500 hover:text-white transition-colors'
                   >
-                    {link.text}
+                    {text}
                   </Link>
                 </li>
               ))}
@@ -76,38 +79,50 @@ export default async function Footer() {
           </div>
 
           <div>
-            <h3 className='text-[10px] font-black uppercase tracking-[0.3em] text-emerald-500 mb-8'>
+            <h4 className='text-[9px] font-black uppercase tracking-[0.35em] text-emerald-500 mb-7'>
               Categories
-            </h3>
-            <ul className='space-y-4 font-medium text-sm'>
+            </h4>
+            <ul className='space-y-3.5'>
               {displayCategories.map((cat: any) => (
                 <li key={cat.id}>
                   <Link
                     href={`/blog?category=${cat.slug}`}
-                    className='text-gray-400 hover:text-white transition-colors'
+                    className='text-sm font-serif text-gray-500 hover:text-white transition-colors'
                   >
                     {cat.title}
                   </Link>
                 </li>
               ))}
+              {displayCategories.length === 0 && (
+                <li className='text-sm font-serif italic text-gray-700'>
+                  No categories yet
+                </li>
+              )}
             </ul>
           </div>
 
-          <div className='col-span-2 md:col-span-2'>
-            <h3 className='text-[10px] font-black uppercase tracking-[0.3em] text-emerald-500 mb-8'>
+          <div className='col-span-2'>
+            <h4 className='text-[9px] font-black uppercase tracking-[0.35em] text-emerald-500 mb-7'>
               The Philosophy
-            </h3>
-            <p className='text-sm text-gray-500 leading-loose'>
+            </h4>
+            <p className='text-sm font-serif italic text-gray-600 leading-[1.9]'>
               We believe in quality over quantity. Every piece is meticulously
-              crafted to provide long-term value to our readers. Our archive is
-              a living document of digital evolution.
+              crafted to provide long-term value. Our archive is a living
+              document of digital evolution — built for the curious mind.
             </p>
+
+            <div className='flex items-center gap-3 mt-7'>
+              <span className='h-px w-8 bg-emerald-500/40' />
+              <span className='text-[9px] font-black uppercase tracking-[0.3em] text-emerald-700'>
+                Est. 2024
+              </span>
+            </div>
           </div>
         </div>
 
-        <div className='pt-8 border-t border-white/5 flex flex-col md:flex-row justify-between items-center gap-6'>
-          <p className='text-[10px] font-black uppercase tracking-[0.4em] text-gray-600'>
-            © 2026 JOURNAL. ALL RIGHTS RESERVED.
+        <div className='pt-8 flex flex-col sm:flex-row justify-between items-center gap-4'>
+          <p className='text-[9px] font-black uppercase tracking-[0.4em] text-gray-700'>
+            © {new Date().getFullYear()} Journal. All rights reserved.
           </p>
         </div>
       </div>
