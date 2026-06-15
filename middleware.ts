@@ -3,8 +3,7 @@ import { jwtVerify } from 'jose'
 
 export async function middleware(req: NextRequest) {
   const adminToken = req.cookies.get('token')?.value
-  const userAuthToken = req.cookies.get('auth_token')?.value
-  const token = adminToken || userAuthToken
+  const token = adminToken
 
   const { pathname } = req.nextUrl
 
@@ -39,7 +38,6 @@ export async function middleware(req: NextRequest) {
       new URL('/control/login?error=session_expired', req.url),
     )
     res.cookies.delete('token')
-    res.cookies.delete('auth_token')
     return res
   }
 }
