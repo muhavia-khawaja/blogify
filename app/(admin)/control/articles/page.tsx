@@ -17,6 +17,8 @@ import Link from 'next/link'
 import { deleteArticle, getAllCategories, getArticles } from '@/utils/actions'
 import MagicGenerateButton from '@/components/MagicGenerateButton'
 
+export const revalidate = 0
+
 export default async function ArticlesPage() {
   const articles = await getArticles()
   const categories = await getAllCategories()

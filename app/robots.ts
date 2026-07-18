@@ -1,16 +1,15 @@
 import { MetadataRoute } from 'next'
+import { getAbsoluteUrl } from '@/utils/seo'
 
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = 'https://blogifyguides.vercel.app/'
-
   return {
     rules: [
       {
         userAgent: '*',
         allow: '/',
-        disallow: ['/control', '/api'],
+        disallow: ['/api/', '/admin/', '/control/', '/dashboard'],
       },
     ],
-    sitemap: [`${baseUrl}/sitemap.xml`],
+    sitemap: [getAbsoluteUrl('/sitemap.xml')],
   }
 }

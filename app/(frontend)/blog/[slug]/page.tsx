@@ -16,6 +16,43 @@ import ReadAloud from '@/components/ReadAloud'
 import BlogInteraction from '@/components/BlogInteraction'
 import ReadingProgress from '@/components/ReadingProgress'
 import ViewAllReviewsButton from '@/components/ViewAllReviews'
+import type { Metadata } from 'next'
+import { buildMetadata, getAbsoluteUrl, SITE_NAME } from '@/utils/seo'
+import JsonLd from '@/components/JsonLd'
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>
+}): Promise<Metadata> {
+  const { slug } = await params
+  const blog = await getArticleBySlug(slug)
+
+  if (!blog) {
+    return buildMetadata({
+      title: 'Article not found',
+      description: 'The requested article could not be found.',
+      path: `/blog/${slug}`,
+      type: 'website',
+      noIndex: true,
+    })
+  }
+
+  const description =
+    blog.short_desc || blog.long_desc || 'Read this article on Blogify.'
+  const image = blog.image || '/banner.jpg'
+
+  return buildMetadata({
+    title: blog.title,
+    description,
+    path: `/blog/${blog.slug}`,
+    image,
+    type: 'article',
+    publishedTime: blog.createdAt,
+    modifiedTime: blog.updatedAt,
+    authors: blog.user?.name ? [blog.user.name] : [],
+  })
+}
 
 export default async function BlogDetail({
   params,
@@ -38,8 +75,61 @@ export default async function BlogDetail({
 
   const reviews = blog.reviews || []
 
+  const articleJsonLd = {
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          {
+            '@type': 'ListItem',
+            position: 1,
+            name: 'Home',
+            item: getAbsoluteUrl('/'),
+          },
+          {
+            '@type': 'ListItem',
+            position: 2,
+            name: 'Blog',
+            item: getAbsoluteUrl('/blog'),
+          },
+          {
+            '@type': 'ListItem',
+            position: 3,
+            name: blog.title,
+            item: getAbsoluteUrl(`/blog/${blog.slug}`),
+          },
+        ],
+      },
+      {
+        '@type': 'BlogPosting',
+        headline: blog.title,
+        description: blog.short_desc || blog.long_desc,
+        image: blog.image
+          ? getAbsoluteUrl(blog.image)
+          : getAbsoluteUrl('/banner.jpg'),
+        datePublished: blog.createdAt?.toISOString(),
+        dateModified:
+          blog.updatedAt?.toISOString() || blog.createdAt?.toISOString(),
+        author: {
+          '@type': 'Person',
+          name: blog.user?.name || 'Blogify Author',
+        },
+        publisher: {
+          '@type': 'Organization',
+          name: SITE_NAME,
+          url: getAbsoluteUrl('/'),
+          logo: getAbsoluteUrl('/images/logo.png'),
+        },
+        mainEntityOfPage: getAbsoluteUrl(`/blog/${blog.slug}`),
+        url: getAbsoluteUrl(`/blog/${blog.slug}`),
+      },
+    ],
+  }
+
   return (
     <>
+      <JsonLd data={articleJsonLd} />
       <ReadingProgress />
 
       <article className='bg-[#FCFBF9] min-h-screen antialiased text-[#1A1A1A]'>

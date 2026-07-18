@@ -1,7 +1,8 @@
 import { Inter, Lora } from 'next/font/google'
 import './globals.css'
 
-import { Metadata } from 'next'
+import type { Metadata } from 'next'
+import { siteMetadata } from '@/utils/seo'
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-sans' })
 const lora = Lora({
@@ -10,6 +11,7 @@ const lora = Lora({
   style: ['italic', 'normal'],
 })
 
+export const metadata: Metadata = siteMetadata
 
 export default function RootLayout({
   children,

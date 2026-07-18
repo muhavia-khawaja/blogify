@@ -1,15 +1,12 @@
-// app/sitemap.ts
 import { MetadataRoute } from 'next'
 import {
   getAllCategories,
   getAllArticles,
   getAllAuthors,
 } from '@/utils/actions'
-import prisma from '@/prisma/script'
+import { getAbsoluteUrl } from '@/utils/seo'
 
 export const revalidate = 3600
-
-const BASE_URL = 'https://blogifyguides.vercel.app'
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date().toISOString()
@@ -21,43 +18,47 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ])
 
   const staticPages: MetadataRoute.Sitemap = [
-    { url: BASE_URL, priority: 1.0, changeFrequency: 'daily' as const },
     {
-      url: `${BASE_URL}/blog`,
+      url: getAbsoluteUrl('/'),
+      priority: 1.0,
+      changeFrequency: 'daily' as const,
+    },
+    {
+      url: getAbsoluteUrl('/blog'),
       priority: 0.9,
       changeFrequency: 'daily' as const,
     },
     {
-      url: `${BASE_URL}/about`,
+      url: getAbsoluteUrl('/about'),
       priority: 0.7,
       changeFrequency: 'monthly' as const,
     },
     {
-      url: `${BASE_URL}/contact`,
+      url: getAbsoluteUrl('/contact'),
       priority: 0.6,
       changeFrequency: 'monthly' as const,
     },
     {
-      url: `${BASE_URL}/write`,
+      url: getAbsoluteUrl('/write'),
       priority: 0.5,
       changeFrequency: 'monthly' as const,
     },
     {
-      url: `${BASE_URL}/login`,
+      url: getAbsoluteUrl('/login'),
       priority: 0.4,
       changeFrequency: 'yearly' as const,
     },
     {
-      url: `${BASE_URL}/signup`,
+      url: getAbsoluteUrl('/signup'),
       priority: 0.4,
       changeFrequency: 'yearly' as const,
     },
   ].map((p) => ({ ...p, lastModified: now }))
 
   const articlePages: MetadataRoute.Sitemap = articles
-    .filter((a) => a.slug)
+    .filter((a) => a.slug && a.published)
     .map((a) => ({
-      url: `${BASE_URL}/blog/${a.slug}`,
+      url: getAbsoluteUrl(`/blog/${a.slug}`),
       lastModified: a.updatedAt
         ? new Date(a.updatedAt).toISOString()
         : new Date(a.createdAt).toISOString(),
@@ -68,7 +69,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const categoryPages: MetadataRoute.Sitemap = categories
     .filter((c) => c.slug)
     .map((c) => ({
-      url: `${BASE_URL}/blog?category=${c.slug}`,
+      url: getAbsoluteUrl(`/blog?category=${c.slug}`),
       lastModified: now,
       changeFrequency: 'weekly' as const,
       priority: 0.7,
@@ -77,22 +78,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const authorPages: MetadataRoute.Sitemap = authors
     .filter((a) => a.id)
     .map((a) => ({
-      url: `${BASE_URL}/blog?author=${encodeURIComponent(a.name)}`,
+      url: getAbsoluteUrl(`/blog?author=${encodeURIComponent(a.name)}`),
       lastModified: now,
       changeFrequency: 'weekly' as const,
       priority: 0.6,
     }))
-
-  const users = await prisma.user.findMany({
-    select: { id: true, updatedAt: true },
-  })
-
-  const profilePages: MetadataRoute.Sitemap = users.map((u) => ({
-    url: `${BASE_URL}/profile`,
-    lastModified: new Date(u.updatedAt).toISOString(),
-    changeFrequency: 'weekly' as const,
-    priority: 0.5,
-  }))
 
   return [...staticPages, ...articlePages, ...categoryPages, ...authorPages]
 }

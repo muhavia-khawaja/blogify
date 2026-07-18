@@ -15,6 +15,8 @@ import {
 import Link from 'next/link'
 import { getDashboardStats, getRecentArticles } from '@/utils/actions'
 
+export const revalidate = 0
+
 export default async function AdminHomePage() {
   const statsData = await getDashboardStats()
   const { published, drafts } = await getRecentArticles()
@@ -87,7 +89,7 @@ export default async function AdminHomePage() {
                     className={`p-3 rounded-xl ${stat.lightBg} group-hover:scale-110 transition-transform duration-300`}
                   >
                     <Icon
-                      className={`text-transparent bg-clip-text bg-gradient-to-r ${stat.color}`}
+                      className={`text-transparent bg-clip-text bg-gradient-to-r text-black`}
                       size={22}
                     />
                   </div>
@@ -374,7 +376,7 @@ function ArticleTable({
               </td>
               <td className='px-6 sm:px-8 py-4 text-right'>
                 <Link
-                  href={`/control/articles/update/${article.slug}`}
+                  href={`/control/articles/${article.slug}`}
                   className='inline-flex items-center gap-1.5 text-[10px] font-black text-emerald-600 hover:text-emerald-700 uppercase tracking-tighter transition-colors opacity-0 group-hover:opacity-100'
                 >
                   Edit <ArrowRight size={12} />
