@@ -1,9 +1,9 @@
 import React from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { FiClock } from 'react-icons/fi'
+import { FiClock, FiCalendar, FiArrowRight } from 'react-icons/fi'
 import { AiFillStar } from 'react-icons/ai'
-import { BookOpen, ChevronRight } from 'lucide-react'
+import { BookOpen, ChevronRight, Sparkles } from 'lucide-react'
 import {
   getArticleBySlug,
   getRelatedPosts,
@@ -16,9 +16,58 @@ import ReadAloud from '@/components/ReadAloud'
 import BlogInteraction from '@/components/BlogInteraction'
 import ReadingProgress from '@/components/ReadingProgress'
 import ViewAllReviewsButton from '@/components/ViewAllReviews'
+import AnalyticsTracker from '@/components/AnalyticsTracker'
 import type { Metadata } from 'next'
 import { buildMetadata, getAbsoluteUrl, SITE_NAME } from '@/utils/seo'
 import JsonLd from '@/components/JsonLd'
+
+const LOGO_URL =
+  'https://www.ewhamza.com/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Flogo2.0d308b88.webp&w=1920&q=75'
+
+function ArticleImage({
+  src,
+  alt,
+  fill = true,
+  className,
+  priority = false,
+  logoWidth = 140,
+  logoHeight = 50,
+}: {
+  src?: string | null
+  alt: string
+  fill?: boolean
+  className?: string
+  priority?: boolean
+  logoWidth?: number
+  logoHeight?: number
+}) {
+  if (src) {
+    return (
+      <Image
+        src={src}
+        alt={alt}
+        fill={fill}
+        priority={priority}
+        className={className}
+      />
+    )
+  }
+
+  return (
+    <div className='absolute inset-0 bg-gradient-to-br from-zinc-900 via-emerald-950 to-zinc-900 flex items-center justify-center p-3'>
+      <div className='relative flex items-center justify-center w-full h-full'>
+        <Image
+          src={LOGO_URL}
+          alt='Logo'
+          width={logoWidth}
+          height={logoHeight}
+          className='object-contain filter drop-shadow-md brightness-110'
+          unoptimized
+        />
+      </div>
+    </div>
+  )
+}
 
 export async function generateMetadata({
   params,
@@ -57,7 +106,7 @@ export async function generateMetadata({
 export default async function BlogDetail({
   params,
 }: {
-  params: { slug: string }
+  params: Promise<{ slug: string }>
 }) {
   const { slug } = await params
 
@@ -132,310 +181,361 @@ export default async function BlogDetail({
       <JsonLd data={articleJsonLd} />
       <ReadingProgress />
 
-      <article className='bg-[#FCFBF9] min-h-screen antialiased text-[#1A1A1A]'>
-        <header className='pt-28 md:pt-44 pb-12'>
-          <div className='max-w-4xl mx-auto px-6'>
-            <div className='flex flex-col items-center text-center mb-14'>
-              <div className='flex items-center gap-3 mb-7'>
-                <span className='h-px w-10 bg-emerald-400' />
-                <span className='text-[9px] font-black uppercase tracking-[0.35em] text-emerald-600'>
-                  {blog.category?.title && (
-                    <span className='mr-3 pr-3 border-r border-emerald-300'>
-                      {blog.category.title}
-                    </span>
-                  )}
-                  {new Date(blog.createdAt).toLocaleDateString('en-GB', {
-                    month: 'long',
-                    year: 'numeric',
-                  })}
-                </span>
-                <span className='h-px w-10 bg-emerald-400' />
-              </div>
+      <AnalyticsTracker articleId={blog.id} userId={user?.id} />
 
-              <h1 className='text-4xl md:text-6xl lg:text-7xl font-serif font-bold leading-[1.08] tracking-tight mb-8 max-w-3xl'>
-                {blog.title}
-              </h1>
+      <article className='bg-white min-h-screen text-zinc-950 antialiased selection:bg-emerald-500 selection:text-white py-10'>
+        <header className='pt-10 pb-8 max-w-4xl mx-auto px-6 text-center'>
+          {blog.category?.title && (
+            <div className='inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold uppercase tracking-widest mb-6'>
+              <Sparkles size={13} className='text-emerald-600' />
+              {blog.category.title}
+            </div>
+          )}
 
-              <p className='text-lg md:text-xl font-serif italic text-gray-400 max-w-2xl leading-relaxed'>
-                {blog.short_desc}
-              </p>
+          <h1 className='text-4xl md:text-5xl lg:text-6xl font-serif font-extrabold text-zinc-950 leading-[1.15] tracking-tight mb-6 max-w-4xl mx-auto'>
+            {blog.title}
+          </h1>
 
-              <div className='mt-8 flex items-center gap-3 bg-white border border-gray-100 rounded-full px-5 py-2.5 shadow-sm'>
-                <div className='w-7 h-7 rounded-full overflow-hidden relative shrink-0 bg-gray-100'>
+          {blog.short_desc && (
+            <p className='text-lg md:text-xl font-serif text-zinc-700 max-w-2xl mx-auto mb-10 leading-relaxed font-normal'>
+              {blog.short_desc}
+            </p>
+          )}
+
+          <div className='max-w-2xl mx-auto bg-zinc-50 border border-zinc-200 rounded-2xl p-4 md:p-5 shadow-sm'>
+            <div className='flex flex-col sm:flex-row items-center justify-between gap-4'>
+              <div className='flex items-center gap-3.5'>
+                <div className='w-12 h-12 rounded-full overflow-hidden relative bg-zinc-200 border-2 border-emerald-500 shrink-0 shadow-sm'>
                   {blog.user?.image ? (
                     <Image
                       src={blog.user.image}
-                      alt={blog.user.name}
+                      alt={blog.user.name || 'Author'}
                       fill
                       className='object-cover'
                     />
                   ) : (
-                    <div className='w-full h-full flex items-center justify-center text-gray-400'>
-                      <BookOpen size={12} />
+                    <div className='w-full h-full flex items-center justify-center bg-gradient-to-br from-zinc-900 via-emerald-950 to-zinc-900'>
+                      <Image
+                        src={LOGO_URL}
+                        alt='Logo'
+                        width={28}
+                        height={28}
+                        className='object-contain filter drop-shadow brightness-110'
+                        unoptimized
+                      />
                     </div>
                   )}
                 </div>
-                <span className='text-[11px] font-bold text-gray-600 uppercase tracking-widest'>
-                  {blog.user?.name}
-                </span>
-                <span className='h-3 w-px bg-gray-200' />
-                <span className='text-[11px] text-gray-400 flex items-center gap-1.5'>
-                  <FiClock size={11} />
-                  {blog.readTime || '5 min read'}
-                </span>
+                <div className='text-left'>
+                  <p className='text-xs font-extrabold text-emerald-700 uppercase tracking-wider mb-0.5'>
+                    Written By
+                  </p>
+                  <p className='text-base font-bold text-zinc-950 leading-tight'>
+                    {blog.user?.name || 'Editorial Team'}
+                  </p>
+                </div>
               </div>
-            </div>
 
-            <div className='relative w-full aspect-[16/9] md:aspect-[21/9] rounded-[2.5rem] md:rounded-[3rem] overflow-hidden shadow-xl bg-gray-100'>
-              <Image
-                src={
-                  blog.image && blog.image.length > 0
-                    ? blog.image
-                    : '/placeholder.jpg'
-                }
-                alt={blog.title}
-                fill
-                priority
-                className='object-cover hover:scale-105 transition-transform duration-[4s] ease-out'
-              />
-              <div className='absolute inset-0 bg-gradient-to-t from-black/10 to-transparent pointer-events-none' />
+              <div className='flex items-center gap-4 text-xs font-bold text-zinc-800 border-t sm:border-t-0 sm:border-l border-zinc-200 pt-3 sm:pt-0 sm:pl-5 w-full sm:w-auto justify-center sm:justify-end'>
+                <div className='flex items-center gap-1.5'>
+                  <FiCalendar size={14} className='text-emerald-600' />
+                  <span>
+                    {new Date(blog.createdAt).toLocaleDateString('en-US', {
+                      month: 'short',
+                      day: 'numeric',
+                      year: 'numeric',
+                    })}
+                  </span>
+                </div>
+                <span className='h-3 w-px bg-zinc-300' />
+                <div className='flex items-center gap-1.5 text-emerald-800'>
+                  <FiClock size={14} className='text-emerald-600' />
+                  <span>{blog.readTime || '5 min read'}</span>
+                </div>
+              </div>
             </div>
           </div>
         </header>
 
-        <div className='max-w-7xl mx-auto px-6 pb-32'>
-          <div className='grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16'>
-            <aside className='lg:col-span-3 hidden lg:flex flex-col gap-10 sticky top-28 h-fit'>
-              <div className='space-y-5'>
-                <div className='w-14 h-14 rounded-2xl overflow-hidden relative grayscale hover:grayscale-0 transition-all duration-500 shadow-md border border-gray-100'>
-                  {blog.user?.image ? (
-                    <Image
-                      src={blog.user.image}
-                      alt={blog.user.name}
-                      fill
-                      className='object-cover'
-                    />
-                  ) : (
-                    <div className='w-full h-full flex items-center justify-center bg-gray-100 text-gray-400'>
-                      <BookOpen size={14} />
-                    </div>
-                  )}
-                </div>
-                <div>
-                  <p className='text-[9px] font-black uppercase tracking-widest text-emerald-600 mb-1'>
-                    Authored by
-                  </p>
-                  <h4 className='font-serif font-bold text-lg leading-snug'>
-                    {blog.user?.name}
-                  </h4>
-                </div>
-              </div>
+        <nav className='max-w-5xl mx-auto px-6 py-8 text-xs font-semibold text-zinc-600 flex items-center gap-2'>
+          <Link
+            href='/blog'
+            className='hover:text-emerald-600 transition-colors'
+          >
+            Articles
+          </Link>
+          <ChevronRight size={12} className='text-zinc-400' />
+          <span className='text-zinc-900 font-bold truncate max-w-xs'>
+            {blog.title}
+          </span>
+        </nav>
 
-              <div className='pt-6 border-t border-gray-100 flex flex-col gap-8'>
-                <div className='flex items-center gap-3'>
-                  <FiClock size={14} className='text-gray-300' />
-                  <span className='text-[9px] font-black uppercase tracking-widest text-gray-400'>
-                    {blog.readTime || '5 min reading'}
-                  </span>
-                </div>
-                <div className='space-y-6'>
-                  <InteractionRail articleId={blog.id} />
-                  <ReadAloud text={blog.long_desc} />
-                </div>
-              </div>
-
-              {reviews.length > 0 &&
-                (() => {
-                  const avg =
-                    reviews.reduce((s: number, r: any) => s + r.rating, 0) /
-                    reviews.length
-                  return (
-                    <div className='pt-6 border-t border-gray-100'>
-                      <p className='text-[9px] font-black uppercase tracking-widest text-gray-400 mb-3'>
-                        Readers
-                      </p>
-                      <div className='flex items-center gap-2 text-sm font-serif italic text-gray-500'>
-                        <span>
-                          {reviews.length} review
-                          {reviews.length !== 1 ? 's' : ''}
-                        </span>
-                      </div>
-                      <div className='flex gap-0.5 mt-2 items-center'>
-                        {[...Array(5)].map((_, i) => (
-                          <AiFillStar
-                            key={i}
-                            size={11}
-                            className={
-                              i < Math.round(avg)
-                                ? 'text-emerald-500'
-                                : 'text-gray-200'
-                            }
-                          />
-                        ))}
-                        <span className='text-[10px] text-gray-400 ml-1'>
-                          {avg.toFixed(1)}
-                        </span>
-                      </div>
-                    </div>
-                  )
-                })()}
-            </aside>
-
-            <main className='lg:col-span-7'>
-              <div
-                className='prose prose-lg prose-emerald max-w-none
-    prose-headings:font-serif prose-headings:font-bold prose-headings:!text-[#1A1A1A]
-    prose-h1:text-4xl prose-h1:mt-12 prose-h1:mb-6
-    prose-h2:text-3xl prose-h2:mt-10 prose-h2:mb-5
-    prose-h3:text-2xl prose-h3:mt-8 prose-h3:mb-4
-    prose-p:font-serif prose-p:text-[1.15rem] prose-p:leading-[1.95] prose-p:!text-[#1A1A1A] prose-p:mb-6
-    prose-blockquote:border-l-4 prose-blockquote:border-emerald-400
-    prose-blockquote:pl-8 prose-blockquote:italic prose-blockquote:!text-[#4B5563]
-    prose-blockquote:my-10
-    prose-ul:my-6 prose-ul:list-disc prose-ul:pl-6
-    prose-ol:my-6 prose-ol:list-decimal prose-ol:pl-6
-    prose-li:mb-2 prose-li:font-serif prose-li:text-[1.1rem] prose-li:!text-[#1A1A1A]
-    prose-strong:font-bold prose-strong:!text-[#1A1A1A]
-    prose-a:text-emerald-600 prose-a:underline
-    !text-[#1A1A1A]
-    selection:bg-emerald-100'
-                dangerouslySetInnerHTML={{ __html: blog.long_desc }}
-              />
-
-              <div className='mt-20 pt-10 border-t border-gray-100'>
-                <BlogInteraction articleId={blog.id} articleSlug={blog.slug} />
-              </div>
-
-              <section className='mt-28' id='reviews'>
-                <div className='flex items-end justify-between mb-12'>
-                  <div className='space-y-3'>
-                    <span className='text-[9px] font-black uppercase tracking-[0.4em] text-emerald-600'>
-                      Public Response
-                    </span>
-                    <h2 className='text-3xl md:text-4xl font-serif font-bold'>
-                      The Reader&apos;s Gallery
-                    </h2>
-                  </div>
-                  <span className='hidden md:block text-6xl font-serif italic text-gray-100 tabular-nums select-none'>
-                    {reviews.length.toString().padStart(2, '0')}
-                  </span>
-                </div>
-
-                <div className='space-y-12'>
-                  {reviews.length > 0 ? (
-                    <>
-                      {reviews.slice(0, 3).map((review: any) => (
-                        <div key={review.id} className='group'>
-                          <div className='flex justify-between items-start mb-5'>
-                            <div className='space-y-1.5'>
-                              <h4 className='font-serif font-bold text-xl text-gray-900'>
-                                {review.name}
-                              </h4>
-                              <div className='flex gap-0.5'>
-                                {[...Array(5)].map((_, i) => (
-                                  <AiFillStar
-                                    key={i}
-                                    size={12}
-                                    className={
-                                      i < review.rating
-                                        ? 'text-emerald-500'
-                                        : 'text-gray-200'
-                                    }
-                                  />
-                                ))}
-                              </div>
-                            </div>
-                            <span className='text-[10px] font-bold text-gray-300 uppercase tracking-widest shrink-0 ml-4'>
-                              {new Date(review.createdAt).toLocaleDateString(
-                                'en-GB',
-                                {
-                                  day: '2-digit',
-                                  month: 'short',
-                                  year: 'numeric',
-                                },
-                              )}
-                            </span>
-                          </div>
-                          <blockquote>
-                            <p className='text-base sm:text-lg md:text-xl text-gray-500 font-serif italic leading-relaxed border-l-2 border-emerald-50 pl-4 sm:pl-7 group-hover:border-emerald-500 transition-all duration-700 break-words max-w-full'>
-                              {review.content}
-                            </p>
-                          </blockquote>
-                        </div>
-                      ))}
-
-                      {reviews.length > 3 && (
-                        <ViewAllReviewsButton reviews={reviews} />
-                      )}
-                    </>
-                  ) : (
-                    <div className='py-20 px-8 rounded-[2.5rem] border-2 border-dashed border-gray-100 text-center bg-white/50'>
-                      <p className='text-gray-400 font-serif italic text-lg'>
-                        The gallery is silent.
-                        <br />
-                        <span className='text-xs not-italic font-sans font-bold uppercase tracking-widest text-emerald-600 mt-4 inline-block'>
-                          Add your perspective above
-                        </span>
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </section>
-            </main>
-
-            <aside className='lg:col-span-2 hidden lg:block' />
+        <div className='max-w-5xl mx-auto px-6 mb-16'>
+          <div className='relative w-full aspect-[16/9] md:aspect-[21/9] rounded-2xl overflow-hidden border border-zinc-200 shadow-lg bg-zinc-900'>
+            <ArticleImage
+              src={blog.image}
+              alt={blog.title}
+              priority={true}
+              logoWidth={220}
+              logoHeight={80}
+              className='object-cover'
+            />
           </div>
         </div>
 
-        <section className='bg-white py-28 border-t border-gray-50'>
-          <div className='max-w-7xl mx-auto px-6'>
-            <div className='flex items-end justify-between mb-14'>
-              <div className='space-y-3'>
-                <span className='text-[9px] font-black uppercase tracking-[0.4em] text-emerald-600'>
-                  Extended Archive
-                </span>
-                <h2 className='text-3xl md:text-4xl font-serif font-bold'>
-                  Further Perspectives
-                </h2>
-              </div>
-              <Link
-                href='/blog'
-                className='hidden md:flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] border-b-2 border-black pb-1 hover:text-emerald-600 hover:border-emerald-600 transition-all group'
-              >
-                Consult Full Archive
-                <ChevronRight
-                  size={12}
-                  className='group-hover:translate-x-1 transition-transform'
-                />
-              </Link>
-            </div>
+        <div className='max-w-6xl mx-auto px-6 pb-24'>
+          <div className='grid grid-cols-1 lg:grid-cols-12 gap-12'>
+            <main className='lg:col-span-8'>
+              <div
+                className='
+                  prose prose-lg md:prose-xl
+                  prose-zinc prose-emerald
+                  max-w-none
+                  prose-headings:text-black prose-headings:font-serif prose-headings:font-bold prose-headings:tracking-tight
+                  prose-h1:text-black prose-h2:text-black prose-h3:text-black prose-h4:text-black
+                  prose-p:leading-relaxed prose-p:font-normal prose-p:text-black
+                  prose-a:no-underline hover:prose-a:underline prose-a:font-semibold prose-a:text-emerald-700
+                  prose-blockquote:border-l-4 prose-blockquote:border-emerald-500 prose-blockquote:bg-emerald-50/50 prose-blockquote:py-2.5 prose-blockquote:px-5 prose-blockquote:rounded-r-xl prose-blockquote:not-italic prose-blockquote:font-serif
+                  prose-img:rounded-2xl prose-img:border prose-img:border-zinc-200 prose-img:shadow-md
+                  prose-code:text-emerald-800 prose-code:bg-emerald-50 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:before:content-none prose-code:after:content-none prose-code:font-mono
+                  prose-pre:bg-zinc-900 prose-pre:border prose-pre:border-zinc-800 prose-pre:rounded-xl prose-pre:shadow-lg
+                  prose-li:marker:text-emerald-600
+                '
+                dangerouslySetInnerHTML={{ __html: blog.long_desc }}
+              />
 
-            <div className='grid grid-cols-1 md:grid-cols-3 gap-10'>
-              {relatedPosts.slice(0, 3).map((post: any) => (
-                <Link
-                  key={post.id}
-                  href={`/blog/${post.slug}`}
-                  className='group'
-                >
-                  <div className='aspect-video rounded-[2rem] overflow-hidden mb-5 relative shadow-sm group-hover:shadow-xl transition-all duration-500'>
-                    <Image
-                      src={post.image || '/placeholder.jpg'}
-                      alt={post.title}
-                      fill
-                      className='object-cover group-hover:scale-105 transition-transform duration-[1.5s]'
-                    />
+              <div className='mt-16 pt-8 border-t border-zinc-200'>
+                <BlogInteraction articleId={blog.id} articleSlug={blog.slug} />
+              </div>
+
+              <section
+                className='mt-20 pt-10 border-t border-zinc-200'
+                id='reviews'
+              >
+                <div className='flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-8'>
+                  <div>
+                    <div className='flex items-center gap-2 mb-1'>
+                      <span className='w-2 h-2 rounded-full bg-emerald-500 animate-pulse' />
+                      <span className='text-xs font-black text-emerald-700 uppercase tracking-widest'>
+                        Community Feedback
+                      </span>
+                    </div>
+                    <h3 className='text-2xl sm:text-3xl font-serif font-bold text-zinc-950'>
+                      Reader Reviews ({reviews.length})
+                    </h3>
                   </div>
-                  <span className='text-[9px] font-black uppercase tracking-widest text-emerald-500 block mb-2'>
-                    {post.category?.title}
-                  </span>
-                  <h3 className='text-xl font-serif font-bold leading-snug group-hover:text-emerald-700 transition-colors'>
-                    {post.title}
+
+                  {reviews.length > 0 && (
+                    <div className='flex items-center gap-3 bg-emerald-50/80 border border-emerald-200/80 px-4 py-2 rounded-2xl w-fit'>
+                      <div className='flex text-emerald-500'>
+                        {[...Array(5)].map((_, i) => (
+                          <AiFillStar key={i} size={16} />
+                        ))}
+                      </div>
+                      <span className='text-xs font-bold text-emerald-950'>
+                        {(
+                          reviews.reduce(
+                            (acc: number, r: any) => acc + r.rating,
+                            0,
+                          ) / reviews.length
+                        ).toFixed(1)}{' '}
+                        out of 5
+                      </span>
+                    </div>
+                  )}
+                </div>
+
+                {reviews.length > 0 ? (
+                  <div className='space-y-4'>
+                    {reviews.slice(0, 3).map((review: any) => (
+                      <div
+                        key={review.id}
+                        className='relative bg-gradient-to-b from-white to-zinc-50/50 border border-zinc-200/80 hover:border-emerald-300 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all duration-300 group'
+                      >
+                        <div className='flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 pb-4 border-b border-zinc-100'>
+                          <div className='flex items-center gap-3.5'>
+                            <div className='w-10 h-10 rounded-full bg-emerald-100 border border-emerald-200 text-emerald-800 font-bold flex items-center justify-center text-sm shrink-0 shadow-xs'>
+                              {review.name?.charAt(0).toUpperCase() || 'R'}
+                            </div>
+                            <div>
+                              <div className='flex items-center gap-2'>
+                                <h4 className='font-bold text-zinc-950 text-base leading-snug'>
+                                  {review.name}
+                                </h4>
+                                <span className='inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-extrabold bg-emerald-50 text-emerald-700 border border-emerald-200/60'>
+                                  Verified Reader
+                                </span>
+                              </div>
+                              <p className='text-[11px] text-zinc-500 font-medium'>
+                                {new Date(review.createdAt).toLocaleDateString(
+                                  'en-US',
+                                  {
+                                    month: 'short',
+                                    day: 'numeric',
+                                    year: 'numeric',
+                                  },
+                                )}
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className='flex items-center gap-1 bg-zinc-100/80 px-3 py-1 rounded-full w-fit'>
+                            <div className='flex gap-0.5'>
+                              {[...Array(5)].map((_, i) => (
+                                <AiFillStar
+                                  key={i}
+                                  size={14}
+                                  className={
+                                    i < review.rating
+                                      ? 'text-emerald-500'
+                                      : 'text-zinc-200'
+                                  }
+                                />
+                              ))}
+                            </div>
+                            <span className='text-xs font-bold text-zinc-700 ml-1'>
+                              {review.rating}.0
+                            </span>
+                          </div>
+                        </div>
+
+                        <p className='text-zinc-800 font-serif italic text-base leading-relaxed pl-4 border-l-2 border-emerald-400 group-hover:border-emerald-600 transition-colors'>
+                          &ldquo;{review.content}&rdquo;
+                        </p>
+                      </div>
+                    ))}
+
+                    {reviews.length > 3 && (
+                      <ViewAllReviewsButton reviews={reviews} />
+                    )}
+                  </div>
+                ) : (
+                  <div className='p-10 rounded-2xl border border-dashed border-zinc-300 text-center bg-zinc-50/50 space-y-2'>
+                    <p className='text-zinc-700 font-serif italic text-base'>
+                      No reviews left for this article yet.
+                    </p>
+                    <p className='text-xs font-bold uppercase tracking-wider text-emerald-700'>
+                      Be the first to share your thoughts below
+                    </p>
+                  </div>
+                )}
+              </section>
+            </main>
+
+            <aside className='lg:col-span-4 space-y-8'>
+              {relatedPosts.length > 0 && (
+                <div className='bg-white p-6 rounded-2xl border border-zinc-200 shadow-sm space-y-6'>
+                  <h3 className='text-lg font-serif font-bold text-zinc-950 border-b border-zinc-200 pb-3'>
+                    Recommended Reads
                   </h3>
-                </Link>
-              ))}
-            </div>
+                  <div className='space-y-5'>
+                    {relatedPosts.slice(0, 3).map((post: any) => (
+                      <Link
+                        key={post.id}
+                        href={`/blog/${post.slug}`}
+                        className='group flex gap-3.5 items-center'
+                      >
+                        <div className='w-20 h-20 relative rounded-lg overflow-hidden bg-zinc-900 shrink-0 border border-zinc-200'>
+                          <ArticleImage
+                            src={post.image}
+                            alt={post.title}
+                            logoWidth={65}
+                            logoHeight={25}
+                            className='object-cover group-hover:scale-105 transition-transform duration-300'
+                          />
+                        </div>
+                        <div className='space-y-1 overflow-hidden'>
+                          <span className='text-[10px] font-extrabold uppercase tracking-wider text-emerald-700 block'>
+                            {post.category?.title || 'Article'}
+                          </span>
+                          <h4 className='font-serif font-bold text-sm text-zinc-900 group-hover:text-emerald-700 transition-colors line-clamp-2 leading-snug'>
+                            {post.title}
+                          </h4>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div className='p-6 bg-zinc-50 rounded-2xl border border-zinc-200 sticky top-28 shadow-sm space-y-6'>
+                <div>
+                  <h4 className='text-xs font-extrabold uppercase tracking-wider text-zinc-900 mb-3'>
+                    Audio Reader
+                  </h4>
+                  <ReadAloud text={blog.long_desc} />
+                </div>
+
+                <div className='pt-6 border-t border-zinc-200'>
+                  <h4 className='text-xs font-extrabold uppercase tracking-wider text-zinc-900 mb-3'>
+                    Actions & Sharing
+                  </h4>
+                  <InteractionRail articleId={blog.id} />
+                </div>
+              </div>
+            </aside>
           </div>
-        </section>
+        </div>
+
+        {relatedPosts.length > 0 && (
+          <section className='bg-zinc-50 border-t border-zinc-200 py-20'>
+            <div className='max-w-6xl mx-auto px-6'>
+              <div className='flex items-end justify-between mb-12'>
+                <div>
+                  <span className='text-xs font-extrabold uppercase tracking-widest text-emerald-700 block mb-2'>
+                    Extended Archive
+                  </span>
+                  <h2 className='text-3xl font-serif font-extrabold text-zinc-950'>
+                    Further Articles
+                  </h2>
+                </div>
+                <Link
+                  href='/blog'
+                  className='hidden sm:flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-zinc-900 hover:text-emerald-700 transition-colors'
+                >
+                  View All <FiArrowRight size={14} />
+                </Link>
+              </div>
+
+              <div className='grid grid-cols-1 md:grid-cols-3 gap-8'>
+                {relatedPosts.slice(0, 3).map((post: any) => (
+                  <Link
+                    key={post.id}
+                    href={`/blog/${post.slug}`}
+                    className='group bg-white border border-zinc-200 rounded-2xl overflow-hidden hover:shadow-xl hover:border-zinc-300 transition-all duration-300 flex flex-col'
+                  >
+                    <div className='aspect-video relative overflow-hidden bg-zinc-900'>
+                      <ArticleImage
+                        src={post.image}
+                        alt={post.title}
+                        logoWidth={110}
+                        logoHeight={40}
+                        className='object-cover group-hover:scale-105 transition-transform duration-500'
+                      />
+                    </div>
+                    <div className='p-6 flex flex-col flex-grow justify-between space-y-4'>
+                      <div>
+                        <span className='text-[10px] font-extrabold uppercase tracking-wider text-emerald-700 block mb-2'>
+                          {post.category?.title || 'Article'}
+                        </span>
+                        <h3 className='text-lg font-serif font-bold text-zinc-950 group-hover:text-emerald-700 transition-colors line-clamp-2 leading-snug'>
+                          {post.title}
+                        </h3>
+                      </div>
+                      <span className='inline-flex items-center text-xs font-bold text-zinc-900 group-hover:text-emerald-700 transition-colors pt-3 border-t border-zinc-100'>
+                        Read Article{' '}
+                        <ChevronRight
+                          size={14}
+                          className='ml-1 group-hover:translate-x-1 transition-transform'
+                        />
+                      </span>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
       </article>
     </>
   )

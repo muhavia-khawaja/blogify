@@ -15,48 +15,49 @@ model Admin {
 }
 
 model Article {
-  id          String   @id @default(auto()) @map("_id") @db.ObjectId
-  title       String
-  slug        String   @unique 
-  short_desc  String
-  long_desc   String
-  tags        String[]
-  
-  published   Boolean  @default(false) 
-  status      String   @default("DRAFT") 
-  
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  image       String?
-  featured    Boolean  @default(false) 
-  readTime    String?
-  mainPost    Boolean  @default(false) 
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  title      String
+  slug       String   @unique
+  short_desc String
+  long_desc  String
+  tags       String[]
+
+  published Boolean @default(false)
+  status    String  @default("DRAFT")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  image     String?
+  featured  Boolean  @default(false)
+  readTime  String?
+  mainPost  Boolean  @default(false)
 
   reviews     Review[]
   likes       Like[]
   citations   Citation[]
-  views       View[]      
-  
-  categoryId  String?  @db.ObjectId
-  category    Category? @relation(fields: [categoryId], references: [id])
+  views       View[]
+  impressions Impression[]
+  analytics   ArticleAnalytics?
 
-  userId      String?   @db.ObjectId
-  user        User?     @relation(fields: [userId], references: [id])
+  categoryId String?   @db.ObjectId
+  category   Category? @relation(fields: [categoryId], references: [id])
 
-  authorId    String?   @db.ObjectId
-  author      Author?   @relation(fields: [authorId], references: [id])
+  userId String? @db.ObjectId
+  user   User?   @relation(fields: [userId], references: [id])
+
+  authorId String? @db.ObjectId
+  author   Author? @relation(fields: [authorId], references: [id])
 }
 
 model Category {
-  id          String    @id @default(auto()) @map("_id") @db.ObjectId
-  title       String
-  slug        String    @unique
-  short_desc  String
-  long_desc   String
-  createdAt   DateTime  @default(now())
-  image       String?
-  
-  articles    Article[] 
+  id         String    @id @default(auto()) @map("_id") @db.ObjectId
+  title      String
+  slug       String    @unique
+  short_desc String
+  long_desc  String
+  createdAt  DateTime  @default(now())
+  image      String?
+  articles   Article[]
 }
 
 model Review {
@@ -68,41 +69,42 @@ model Review {
   createdAt DateTime @default(now())
 
   articleId String?  @db.ObjectId
-  article   Article? @relation(fields: [articleId], references: [id])
+  article   Article? @relation(fields: [articleId], references: [id], onDelete: Cascade)
 }
 
 model Author {
-  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
   name      String
   bio       String?
   image     String?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  articles  Article[]
+  articles Article[]
 }
 
-model Contact { 
-  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+model Contact {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
   name      String
   email     String
   message   String
-  createdAt DateTime  @default(now())
+  createdAt DateTime @default(now())
 }
 
 model User {
-  id        String    @id @default(auto()) @map("_id") @db.ObjectId
-  email     String    @unique
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  email     String   @unique
   name      String
   password  String
   image     String?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  likes     Like[]
-  citations Citation[]
-  views     View[]     // Tracked read history
-  articles  Article[]  // The user's contributed blogs
+  likes       Like[]
+  citations   Citation[]
+  views       View[]
+  impressions Impression[]
+  articles    Article[]
 }
 
 model Like {
@@ -122,7 +124,7 @@ model Citation {
   article   Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
   userId    String   @db.ObjectId
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  format    String   @default("APA") 
+  format    String   @default("APA")
   createdAt DateTime @default(now())
 }
 
@@ -130,11 +132,55 @@ model View {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   articleId String   @db.ObjectId
   article   Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
-  userId    String   @db.ObjectId
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
+  
+ 
+  userId    String?  @db.ObjectId
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([articleId, userId])
+ 
+  sessionId   String? 
+  duration    Int      @default(0)
+  scrollDepth Int      @default(0)
+  deviceType  String? 
+  referrer    String? 
+  createdAt   DateTime @default(now())
+
+  @@index([articleId, createdAt])
+  @@index([userId])
+}
+
+model Impression {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  articleId String   @db.ObjectId
+  article   Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+  
+  userId    String?  @db.ObjectId
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  sessionId  String?  
+  deviceType String?  
+  location   String? 
+  createdAt  DateTime @default(now())
+
+  @@index([articleId, createdAt])
+}
+
+model ArticleAnalytics {
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  articleId      String   @unique @db.ObjectId
+  article        Article  @relation(fields: [articleId], references: [id], onDelete: Cascade)
+
+  totalImpressions Int    @default(0)
+  totalViews       Int    @default(0)
+  guestViews       Int    @default(0)
+  userViews        Int    @default(0)
+  
+  totalReadTimeSec Int    @default(0) 
+  avgReadTimeSec   Int    @default(0) 
+  avgScrollDepth   Int    @default(0) 
+  bounceCount      Int    @default(0) 
+
+  updatedAt      DateTime @updatedAt
 }
 
 model Subscription {

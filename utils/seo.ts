@@ -1,12 +1,12 @@
 import type { Metadata } from 'next'
 
-export const SITE_NAME = 'Blogify'
+export const SITE_NAME = 'EWHAMZA'
 export const SITE_TAGLINE = 'Insights, stories, and ideas'
 export const SITE_DESCRIPTION =
-  'Explore thoughtful articles, practical insights, and curated stories on Blogify.'
+  'Explore thoughtful articles, practical insights, and curated stories on EWHAMZA.'
 export const SITE_DEFAULT_IMAGE = '/banner.jpg'
 export const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL || 'https://blogifyguides.vercel.app'
+  process.env.NEXT_PUBLIC_SITE_URL || 'https://www.blog.ewhamza.com'
 
 const stripHtml = (value: string) =>
   value
@@ -22,13 +22,19 @@ const truncateText = (value: string, maxLength: number) => {
 }
 
 export function getAbsoluteUrl(path = '/', base = SITE_URL) {
-  return new URL(path, base).toString()
+  try {
+    return new URL(path, base).toString()
+  } catch {
+    const baseUrl = base.replace(/\/$/, '')
+    const relativePath = path.startsWith('/') ? path : `/${path}`
+    return `${baseUrl}${relativePath}`
+  }
 }
 
 export const siteMetadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: `Blogify — ${SITE_TAGLINE}`,
+    default: `${SITE_NAME} — ${SITE_TAGLINE}`,
     template: `%s | ${SITE_NAME}`,
   },
   description: SITE_DESCRIPTION,
@@ -94,7 +100,11 @@ export function buildMetadata({
   const imageUrl = getAbsoluteUrl(image)
 
   return {
-    title: pageTitle || SITE_NAME,
+    title: {
+      absolute: pageTitle
+        ? `${pageTitle} | ${SITE_NAME}`
+        : `${SITE_NAME} — ${SITE_TAGLINE}`,
+    },
     description: pageDescription,
     alternates: {
       canonical: canonicalUrl,

@@ -2,10 +2,52 @@
 import React from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { BiSearch } from 'react-icons/bi'
 import { FiArrowUpRight } from 'react-icons/fi'
-import { User, Calendar, Clock } from 'lucide-react'
 import { motion } from 'framer-motion'
+
+const LOGO_URL =
+  'https://www.ewhamza.com/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Flogo2.0d308b88.webp&w=1920&q=75'
+
+function PostImage({
+  src,
+  alt,
+  className,
+  logoWidth = 140,
+  logoHeight = 50,
+}: {
+  src?: string | null
+  alt: string
+  className?: string
+  logoWidth?: number
+  logoHeight?: number
+}) {
+  if (src) {
+    return (
+      <Image
+        src={src}
+        alt={alt}
+        fill
+        sizes='(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'
+        className={className}
+      />
+    )
+  }
+
+  return (
+    <div className='absolute inset-0 bg-gradient-to-br from-zinc-900 via-emerald-950 to-zinc-900 flex items-center justify-center p-6'>
+      <div className='relative flex items-center justify-center w-full h-full'>
+        <Image
+          src={LOGO_URL}
+          alt='Logo'
+          width={logoWidth}
+          height={logoHeight}
+          className='object-contain filter drop-shadow-md brightness-110'
+          unoptimized
+        />
+      </div>
+    </div>
+  )
+}
 
 export default function BlogSection({ data }: any) {
   const { heroPost, featuredPosts = [], latestPosts = [] } = data
@@ -14,7 +56,6 @@ export default function BlogSection({ data }: any) {
 
   return (
     <section className='bg-[#FCFBF9] py-24'>
-      {' '}
       <div className='max-w-7xl mx-auto px-6 lg:px-8'>
         <div className='flex flex-col items-center text-center mb-24'>
           <motion.h1
@@ -33,16 +74,17 @@ export default function BlogSection({ data }: any) {
 
         <div className='grid grid-cols-1 lg:grid-cols-12 gap-16 mb-32'>
           <div className='lg:col-span-8'>
-            <Link href={`/blog/${heroPost.slug}`} className='group block'>
+            <Link href={`/blog/${heroPost?.slug}`} className='group block'>
               <article className='relative'>
-                <div className='relative overflow-hidden rounded-[2rem] mb-8 aspect-[16/9] bg-gray-100 shadow-2xl shadow-black/5'>
-                  <Image
-                    src={heroPost.image || '/placeholder.jpg'}
-                    alt={heroPost.title}
-                    fill
+                <div className='relative overflow-hidden rounded-[2rem] mb-8 aspect-[16/9] bg-zinc-900 shadow-2xl shadow-black/5'>
+                  <PostImage
+                    src={heroPost?.image}
+                    alt={heroPost?.title || 'Hero Post'}
+                    logoWidth={220}
+                    logoHeight={80}
                     className='object-cover group-hover:scale-105 transition-transform duration-1000 ease-out'
                   />
-                  <div className='absolute top-6 left-6'>
+                  <div className='absolute top-6 left-6 z-10'>
                     <span className='bg-white/90 backdrop-blur-md px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-widest text-black shadow-sm'>
                       Featured Story
                     </span>
@@ -54,18 +96,20 @@ export default function BlogSection({ data }: any) {
                     <span className='font-bold text-black uppercase tracking-tighter'>
                       01.
                     </span>
-                    <span>
-                      {new Date(heroPost.createdAt).toLocaleDateString(
-                        'en-US',
-                        { month: 'long', day: 'numeric', year: 'numeric' },
-                      )}
-                    </span>
+                    {heroPost?.createdAt && (
+                      <span>
+                        {new Date(heroPost.createdAt).toLocaleDateString(
+                          'en-US',
+                          { month: 'long', day: 'numeric', year: 'numeric' },
+                        )}
+                      </span>
+                    )}
                   </div>
                   <h3 className='text-4xl md:text-5xl font-serif font-semibold text-[#111827] leading-[1.1] group-hover:underline decoration-1 underline-offset-8'>
-                    {heroPost.title}
+                    {heroPost?.title}
                   </h3>
                   <p className='text-gray-500 text-lg leading-relaxed line-clamp-2'>
-                    {heroPost.short_desc}
+                    {heroPost?.short_desc}
                   </p>
                 </div>
               </article>
@@ -76,9 +120,9 @@ export default function BlogSection({ data }: any) {
             <h2 className='text-xs font-black uppercase tracking-[0.3em] text-gray-400 border-b border-gray-200 pb-4'>
               Curated Picks
             </h2>
-            {featuredPosts.map((post: any, idx: any) => (
+            {featuredPosts.map((post: any, idx: number) => (
               <Link
-                key={post.id}
+                key={post.id || idx}
                 href={`/blog/${post.slug}`}
                 className='group block'
               >
@@ -117,20 +161,22 @@ export default function BlogSection({ data }: any) {
             {latestPosts.map((post: any) => (
               <Link key={post.id} href={`/blog/${post.slug}`} className='group'>
                 <article className='flex flex-col h-full'>
-                  <div className='relative aspect-video (16/9) overflow-hidden rounded-2xl bg-gray-100 mb-5 shadow-sm group-hover:shadow-2xl group-hover:shadow-emerald-100/50 transition-all duration-500 border border-gray-100'>
-                    <Image
-                      src={post.image || '/placeholder.jpg'}
+                  <div className='relative aspect-video overflow-hidden rounded-2xl bg-zinc-900 mb-5 shadow-sm group-hover:shadow-2xl group-hover:shadow-emerald-100/50 transition-all duration-500 border border-gray-100'>
+                    <PostImage
+                      src={post.image}
                       alt={post.title}
-                      fill
-                      sizes='(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw'
+                      logoWidth={130}
+                      logoHeight={45}
                       className='object-cover grayscale-[10%] group-hover:grayscale-0 group-hover:scale-110 transition-all duration-700 ease-in-out'
                     />
 
-                    <div className='absolute top-3 left-3'>
-                      <span className='backdrop-blur-md bg-white/80 text-[10px] font-black uppercase tracking-widest text-emerald-700 px-3 py-1.5 rounded-lg border border-white/50 shadow-sm'>
-                        {post.category?.title}
-                      </span>
-                    </div>
+                    {post.category?.title && (
+                      <div className='absolute top-3 left-3 z-10'>
+                        <span className='backdrop-blur-md bg-white/80 text-[10px] font-black uppercase tracking-widest text-emerald-700 px-3 py-1.5 rounded-lg border border-white/50 shadow-sm'>
+                          {post.category.title}
+                        </span>
+                      </div>
+                    )}
                   </div>
 
                   <div className='flex flex-col flex-1 px-1'>
@@ -152,7 +198,7 @@ export default function BlogSection({ data }: any) {
                       {post.short_desc}
                     </p>
 
-                    <div className='mt-4 flex items-center gap-1 text-[10px] font-black uppercase text-emerald-600 opacity-0 group-hover:opacity-100 transition-all transform translate-x-[-10px] group-hover:translate-x-0'>
+                    <div className='mt-4 flex items-center gap-1 text-[10px] font-black uppercase text-emerald-600 opacity-0 group-hover:opacity-100 transition-all transform -translate-x-2 group-hover:translate-x-0'>
                       View Story <span>→</span>
                     </div>
                   </div>

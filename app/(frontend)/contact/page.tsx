@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react'
 import Link from 'next/link'
-import { FiMail, FiMessageCircle, FiArrowRight, FiCheck } from 'react-icons/fi'
+import { FiMail, FiMessageCircle, FiArrowRight, FiCheck, FiSend, FiCornerDownRight } from 'react-icons/fi'
 import { sendMessage } from '@/utils/actions'
 import { getAbsoluteUrl, SITE_NAME } from '@/utils/seo'
 import JsonLd from '@/components/JsonLd'
@@ -57,91 +57,121 @@ export default function ContactPage() {
   return (
     <>
       <JsonLd data={contactJsonLd} />
-      <section className='min-h-screen bg-[#FCFBF9] antialiased text-[#1A1A1A] pt-32 pb-20'>
-        <div className='max-w-6xl mx-auto px-6 lg:px-8'>
-          <div className='grid gap-20 lg:grid-cols-2 lg:items-start'>
-            <div>
-              <div className='flex items-center gap-3 mb-6'>
-                <span className='h-px w-8 bg-emerald-500'></span>
-                <span className='text-[10px] font-black uppercase tracking-[0.4em] text-emerald-600'>
-                  Correspondence
-                </span>
+      <section className='min-h-screen bg-[#FAF9F5] text-[#1C1B18] antialiased selection:bg-emerald-200 selection:text-emerald-950 relative overflow-hidden pt-28 sm:pt-36 pb-24'>
+        {/* Subtle Background Pattern */}
+        <div className='absolute inset-0 bg-[radial-gradient(#e5e0d8_1px,transparent_1px)] [background-size:24px_24px] opacity-40 pointer-events-none' />
+
+        <div className='max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10'>
+          <div className='grid gap-12 lg:gap-16 lg:grid-cols-12 items-start'>
+            {/* Left Column: Heading & Contact Info */}
+            <div className='lg:col-span-5 space-y-10'>
+              <div>
+                <div className='inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-emerald-50 border border-emerald-200/60 mb-6'>
+                  <span className='w-2 h-2 rounded-full bg-emerald-600 animate-pulse' />
+                  <span className='text-[10px] font-black uppercase tracking-[0.25em] text-emerald-800'>
+                    Get In Touch
+                  </span>
+                </div>
+
+                <h1 className='text-4xl sm:text-5xl lg:text-6xl font-serif font-light text-[#161513] leading-[1.08] tracking-tight mb-5'>
+                  Initiate a{' '}
+                  <span className='italic font-normal text-emerald-900 block sm:inline'>
+                    dialogue.
+                  </span>
+                </h1>
+
+                <p className='text-[#58544D] text-base sm:text-lg font-serif leading-relaxed'>
+                  Whether you are a fellow developer, a curious student, or a
+                  future collaborator, we welcome your inquiries and insights.
+                </p>
               </div>
 
-              <h1 className='text-5xl md:text-6xl font-serif font-bold leading-[1.1] tracking-tight mb-8'>
-                Initiate a <span className='italic font-medium'>dialogue.</span>
-              </h1>
-
-              <p className='text-xl font-serif italic text-gray-500 leading-relaxed mb-12'>
-                Whether you are a fellow developer, a curious student, or a
-                future collaborator, we welcome your inquiries and insights.
-              </p>
-
-              <div className='space-y-8'>
-                <div className='flex items-center gap-6 group'>
-                  <div className='w-14 h-14 bg-white border border-gray-100 rounded-2xl flex items-center justify-center shadow-sm group-hover:bg-emerald-500 group-hover:text-white transition-all duration-500'>
-                    <FiMail size={22} />
+              {/* Direct Mail Cards */}
+              <div className='space-y-4 pt-2'>
+                <a
+                  href='mailto:educationwithhamza@gmail.com'
+                  className='group flex items-center gap-4 p-4 rounded-2xl bg-white border border-[#E8E3DA] hover:border-emerald-500/40 hover:shadow-lg transition-all duration-300'
+                >
+                  <div className='w-12 h-12 bg-[#FAF9F5] group-hover:bg-emerald-900 border border-[#E3DFD7] group-hover:border-emerald-900 rounded-xl flex items-center justify-center text-[#58544D] group-hover:text-emerald-300 transition-colors duration-300 shrink-0'>
+                    <FiMail size={20} />
                   </div>
-                  <div>
-                    <p className='text-[10px] font-black uppercase tracking-widest text-emerald-600 mb-1'>
+                  <div className='min-w-0 flex-1'>
+                    <p className='text-[10px] font-black uppercase tracking-widest text-emerald-800 mb-0.5'>
                       Technical Inquiries
                     </p>
-                    <p className='text-lg font-serif font-bold'>
-                      hello@blogifyguides.vercel.app
+                    <p className='text-sm sm:text-base font-serif font-semibold text-[#161513] truncate group-hover:text-emerald-900 transition-colors'>
+                      educationwithhamza@gmail.com
                     </p>
                   </div>
-                </div>
+                </a>
 
-                <div className='flex items-center gap-6 group'>
-                  <div className='w-14 h-14 bg-white border border-gray-100 rounded-2xl flex items-center justify-center shadow-sm group-hover:bg-emerald-500 group-hover:text-white transition-all duration-500'>
-                    <FiMessageCircle size={22} />
+                <a
+                  href='mailto:educationwithhamza@gmail.com'
+                  className='group flex items-center gap-4 p-4 rounded-2xl bg-white border border-[#E8E3DA] hover:border-emerald-500/40 hover:shadow-lg transition-all duration-300'
+                >
+                  <div className='w-12 h-12 bg-[#FAF9F5] group-hover:bg-emerald-900 border border-[#E3DFD7] group-hover:border-emerald-900 rounded-xl flex items-center justify-center text-[#58544D] group-hover:text-emerald-300 transition-colors duration-300 shrink-0'>
+                    <FiMessageCircle size={20} />
                   </div>
-                  <div>
-                    <p className='text-[10px] font-black uppercase tracking-widest text-emerald-600 mb-1'>
+                  <div className='min-w-0 flex-1'>
+                    <p className='text-[10px] font-black uppercase tracking-widest text-emerald-800 mb-0.5'>
                       General Feedback
                     </p>
-                    <p className='text-lg font-serif font-bold'>
-                      community@blogifyguides.vercel.app
+                    <p className='text-sm sm:text-base font-serif font-semibold text-[#161513] truncate group-hover:text-emerald-900 transition-colors'>
+                      educationwithhamza@gmail.com
                     </p>
                   </div>
-                </div>
+                </a>
               </div>
 
-              <div className='mt-16'>
+              <div className='pt-4'>
                 <Link
                   href='/blog'
-                  className='inline-flex items-center gap-3 text-[10px] font-black uppercase tracking-widest border-b-2 border-black pb-1 hover:text-emerald-600 hover:border-emerald-600 transition-all'
+                  className='inline-flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-[#161513] hover:text-emerald-800 group transition-colors'
                 >
-                  Return to Archive <FiArrowRight />
+                  <span>Return to Archive</span>
+                  <FiCornerDownRight className='group-hover:translate-x-1 group-hover:translate-y-0.5 transition-transform' />
                 </Link>
               </div>
             </div>
 
-            <div className='bg-white rounded-[3rem] shadow-2xl border border-gray-50 p-10 md:p-12 relative overflow-hidden'>
+            {/* Right Column: Dynamic Form Card */}
+            <div className='lg:col-span-7 bg-white rounded-3xl sm:rounded-[2.5rem] border border-[#E8E3DA] p-6 sm:p-10 lg:p-12 shadow-xl relative'>
               {submitted ? (
-                <div className='text-center py-12 space-y-8 animate-in fade-in zoom-in duration-500'>
-                  <div className='w-20 h-20 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center mx-auto mb-4'>
-                    <FiCheck size={40} />
+                <div className='text-center py-12 sm:py-16 space-y-6'>
+                  <div className='w-20 h-20 bg-emerald-100 text-emerald-800 rounded-full flex items-center justify-center mx-auto ring-8 ring-emerald-50/50 shadow-inner'>
+                    <FiCheck size={38} />
                   </div>
-                  <h2 className='text-3xl font-serif font-bold text-gray-900'>
-                    Transmission Received
-                  </h2>
-                  <p className='text-gray-500 font-serif italic'>
-                    Your message has been logged in the archive. We will respond
-                    shortly.
-                  </p>
+                  <div className='space-y-2'>
+                    <h2 className='text-3xl font-serif font-medium text-[#161513]'>
+                      Transmission Received
+                    </h2>
+                    <p className='text-[#666259] font-serif italic max-w-md mx-auto text-base'>
+                      Your message has been logged in our archive. We will review
+                      it and respond shortly.
+                    </p>
+                  </div>
                   <button
+                    type='button'
                     onClick={() => setSubmitted(false)}
-                    className='inline-flex items-center justify-center rounded-full border border-black px-10 py-4 text-[10px] font-black uppercase tracking-widest text-black hover:bg-black hover:text-white transition-all'
+                    className='mt-4 inline-flex items-center justify-center rounded-2xl bg-[#161513] px-8 py-3.5 text-xs font-bold uppercase tracking-widest text-white hover:bg-emerald-900 transition-colors shadow-sm'
                   >
                     Send Another Entry
                   </button>
                 </div>
               ) : (
-                <form onSubmit={handleSubmit} className='space-y-8'>
-                  <div className='grid gap-8 md:grid-cols-2'>
+                <form onSubmit={handleSubmit} className='space-y-6'>
+                  <div className='space-y-1.5'>
+                    <h3 className='text-xl font-serif font-medium text-[#161513]'>
+                      Send a Message
+                    </h3>
+                    <p className='text-xs text-[#8A8478] uppercase tracking-wider font-semibold'>
+                      Fill in the details below to dispatch your message directly
+                    </p>
+                  </div>
+
+                  <div className='grid gap-6 sm:grid-cols-2 pt-2'>
                     <div className='space-y-2'>
-                      <label className='text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2'>
+                      <label className='block text-[11px] font-bold uppercase tracking-wider text-[#58544D] ml-1'>
                         Full Name
                       </label>
                       <input
@@ -149,11 +179,12 @@ export default function ContactPage() {
                         onChange={(e) => handleChange('name', e.target.value)}
                         required
                         placeholder='e.g. Haider'
-                        className='w-full rounded-2xl border border-gray-100 bg-[#F9F8F6] px-6 py-4 text-sm outline-none focus:border-emerald-400 focus:bg-white transition-all duration-300'
+                        className='w-full rounded-2xl border border-[#E3DFD7] bg-[#FAF9F5] px-5 py-3.5 text-sm text-[#161513] placeholder-[#9E988D] outline-none focus:border-emerald-600 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 transition-all'
                       />
                     </div>
+
                     <div className='space-y-2'>
-                      <label className='text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2'>
+                      <label className='block text-[11px] font-bold uppercase tracking-wider text-[#58544D] ml-1'>
                         Email Address
                       </label>
                       <input
@@ -162,12 +193,13 @@ export default function ContactPage() {
                         onChange={(e) => handleChange('email', e.target.value)}
                         required
                         placeholder='your@email.com'
-                        className='w-full rounded-2xl border border-gray-100 bg-[#F9F8F6] px-6 py-4 text-sm outline-none focus:border-emerald-400 focus:bg-white transition-all duration-300'
+                        className='w-full rounded-2xl border border-[#E3DFD7] bg-[#FAF9F5] px-5 py-3.5 text-sm text-[#161513] placeholder-[#9E988D] outline-none focus:border-emerald-600 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 transition-all'
                       />
                     </div>
                   </div>
+
                   <div className='space-y-2'>
-                    <label className='text-[10px] font-black uppercase tracking-widest text-gray-400 ml-2'>
+                    <label className='block text-[11px] font-bold uppercase tracking-wider text-[#58544D] ml-1'>
                       Your Inquiry
                     </label>
                     <textarea
@@ -175,17 +207,24 @@ export default function ContactPage() {
                       onChange={(e) => handleChange('message', e.target.value)}
                       required
                       rows={5}
-                      placeholder='Describe your thoughts...'
-                      className='w-full rounded-3xl border border-gray-100 bg-[#F9F8F6] px-6 py-4 text-sm outline-none focus:border-emerald-400 focus:bg-white transition-all duration-300 resize-none'
+                      placeholder='Describe your thoughts or feedback…'
+                      className='w-full rounded-2xl border border-[#E3DFD7] bg-[#FAF9F5] p-5 text-sm text-[#161513] placeholder-[#9E988D] outline-none focus:border-emerald-600 focus:bg-white focus:ring-4 focus:ring-emerald-500/10 transition-all resize-none'
                     />
                   </div>
+
                   <button
                     type='submit'
                     disabled={loading}
-                    className='w-full rounded-2xl bg-black px-6 py-5 text-[10px] font-black uppercase tracking-[0.2em] text-white shadow-xl hover:bg-emerald-600 transition-all disabled:opacity-50 group flex items-center justify-center gap-3'
+                    className='w-full rounded-2xl bg-[#161513] hover:bg-emerald-900 px-6 py-4 text-xs font-bold uppercase tracking-widest text-white shadow-md transition-all duration-300 disabled:opacity-50 group flex items-center justify-center gap-2.5'
                   >
-                    {loading ? 'Transmitting...' : 'Dispatch Message'}
-                    <FiArrowRight className='group-hover:translate-x-2 transition-transform' />
+                    {loading ? (
+                      'Transmitting…'
+                    ) : (
+                      <>
+                        <span>Dispatch Message</span>
+                        <FiSend size={14} className='group-hover:translate-x-1 group-hover:-translate-y-0.5 transition-transform' />
+                      </>
+                    )}
                   </button>
                 </form>
               )}

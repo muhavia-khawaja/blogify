@@ -143,12 +143,6 @@ export default function LoginPage() {
                 <label className='text-[9px] font-black uppercase tracking-[0.25em] text-gray-400'>
                   Secret Key
                 </label>
-                <Link
-                  href='/forgot'
-                  className='text-[9px] font-black uppercase tracking-widest text-emerald-600 hover:text-emerald-800 transition-colors'
-                >
-                  Forgot?
-                </Link>
               </div>
               <input
                 type='password'
