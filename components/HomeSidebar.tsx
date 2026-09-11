@@ -255,13 +255,6 @@ export default function HomeSidebar({ user }: HomeSidebarProps) {
 
         <div className='flex items-center gap-1'>
           <Link
-            href='/search'
-            className='flex h-9 w-9 items-center justify-center rounded-full text-gray-500 transition hover:bg-gray-100'
-          >
-            <Search size={19} />
-          </Link>
-
-          <Link
             href='/write'
             className='flex h-9 w-9 items-center justify-center rounded-full bg-[#3d348b] text-white transition hover:bg-[#342d78]'
           >

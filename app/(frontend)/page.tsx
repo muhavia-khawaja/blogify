@@ -27,117 +27,34 @@ export default async function LandingPage() {
   const featuredArticle = articles[0]
 
   return (
-    <main className='min-h-screen overflow-x-hidden bg-[#f8f9fc] text-gray-950'>
-      <header className='relative z-50 border-b border-gray-100 bg-[#f8f9fc]/95 backdrop-blur'>
-        <div className='mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-8 sm:py-5 lg:px-10'>
-          <Link href='/' className='flex min-w-0 items-center gap-2.5 sm:gap-3'>
-            <div className='flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#3d348b] shadow-lg shadow-[#3d348b]/20'>
-              <GraduationCap className='h-5 w-5 text-white' />
-            </div>
+    <main className='min-h-screen w-full overflow-x-hidden bg-[#f8f9fc] text-gray-950'>
+      <section className='relative overflow-hidden'>
+        <div className='pointer-events-none absolute -right-40 -top-20 h-72 w-72 rounded-full bg-[#7678ed]/10 blur-3xl sm:h-96 sm:w-96' />
+        <div className='pointer-events-none absolute -left-40 top-72 h-64 w-64 rounded-full bg-[#f7b801]/10 blur-3xl sm:h-80 sm:w-80' />
 
-            <div className='leading-none'>
-              <p className='text-base font-extrabold tracking-tight text-[#3d348b]'>
-                Education
-              </p>
-
-              <p className='text-xs font-semibold text-gray-500'>With Hamza</p>
-            </div>
-          </Link>
-
-          <nav className='hidden items-center gap-8 md:flex'>
-            <Link
-              href='/latest'
-              className='text-sm font-medium text-gray-600 transition hover:text-[#3d348b]'
-            >
-              Explore
-            </Link>
-
-            <Link
-              href='/topics'
-              className='text-sm font-medium text-gray-600 transition hover:text-[#3d348b]'
-            >
-              Topics
-            </Link>
-
-            <Link
-              href='/write'
-              className='text-sm font-medium text-gray-600 transition hover:text-[#3d348b]'
-            >
-              Write
-            </Link>
-          </nav>
-
-          {/* Auth */}
-
-          <div className='flex items-center gap-2 sm:gap-3'>
-            <Link
-              href='/login'
-              className='hidden rounded-xl px-4 py-2.5 text-sm font-semibold text-gray-700 transition hover:bg-white hover:text-[#3d348b] sm:block'
-            >
-              Log in
-            </Link>
-
-            <Link
-              href='/signup'
-              className='rounded-xl bg-[#3d348b] px-3 py-2.5 text-xs font-semibold text-white shadow-md shadow-[#3d348b]/20 transition hover:bg-[#30286f] sm:px-4 sm:text-sm'
-            >
-              <span className='sm:hidden'>Join</span>
-              <span className='hidden sm:inline'>Get started</span>
-            </Link>
-          </div>
-        </div>
-
-        <nav className='mx-auto flex max-w-7xl items-center gap-5 border-t border-gray-100 px-4 py-2.5 text-xs font-semibold text-gray-500 sm:px-8 md:hidden'>
-          <Link href='/latest' className='transition hover:text-[#3d348b]'>
-            Explore
-          </Link>
-          <Link href='/topics' className='transition hover:text-[#3d348b]'>
-            Topics
-          </Link>
-          <Link href='/write' className='transition hover:text-[#3d348b]'>
-            Write
-          </Link>
-          <Link href='/login' className='ml-auto text-[#3d348b]'>
-            Log in
-          </Link>
-        </nav>
-      </header>
-      {/* =========================================================
-          HERO
-      ========================================================== */}
-      <section className='relative'>
-        {/* Background decoration */}
-
-        <div className='pointer-events-none absolute -right-32 top-10 h-80 w-80 rounded-full bg-[#7678ed]/10 blur-3xl' />
-
-        <div className='pointer-events-none absolute -left-32 top-52 h-72 w-72 rounded-full bg-[#f7b801]/10 blur-3xl' />
-
-        <div className='mx-auto grid max-w-7xl items-center gap-12 px-4 pb-16 pt-12 sm:gap-14 sm:px-8 sm:pb-20 sm:pt-16 md:pt-20 lg:grid-cols-[1.05fr_.95fr] lg:px-10 lg:pb-28 lg:pt-24'>
-          {/* Hero content */}
-
+        <div className='relative mx-auto grid max-w-7xl items-center gap-10 px-5 pb-14 pt-8 sm:gap-14 sm:px-8 sm:pb-20 sm:pt-14 lg:grid-cols-[1.05fr_.95fr] lg:gap-16 lg:px-10 lg:pb-28 lg:pt-20'>
           <div className='relative z-10'>
-            <div className='mb-6 inline-flex max-w-full items-center gap-2 rounded-full border border-[#7678ed]/20 bg-white px-3 py-2 text-[11px] font-semibold text-[#3d348b] shadow-sm sm:px-3.5 sm:text-xs'>
-              <Sparkles className='h-3.5 w-3.5' />A better place to learn and
-              share
+            <div className='mb-5 inline-flex max-w-full items-center gap-2 rounded-full border border-[#7678ed]/20 bg-white px-3 py-2 text-[10px] font-semibold text-[#3d348b] shadow-sm sm:mb-6 sm:px-3.5 sm:text-xs'>
+              <Sparkles className='h-3.5 w-3.5 shrink-0' />
+              <span>A better place to learn and share</span>
             </div>
 
-            <h1 className='max-w-[11ch] text-5xl font-black leading-[1.02] tracking-[-0.04em] text-gray-950 sm:max-w-3xl sm:text-6xl lg:text-7xl'>
+            <h1 className='max-w-4xl text-[2.75rem] font-black leading-[0.98] tracking-[-0.045em] text-gray-950 sm:text-6xl sm:leading-[1.02] lg:text-7xl'>
               Ideas that make
-              <span className='mx-2 text-[#3d348b]'>learning</span>
+              <span className='mx-1.5 text-[#3d348b] sm:mx-2'>learning</span>
               easier.
             </h1>
 
-            <p className='mt-6 max-w-2xl text-[15px] leading-7 text-gray-600 sm:mt-7 sm:text-lg sm:leading-8'>
+            <p className='mt-5 max-w-2xl text-[14px] leading-6 text-gray-600 sm:mt-7 sm:text-lg sm:leading-8'>
               Discover useful articles, follow the people and topics you care
               about, and share what you know with a growing learning community.
             </p>
 
             {/* CTA */}
-
-            <div className='mt-7 flex w-full flex-col gap-3 sm:mt-8 sm:w-auto sm:flex-row'>
+            <div className='mt-6 flex w-full flex-col gap-3 sm:mt-8 sm:flex-row sm:w-auto'>
               <Link
                 href='/latest'
-                className='inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#3d348b] px-6 py-3.5 text-sm font-bold text-white shadow-lg shadow-[#3d348b]/20 transition hover:-translate-y-0.5 hover:bg-[#30286f] sm:w-auto'
+                className='inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#3d348b] px-6 py-3.5 text-sm font-bold text-white shadow-lg shadow-[#3d348b]/20 transition duration-200 hover:-translate-y-0.5 hover:bg-[#30286f] sm:w-auto'
               >
                 Start exploring
                 <ArrowRight className='h-4 w-4' />
@@ -145,7 +62,7 @@ export default async function LandingPage() {
 
               <Link
                 href='/write'
-                className='inline-flex w-full items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-6 py-3.5 text-sm font-bold text-gray-800 shadow-sm transition hover:border-[#7678ed]/30 hover:bg-[#3d348b]/5 hover:text-[#3d348b] sm:w-auto'
+                className='inline-flex w-full items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-6 py-3.5 text-sm font-bold text-gray-800 shadow-sm transition duration-200 hover:border-[#7678ed]/30 hover:bg-[#3d348b]/5 hover:text-[#3d348b] sm:w-auto'
               >
                 <PenLine className='h-4 w-4' />
                 Write an article
@@ -153,51 +70,45 @@ export default async function LandingPage() {
             </div>
 
             {/* Benefits */}
-
-            <div className='mt-8 flex flex-wrap gap-x-6 gap-y-3 text-sm text-gray-500'>
+            <div className='mt-7 flex flex-col gap-3 text-xs text-gray-500 sm:mt-8 sm:flex-row sm:flex-wrap sm:gap-x-6 sm:gap-y-3 sm:text-sm'>
               <span className='flex items-center gap-2'>
-                <CheckCircle2 className='h-4 w-4 text-[#3d348b]' />
+                <CheckCircle2 className='h-4 w-4 shrink-0 text-[#3d348b]' />
                 Free to explore
               </span>
 
               <span className='flex items-center gap-2'>
-                <CheckCircle2 className='h-4 w-4 text-[#3d348b]' />
+                <CheckCircle2 className='h-4 w-4 shrink-0 text-[#3d348b]' />
                 Learn at your pace
               </span>
 
               <span className='flex items-center gap-2'>
-                <CheckCircle2 className='h-4 w-4 text-[#3d348b]' />
+                <CheckCircle2 className='h-4 w-4 shrink-0 text-[#3d348b]' />
                 Share your knowledge
               </span>
             </div>
           </div>
 
-          {/* Hero visual */}
-
+          {/* Featured article preview */}
           <div className='relative mx-auto w-full max-w-xl lg:ml-auto'>
-            <div className='relative rounded-[1.5rem] border border-gray-200 bg-white p-3 shadow-2xl shadow-[#3d348b]/10 sm:rounded-[2rem] sm:p-5'>
-              {/* Feed heading */}
-
-              <div className='flex items-center justify-between border-b border-gray-100 pb-4'>
-                <div>
-                  <p className='text-xs font-semibold uppercase tracking-wider text-[#7678ed]'>
+            <div className='relative rounded-[1.35rem] border border-gray-200 bg-white p-3 shadow-2xl shadow-[#3d348b]/10 sm:rounded-[2rem] sm:p-5'>
+              <div className='flex items-center justify-between gap-3 border-b border-gray-100 pb-4'>
+                <div className='min-w-0'>
+                  <p className='text-[10px] font-semibold uppercase tracking-wider text-[#7678ed] sm:text-xs'>
                     Your learning feed
                   </p>
 
-                  <h3 className='mt-1 text-lg font-bold'>
+                  <h3 className='mt-1 text-base font-bold sm:text-lg'>
                     Ideas worth reading
                   </h3>
                 </div>
 
-                <div className='flex h-9 w-9 items-center justify-center rounded-xl bg-[#3d348b]/10'>
+                <div className='flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[#3d348b]/10'>
                   <Sparkles className='h-4 w-4 text-[#3d348b]' />
                 </div>
               </div>
 
-              {/* Dynamic preview */}
-
               {articles.length > 0 ? (
-                <div className='py-5'>
+                <div className='py-5 sm:py-6'>
                   <div className='flex items-center gap-3'>
                     {featuredArticle?.user?.image ? (
                       <Image
@@ -205,18 +116,18 @@ export default async function LandingPage() {
                         alt={featuredArticle.user.name ?? 'Author'}
                         width={40}
                         height={40}
-                        className='h-10 w-10 rounded-full object-cover'
+                        className='h-10 w-10 shrink-0 rounded-full object-cover'
                       />
                     ) : (
-                      <div className='flex h-10 w-10 items-center justify-center rounded-full bg-[#3d348b] text-sm font-bold text-white'>
+                      <div className='flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[#3d348b] text-sm font-bold text-white'>
                         {featuredArticle?.user?.name
                           ?.charAt(0)
                           ?.toUpperCase() ?? 'A'}
                       </div>
                     )}
 
-                    <div>
-                      <p className='text-sm font-semibold'>
+                    <div className='min-w-0'>
+                      <p className='truncate text-sm font-semibold'>
                         {featuredArticle?.user?.name ?? 'Community writer'}
                       </p>
 
@@ -228,7 +139,7 @@ export default async function LandingPage() {
                     </div>
                   </div>
 
-                  <h4 className='mt-5 line-clamp-3 text-2xl font-bold leading-tight'>
+                  <h4 className='mt-5 line-clamp-3 text-xl font-bold leading-tight sm:text-2xl'>
                     {articles[0].title}
                   </h4>
 
@@ -239,13 +150,12 @@ export default async function LandingPage() {
                   )}
 
                   {/* Topics */}
-
                   {articles[0].topics.length > 0 && (
                     <div className='mt-5 flex flex-wrap gap-2'>
                       {articles[0].topics.slice(0, 3).map(({ topic }) => (
                         <span
                           key={topic.id}
-                          className='rounded-full bg-[#3d348b]/10 px-3 py-1 text-xs font-semibold text-[#3d348b]'
+                          className='rounded-full bg-[#3d348b]/10 px-3 py-1 text-[11px] font-semibold text-[#3d348b] sm:text-xs'
                         >
                           {topic.name}
                         </span>
@@ -254,7 +164,7 @@ export default async function LandingPage() {
                   )}
                 </div>
               ) : (
-                <div className='py-14 text-center'>
+                <div className='py-12 text-center sm:py-14'>
                   <BookOpen className='mx-auto h-10 w-10 text-[#3d348b]/40' />
 
                   <p className='mt-4 font-semibold text-gray-900'>
@@ -267,21 +177,24 @@ export default async function LandingPage() {
                 </div>
               )}
 
-              {/* Engagement */}
-
               {articles.length > 0 && (
-                <div className='flex items-center justify-between border-t border-gray-100 pt-4 text-xs text-gray-400'>
-                  <span>♥ {articles[0]._count.likes} likes</span>
+                <div className='grid grid-cols-3 gap-2 border-t border-gray-100 pt-4 text-[10px] text-gray-400 sm:text-xs'>
+                  <span className='truncate'>
+                    ♥ {articles[0]._count.likes} likes
+                  </span>
 
-                  <span>💬 {articles[0]._count.reviews} comments</span>
+                  <span className='truncate text-center'>
+                    💬 {articles[0]._count.reviews} comments
+                  </span>
 
-                  <span>{formatDate(articles[0].createdAt)}</span>
+                  <span className='truncate text-right'>
+                    {formatDate(articles[0].createdAt)}
+                  </span>
                 </div>
               )}
             </div>
 
             {/* Floating card */}
-
             <div className='absolute -bottom-6 -left-5 hidden rounded-2xl border border-gray-200 bg-white p-4 shadow-xl sm:block'>
               <div className='flex items-center gap-3'>
                 <div className='flex h-10 w-10 items-center justify-center rounded-xl bg-[#f7b801]/20'>
@@ -300,11 +213,12 @@ export default async function LandingPage() {
           </div>
         </div>
       </section>
+
       {/* =========================================================
-          DYNAMIC STATS
+          STATS
       ========================================================== */}
       <section className='border-y border-gray-200 bg-white'>
-        <div className='mx-auto grid max-w-7xl grid-cols-2 divide-x divide-gray-200 sm:grid-cols-4'>
+        <div className='mx-auto grid max-w-7xl grid-cols-2 divide-x divide-y divide-gray-200 sm:grid-cols-4 sm:divide-y-0'>
           <MiniStat
             value={articles.length.toString()}
             label='featured articles'
@@ -323,13 +237,14 @@ export default async function LandingPage() {
           />
         </div>
       </section>
+
       {/* =========================================================
-          DYNAMIC TOPICS
+          TOPICS
       ========================================================== */}
-      <section className='mx-auto max-w-7xl px-5 py-20 sm:px-8 lg:px-10 lg:py-28'>
+      <section className='mx-auto max-w-7xl px-5 py-16 sm:px-8 sm:py-20 lg:px-10 lg:py-28'>
         <div className='flex flex-col justify-between gap-5 sm:flex-row sm:items-end'>
-          <div>
-            <p className='text-sm font-bold uppercase tracking-wider text-[#7678ed]'>
+          <div className='max-w-2xl'>
+            <p className='text-xs font-bold uppercase tracking-wider text-[#7678ed] sm:text-sm'>
               Explore
             </p>
 
@@ -337,7 +252,7 @@ export default async function LandingPage() {
               Find something worth learning.
             </h2>
 
-            <p className='mt-3 max-w-2xl text-gray-500'>
+            <p className='mt-3 text-sm leading-6 text-gray-500 sm:text-base sm:leading-7'>
               Explore topics that match your interests and discover articles
               from writers in the community.
             </p>
@@ -345,7 +260,7 @@ export default async function LandingPage() {
 
           <Link
             href='/topics'
-            className='inline-flex items-center gap-1.5 text-sm font-bold text-[#3d348b]'
+            className='inline-flex w-fit items-center gap-1.5 text-sm font-bold text-[#3d348b]'
           >
             View all topics
             <ChevronRight className='h-4 w-4' />
@@ -353,7 +268,7 @@ export default async function LandingPage() {
         </div>
 
         {topics.length === 0 ? (
-          <div className='mt-10 rounded-3xl border border-dashed border-gray-300 bg-white px-6 py-14 text-center'>
+          <div className='mt-8 rounded-3xl border border-dashed border-gray-300 bg-white px-6 py-12 text-center sm:mt-10 sm:py-14'>
             <div className='mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#3d348b]/10'>
               <BookOpen className='h-7 w-7 text-[#3d348b]' />
             </div>
@@ -367,19 +282,19 @@ export default async function LandingPage() {
             </p>
           </div>
         ) : (
-          <div className='mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3'>
+          <div className='mt-8 grid gap-4 sm:mt-10 sm:grid-cols-2 lg:grid-cols-3'>
             {topics.map((topic, index) => (
               <Link
                 key={topic.id}
                 href={`/topics/${topic.slug}`}
-                className='group rounded-2xl border border-gray-200 bg-white p-6 transition duration-200 hover:-translate-y-1 hover:border-[#7678ed]/30 hover:shadow-xl hover:shadow-[#3d348b]/5'
+                className='group rounded-2xl border border-gray-200 bg-white p-5 transition duration-200 hover:-translate-y-1 hover:border-[#7678ed]/30 hover:shadow-xl hover:shadow-[#3d348b]/5 sm:p-6'
               >
-                <div className='flex items-start justify-between'>
-                  <div className='flex h-11 w-11 items-center justify-center rounded-xl bg-[#3d348b]/10 text-lg font-bold text-[#3d348b]'>
+                <div className='flex items-start justify-between gap-4'>
+                  <div className='flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#3d348b]/10 text-lg font-bold text-[#3d348b]'>
                     {getTopicIcon(index)}
                   </div>
 
-                  <ArrowRight className='h-4 w-4 text-gray-300 transition group-hover:translate-x-1 group-hover:text-[#3d348b]' />
+                  <ArrowRight className='h-4 w-4 shrink-0 text-gray-300 transition group-hover:translate-x-1 group-hover:text-[#3d348b]' />
                 </div>
 
                 <h3 className='mt-5 font-bold text-gray-900'>{topic.name}</h3>
@@ -389,7 +304,7 @@ export default async function LandingPage() {
                   {topic._count.articles === 1 ? 'article' : 'articles'}
                 </p>
 
-                <div className='mt-4 flex items-center justify-between'>
+                <div className='mt-4 flex items-center justify-between gap-2'>
                   <span className='text-xs text-gray-400'>
                     {topic._count.followers}{' '}
                     {topic._count.followers === 1 ? 'follower' : 'followers'}
@@ -404,13 +319,14 @@ export default async function LandingPage() {
           </div>
         )}
       </section>
+
       {/* =========================================================
-          FEATURES
+          WHY EDUCATION WITH HAMZA
       ========================================================== */}
       <section className='bg-[#3d348b]'>
-        <div className='mx-auto max-w-7xl px-5 py-20 sm:px-8 lg:px-10 lg:py-24'>
+        <div className='mx-auto max-w-7xl px-5 py-16 sm:px-8 sm:py-20 lg:px-10 lg:py-24'>
           <div className='max-w-2xl'>
-            <p className='text-sm font-bold uppercase tracking-wider text-[#f7b801]'>
+            <p className='text-xs font-bold uppercase tracking-wider text-[#f7b801] sm:text-sm'>
               Why Education With Hamza
             </p>
 
@@ -418,13 +334,13 @@ export default async function LandingPage() {
               Learning should be a journey, not just a search result.
             </h2>
 
-            <p className='mt-4 leading-7 text-white/70'>
+            <p className='mt-4 text-sm leading-6 text-white/70 sm:text-base sm:leading-7'>
               A space where learners can discover ideas, follow people they
               trust and contribute knowledge of their own.
             </p>
           </div>
 
-          <div className='mt-12 grid gap-5 md:grid-cols-3'>
+          <div className='mt-10 grid gap-4 sm:mt-12 md:grid-cols-3 md:gap-5'>
             <Feature
               icon={<BookOpen className='h-5 w-5' />}
               title='Learn from real people'
@@ -445,13 +361,14 @@ export default async function LandingPage() {
           </div>
         </div>
       </section>
+
       {/* =========================================================
           HOW IT WORKS
       ========================================================== */}
-      <section className='mx-auto max-w-7xl px-5 py-20 sm:px-8 lg:px-10 lg:py-28'>
-        <div className='grid gap-12 lg:grid-cols-[.8fr_1.2fr]'>
+      <section className='mx-auto max-w-7xl px-5 py-16 sm:px-8 sm:py-20 lg:px-10 lg:py-28'>
+        <div className='grid gap-10 lg:grid-cols-[.8fr_1.2fr] lg:gap-12'>
           <div>
-            <p className='text-sm font-bold uppercase tracking-wider text-[#7678ed]'>
+            <p className='text-xs font-bold uppercase tracking-wider text-[#7678ed] sm:text-sm'>
               Simple by design
             </p>
 
@@ -459,14 +376,14 @@ export default async function LandingPage() {
               Your learning journey starts here.
             </h2>
 
-            <p className='mt-4 max-w-md leading-7 text-gray-500'>
+            <p className='mt-4 max-w-md text-sm leading-6 text-gray-500 sm:text-base sm:leading-7'>
               Discover ideas, follow writers and topics, and create a learning
               experience that is yours.
             </p>
 
             <Link
               href='/signup'
-              className='mt-7 inline-flex items-center gap-2 rounded-xl bg-[#3d348b] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#30286f]'
+              className='mt-6 inline-flex items-center gap-2 rounded-xl bg-[#3d348b] px-5 py-3 text-sm font-bold text-white transition hover:bg-[#30286f] sm:mt-7'
             >
               Create your account
               <ArrowRight className='h-4 w-4' />
@@ -500,14 +417,15 @@ export default async function LandingPage() {
           </div>
         </div>
       </section>
+
       {/* =========================================================
-          DYNAMIC ARTICLES
+          ARTICLES
       ========================================================== */}
       <section className='border-y border-gray-200 bg-white'>
-        <div className='mx-auto max-w-7xl px-5 py-20 sm:px-8 lg:px-10 lg:py-24'>
+        <div className='mx-auto max-w-7xl px-5 py-16 sm:px-8 sm:py-20 lg:px-10 lg:py-24'>
           <div className='flex flex-col justify-between gap-5 sm:flex-row sm:items-end'>
-            <div>
-              <p className='text-sm font-bold uppercase tracking-wider text-[#7678ed]'>
+            <div className='max-w-2xl'>
+              <p className='text-xs font-bold uppercase tracking-wider text-[#7678ed] sm:text-sm'>
                 From the community
               </p>
 
@@ -515,7 +433,7 @@ export default async function LandingPage() {
                 Ideas worth your time.
               </h2>
 
-              <p className='mt-3 max-w-xl text-gray-500'>
+              <p className='mt-3 text-sm leading-6 text-gray-500 sm:text-base'>
                 Fresh ideas and useful knowledge from writers in the Education
                 With Hamza community.
               </p>
@@ -523,7 +441,7 @@ export default async function LandingPage() {
 
             <Link
               href='/latest'
-              className='inline-flex items-center gap-1.5 text-sm font-bold text-[#3d348b]'
+              className='inline-flex w-fit items-center gap-1.5 text-sm font-bold text-[#3d348b]'
             >
               Explore all articles
               <ArrowRight className='h-4 w-4' />
@@ -531,7 +449,7 @@ export default async function LandingPage() {
           </div>
 
           {articles.length === 0 ? (
-            <div className='mt-10 rounded-3xl border border-dashed border-gray-300 bg-[#f8f9fc] px-6 py-16 text-center'>
+            <div className='mt-8 rounded-3xl border border-dashed border-gray-300 bg-[#f8f9fc] px-6 py-14 text-center sm:mt-10 sm:py-16'>
               <div className='mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#3d348b]/10'>
                 <BookOpen className='h-7 w-7 text-[#3d348b]' />
               </div>
@@ -553,7 +471,7 @@ export default async function LandingPage() {
               </Link>
             </div>
           ) : (
-            <div className='mt-10 grid gap-5 lg:grid-cols-3'>
+            <div className='mt-8 grid gap-5 sm:mt-10 sm:grid-cols-2 lg:grid-cols-3'>
               {articles.map((article) => (
                 <Link
                   key={article.id}
@@ -561,9 +479,8 @@ export default async function LandingPage() {
                   className='group overflow-hidden rounded-2xl border border-gray-200 bg-white transition duration-200 hover:-translate-y-1 hover:border-[#7678ed]/30 hover:shadow-xl hover:shadow-[#3d348b]/5'
                 >
                   {/* Image */}
-
                   {article.image ? (
-                    <div className='relative h-52 w-full overflow-hidden bg-gray-100'>
+                    <div className='relative h-48 w-full overflow-hidden bg-gray-100 sm:h-52'>
                       <Image
                         src={article.image}
                         alt={article.title}
@@ -572,36 +489,33 @@ export default async function LandingPage() {
                       />
                     </div>
                   ) : (
-                    <div className='flex h-52 items-center justify-center bg-gradient-to-br from-[#3d348b] to-[#7678ed]'>
+                    <div className='flex h-48 items-center justify-center bg-gradient-to-br from-[#3d348b] to-[#7678ed] sm:h-52'>
                       <BookOpen className='h-12 w-12 text-white/80' />
                     </div>
                   )}
 
-                  <div className='p-6'>
+                  <div className='p-5 sm:p-6'>
                     {/* Category */}
-
                     <div className='flex flex-wrap items-center gap-2'>
                       {article.category && (
-                        <span className='rounded-full bg-[#3d348b]/10 px-3 py-1 text-xs font-bold text-[#3d348b]'>
+                        <span className='rounded-full bg-[#3d348b]/10 px-3 py-1 text-[11px] font-bold text-[#3d348b]'>
                           {article.category.title}
                         </span>
                       )}
 
                       {article.featured && (
-                        <span className='rounded-full bg-[#f7b801]/15 px-3 py-1 text-xs font-semibold text-[#a66f00]'>
+                        <span className='rounded-full bg-[#f7b801]/15 px-3 py-1 text-[11px] font-semibold text-[#a66f00]'>
                           Featured
                         </span>
                       )}
                     </div>
 
                     {/* Title */}
-
-                    <h3 className='mt-5 line-clamp-2 text-xl font-bold leading-snug text-gray-950 transition group-hover:text-[#3d348b]'>
+                    <h3 className='mt-4 line-clamp-2 text-lg font-bold leading-snug text-gray-950 transition group-hover:text-[#3d348b] sm:mt-5 sm:text-xl'>
                       {article.title}
                     </h3>
 
                     {/* Description */}
-
                     {article.short_desc && (
                       <p className='mt-3 line-clamp-3 text-sm leading-6 text-gray-500'>
                         {article.short_desc}
@@ -609,13 +523,12 @@ export default async function LandingPage() {
                     )}
 
                     {/* Topics */}
-
                     {article.topics.length > 0 && (
                       <div className='mt-4 flex flex-wrap gap-1.5'>
                         {article.topics.slice(0, 3).map(({ topic }) => (
                           <span
                             key={topic.id}
-                            className='rounded-full bg-gray-100 px-2.5 py-1 text-[11px] font-medium text-gray-500'
+                            className='rounded-full bg-gray-100 px-2.5 py-1 text-[10px] font-medium text-gray-500 sm:text-[11px]'
                           >
                             {topic.name}
                           </span>
@@ -624,18 +537,17 @@ export default async function LandingPage() {
                     )}
 
                     {/* Author */}
-
-                    <div className='mt-6 flex items-center gap-3 border-t border-gray-100 pt-5'>
+                    <div className='mt-5 flex items-center gap-3 border-t border-gray-100 pt-5 sm:mt-6'>
                       {article.user?.image ? (
                         <Image
                           src={article.user.image}
                           alt={article.user.name ?? 'Author'}
                           width={36}
                           height={36}
-                          className='h-9 w-9 rounded-full object-cover'
+                          className='h-9 w-9 shrink-0 rounded-full object-cover'
                         />
                       ) : (
-                        <div className='flex h-9 w-9 items-center justify-center rounded-full bg-[#3d348b] text-xs font-bold text-white'>
+                        <div className='flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[#3d348b] text-xs font-bold text-white'>
                           {article.user?.name?.charAt(0)?.toUpperCase() ?? 'A'}
                         </div>
                       )}
@@ -645,13 +557,12 @@ export default async function LandingPage() {
                           {article.user?.name ?? 'Community writer'}
                         </p>
 
-                        <div className='flex items-center gap-2 text-xs text-gray-400'>
+                        <div className='flex items-center gap-2 text-[10px] text-gray-400 sm:text-xs'>
                           <span>{formatDate(article.createdAt)}</span>
 
                           {article.readTime && (
                             <>
                               <span>•</span>
-
                               <span>{article.readTime} min read</span>
                             </>
                           )}
@@ -660,7 +571,6 @@ export default async function LandingPage() {
                     </div>
 
                     {/* Engagement */}
-
                     <div className='mt-4 flex items-center gap-4 text-xs text-gray-400'>
                       <span className='flex items-center gap-1'>
                         <Heart className='h-3.5 w-3.5' />
@@ -679,32 +589,33 @@ export default async function LandingPage() {
           )}
         </div>
       </section>
+
       {/* =========================================================
           WRITER CTA
       ========================================================== */}
-      <section className='mx-auto max-w-7xl px-5 py-20 sm:px-8 lg:px-10 lg:py-28'>
-        <div className='relative overflow-hidden rounded-[2rem] bg-[#f0effb] px-6 py-12 sm:px-10 lg:px-16 lg:py-14'>
+      <section className='mx-auto max-w-7xl px-5 py-16 sm:px-8 sm:py-20 lg:px-10 lg:py-28'>
+        <div className='relative overflow-hidden rounded-[1.5rem] bg-[#f0effb] px-6 py-10 sm:rounded-[2rem] sm:px-10 sm:py-12 lg:px-16 lg:py-14'>
           <div className='absolute -right-20 -top-20 h-64 w-64 rounded-full bg-[#7678ed]/10 blur-2xl' />
 
-          <div className='relative grid items-center gap-10 lg:grid-cols-[1fr_auto]'>
+          <div className='relative grid items-center gap-8 lg:grid-cols-[1fr_auto] lg:gap-10'>
             <div>
               <div className='mb-5 flex h-12 w-12 items-center justify-center rounded-xl bg-[#3d348b]'>
                 <Users className='h-5 w-5 text-white' />
               </div>
 
-              <h2 className='max-w-2xl text-3xl font-black tracking-tight text-gray-950 sm:text-4xl'>
+              <h2 className='max-w-2xl text-2xl font-black tracking-tight text-gray-950 sm:text-4xl'>
                 You don&apos;t have to be an expert to have something worth
                 teaching.
               </h2>
 
-              <p className='mt-4 max-w-2xl leading-7 text-gray-600'>
+              <p className='mt-4 max-w-2xl text-sm leading-6 text-gray-600 sm:text-base sm:leading-7'>
                 Share your notes, explain a concept, write about something
                 you&apos;ve learned or tell someone how you solved a problem.
               </p>
 
               <Link
                 href='/write'
-                className='mt-7 inline-flex items-center gap-2 rounded-xl bg-[#3d348b] px-5 py-3.5 text-sm font-bold text-white shadow-lg shadow-[#3d348b]/20 transition hover:bg-[#30286f]'
+                className='mt-6 inline-flex items-center gap-2 rounded-xl bg-[#3d348b] px-5 py-3.5 text-sm font-bold text-white shadow-lg shadow-[#3d348b]/20 transition hover:bg-[#30286f] sm:mt-7'
               >
                 Start writing
                 <PenLine className='h-4 w-4' />
@@ -717,27 +628,28 @@ export default async function LandingPage() {
           </div>
         </div>
       </section>
+
       {/* =========================================================
           FINAL CTA
       ========================================================== */}
       <section className='bg-gray-950'>
-        <div className='mx-auto max-w-5xl px-5 py-20 text-center sm:px-8 lg:py-24'>
+        <div className='mx-auto max-w-5xl px-5 py-16 text-center sm:px-8 sm:py-20 lg:py-24'>
           <div className='mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#f7b801]'>
             <GraduationCap className='h-7 w-7 text-gray-950' />
           </div>
 
-          <h2 className='mt-7 text-3xl font-black tracking-tight text-white sm:text-5xl'>
+          <h2 className='mt-6 text-3xl font-black tracking-tight text-white sm:mt-7 sm:text-5xl'>
             Learn something new.
             <br />
             Share something useful.
           </h2>
 
-          <p className='mx-auto mt-5 max-w-xl leading-7 text-gray-400'>
+          <p className='mx-auto mt-5 max-w-xl text-sm leading-6 text-gray-400 sm:text-base sm:leading-7'>
             Join Education With Hamza and make every idea you discover part of
             something bigger.
           </p>
 
-          <div className='mt-8 flex flex-col justify-center gap-3 sm:flex-row'>
+          <div className='mt-7 flex flex-col justify-center gap-3 sm:mt-8 sm:flex-row'>
             <Link
               href='/signup'
               className='inline-flex items-center justify-center gap-2 rounded-xl bg-[#f7b801] px-6 py-3.5 text-sm font-bold text-gray-950 transition hover:bg-[#f9c52e]'
@@ -755,13 +667,14 @@ export default async function LandingPage() {
           </div>
         </div>
       </section>
+
       {/* =========================================================
           FOOTER
       ========================================================== */}
       <footer className='bg-gray-950'>
-        <div className='mx-auto flex max-w-7xl flex-col gap-6 border-t border-white/10 px-5 py-8 sm:px-8 md:flex-row md:items-center md:justify-between lg:px-10'>
+        <div className='mx-auto flex max-w-7xl flex-col gap-5 border-t border-white/10 px-5 py-7 sm:px-8 sm:py-8 md:flex-row md:items-center md:justify-between lg:px-10'>
           <div className='flex items-center gap-3'>
-            <div className='flex h-9 w-9 items-center justify-center rounded-lg bg-[#3d348b]'>
+            <div className='flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#3d348b]'>
               <GraduationCap className='h-4 w-4 text-white' />
             </div>
 
@@ -774,7 +687,7 @@ export default async function LandingPage() {
             </div>
           </div>
 
-          <div className='flex flex-wrap gap-5 text-xs text-gray-500'>
+          <div className='flex flex-wrap gap-x-5 gap-y-3 text-xs text-gray-500'>
             <Link href='/latest' className='transition hover:text-white'>
               Explore
             </Link>
@@ -803,10 +716,10 @@ export default async function LandingPage() {
 
 function MiniStat({ value, label }: { value: string; label: string }) {
   return (
-    <div className='px-4 py-7 text-center sm:py-8'>
+    <div className='min-w-0 px-3 py-6 text-center sm:px-4 sm:py-8'>
       <p className='text-lg font-black text-[#3d348b] sm:text-xl'>{value}</p>
 
-      <p className='mt-1 text-xs font-medium text-gray-500 sm:text-sm'>
+      <p className='mt-1 text-[10px] font-medium leading-4 text-gray-500 sm:text-sm'>
         {label}
       </p>
     </div>
@@ -823,12 +736,14 @@ function Feature({
   description: string
 }) {
   return (
-    <div className='rounded-2xl border border-white/10 bg-white/10 p-7 backdrop-blur-sm'>
+    <div className='rounded-2xl border border-white/10 bg-white/10 p-5 backdrop-blur-sm sm:p-7'>
       <div className='flex h-12 w-12 items-center justify-center rounded-xl bg-white text-[#3d348b]'>
         {icon}
       </div>
 
-      <h3 className='mt-6 text-xl font-bold text-white'>{title}</h3>
+      <h3 className='mt-5 text-lg font-bold text-white sm:mt-6 sm:text-xl'>
+        {title}
+      </h3>
 
       <p className='mt-3 text-sm leading-6 text-white/65'>{description}</p>
     </div>
@@ -845,10 +760,12 @@ function Step({
   description: string
 }) {
   return (
-    <div className='group flex gap-5 rounded-2xl border border-gray-200 bg-white p-5 transition hover:border-[#7678ed]/30 hover:shadow-md'>
-      <div className='shrink-0 text-sm font-black text-[#7678ed]'>{number}</div>
+    <div className='group flex gap-4 rounded-2xl border border-gray-200 bg-white p-4 transition hover:border-[#7678ed]/30 hover:shadow-md sm:gap-5 sm:p-5'>
+      <div className='shrink-0 pt-0.5 text-xs font-black text-[#7678ed] sm:text-sm'>
+        {number}
+      </div>
 
-      <div>
+      <div className='min-w-0'>
         <h3 className='font-bold text-gray-900'>{title}</h3>
 
         <p className='mt-1.5 text-sm leading-6 text-gray-500'>{description}</p>
@@ -858,10 +775,6 @@ function Step({
     </div>
   )
 }
-
-/* =========================================================
-   HELPERS
-========================================================= */
 
 function formatDate(date: Date | string) {
   return new Date(date).toLocaleDateString('en-US', {
