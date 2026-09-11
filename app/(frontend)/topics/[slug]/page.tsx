@@ -10,6 +10,7 @@ import {
 } from 'lucide-react'
 
 import { getTopicBySlug, getTopicFeed, isFollowingTopic } from '@/utils/actions'
+import FollowTopicButton from '@/components/FollowTopicButton'
 
 function formatDate(date: Date | string) {
   return new Intl.DateTimeFormat('en-US', {
@@ -119,7 +120,10 @@ export default async function TopicPage({
               </div>
             </div>
 
-            <FollowTopicButton topicId={topic.id} following={following} />
+            <FollowTopicButton
+              topicId={topic.id}
+              initialFollowing={following}
+            />
           </div>
         </div>
       </section>
@@ -268,33 +272,6 @@ export default async function TopicPage({
         )}
       </main>
     </div>
-  )
-}
-
-/* Follow button */
-
-function FollowTopicButton({
-  topicId,
-  following,
-}: {
-  topicId: string
-  following: boolean
-}) {
-  return (
-    <form action='/api/topics/toggle-follow' method='POST'>
-      <input type='hidden' name='topicId' value={topicId} />
-
-      <button
-        type='submit'
-        className={`inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-semibold transition ${
-          following
-            ? 'border border-gray-300 bg-white text-gray-700 hover:border-red-200 hover:bg-red-50 hover:text-red-500'
-            : 'bg-[#3d348b] text-white shadow-sm hover:bg-[#342d78] hover:shadow-md'
-        }`}
-      >
-        {following ? 'Following' : 'Follow topic'}
-      </button>
-    </form>
   )
 }
 

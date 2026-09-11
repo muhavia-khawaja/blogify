@@ -1,9 +1,5 @@
 import { MetadataRoute } from 'next'
-import {
-  getAllCategories,
-  getAllArticles,
-  getAllAuthors,
-} from '@/utils/actions'
+import { getAllArticles, getAllAuthors, getAllTopics } from '@/utils/actions'
 import { getAbsoluteUrl } from '@/utils/seo'
 
 export const revalidate = 3600
@@ -11,10 +7,10 @@ export const revalidate = 3600
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date().toISOString()
 
-  const [articles, categories, authors] = await Promise.all([
+  const [articles, authors, topics] = await Promise.all([
     getAllArticles(),
-    getAllCategories(),
     getAllAuthors(),
+    getAllTopics(),
   ])
 
   type SitemapArticle = {
@@ -24,13 +20,15 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     createdAt: Date | string
   }
 
-  type SitemapCategory = {
-    slug?: string | null
-  }
-
   type SitemapAuthor = {
     id?: string | null
     name: string
+    updatedAt?: Date | string | null
+    createdAt?: Date | string | null
+  }
+
+  type SitemapTopic = {
+    slug?: string | null
   }
 
   const staticPages: MetadataRoute.Sitemap = [
@@ -40,9 +38,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'daily' as const,
     },
     {
-      url: getAbsoluteUrl('/blog'),
+      url: getAbsoluteUrl('/latest'),
       priority: 0.9,
       changeFrequency: 'daily' as const,
+    },
+    {
+      url: getAbsoluteUrl('/topics'),
+      priority: 0.8,
+      changeFrequency: 'weekly' as const,
     },
     {
       url: getAbsoluteUrl('/about'),
@@ -74,7 +77,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const articlePages: MetadataRoute.Sitemap = (articles as SitemapArticle[])
     .filter((a) => a.slug && a.published)
     .map((a) => ({
-      url: getAbsoluteUrl(`/blog/${a.slug}`),
+      url: getAbsoluteUrl(`/articles/${a.slug}`),
       lastModified: a.updatedAt
         ? new Date(a.updatedAt).toISOString()
         : new Date(a.createdAt).toISOString(),
@@ -82,10 +85,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.8,
     }))
 
-  const categoryPages: MetadataRoute.Sitemap = (categories as SitemapCategory[])
-    .filter((c) => c.slug)
-    .map((c) => ({
-      url: getAbsoluteUrl(`/blog?category=${c.slug}`),
+  const topicPages: MetadataRoute.Sitemap = (topics as SitemapTopic[])
+    .filter((topic) => topic.slug)
+    .map((topic) => ({
+      url: getAbsoluteUrl(`/topics/${topic.slug}`),
       lastModified: now,
       changeFrequency: 'weekly' as const,
       priority: 0.7,
@@ -94,13 +97,16 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const authorPages: MetadataRoute.Sitemap = (authors as SitemapAuthor[])
     .filter((a) => a.id)
     .map((a) => ({
-      url: getAbsoluteUrl(`/blog?author=${encodeURIComponent(a.name)}`),
-      lastModified: now,
+      url: getAbsoluteUrl(`/profile/${a.id}`),
+      lastModified:
+        a.updatedAt || a.createdAt
+          ? new Date(a.updatedAt || a.createdAt!).toISOString()
+          : now,
       changeFrequency: 'weekly' as const,
       priority: 0.6,
     }))
 
-  return [...staticPages, ...articlePages, ...categoryPages, ...authorPages]
+  return [...staticPages, ...articlePages, ...topicPages, ...authorPages]
 }
 
 export async function getAllUrls(): Promise<string[]> {

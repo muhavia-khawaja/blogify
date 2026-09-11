@@ -16,6 +16,8 @@ import {
 
 import { getLandingPageArticles, getLandingPageTopics } from '@/utils/actions'
 
+export const revalidate = 0
+
 export default async function LandingPage() {
   const [articles, topics] = await Promise.all([
     getLandingPageArticles(),
@@ -25,14 +27,11 @@ export default async function LandingPage() {
   const featuredArticle = articles[0]
 
   return (
-    <main className='min-h-screen overflow-hidden bg-[#f8f9fc] text-gray-950'>
-      \
+    <main className='min-h-screen overflow-x-hidden bg-[#f8f9fc] text-gray-950'>
       <header className='relative z-50 border-b border-gray-100 bg-[#f8f9fc]/95 backdrop-blur'>
-        <div className='mx-auto flex max-w-7xl items-center justify-between px-5 py-5 sm:px-8 lg:px-10'>
-          {/* Logo */}
-
-          <Link href='/' className='flex items-center gap-3'>
-            <div className='flex h-10 w-10 items-center justify-center rounded-xl bg-[#3d348b] shadow-lg shadow-[#3d348b]/20'>
+        <div className='mx-auto flex max-w-7xl items-center justify-between px-4 py-4 sm:px-8 sm:py-5 lg:px-10'>
+          <Link href='/' className='flex min-w-0 items-center gap-2.5 sm:gap-3'>
+            <div className='flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#3d348b] shadow-lg shadow-[#3d348b]/20'>
               <GraduationCap className='h-5 w-5 text-white' />
             </div>
 
@@ -44,8 +43,6 @@ export default async function LandingPage() {
               <p className='text-xs font-semibold text-gray-500'>With Hamza</p>
             </div>
           </Link>
-
-          {/* Desktop navigation */}
 
           <nav className='hidden items-center gap-8 md:flex'>
             <Link
@@ -82,12 +79,28 @@ export default async function LandingPage() {
 
             <Link
               href='/signup'
-              className='rounded-xl bg-[#3d348b] px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-[#3d348b]/20 transition hover:bg-[#30286f]'
+              className='rounded-xl bg-[#3d348b] px-3 py-2.5 text-xs font-semibold text-white shadow-md shadow-[#3d348b]/20 transition hover:bg-[#30286f] sm:px-4 sm:text-sm'
             >
-              Get started
+              <span className='sm:hidden'>Join</span>
+              <span className='hidden sm:inline'>Get started</span>
             </Link>
           </div>
         </div>
+
+        <nav className='mx-auto flex max-w-7xl items-center gap-5 border-t border-gray-100 px-4 py-2.5 text-xs font-semibold text-gray-500 sm:px-8 md:hidden'>
+          <Link href='/latest' className='transition hover:text-[#3d348b]'>
+            Explore
+          </Link>
+          <Link href='/topics' className='transition hover:text-[#3d348b]'>
+            Topics
+          </Link>
+          <Link href='/write' className='transition hover:text-[#3d348b]'>
+            Write
+          </Link>
+          <Link href='/login' className='ml-auto text-[#3d348b]'>
+            Log in
+          </Link>
+        </nav>
       </header>
       {/* =========================================================
           HERO
@@ -99,32 +112,32 @@ export default async function LandingPage() {
 
         <div className='pointer-events-none absolute -left-32 top-52 h-72 w-72 rounded-full bg-[#f7b801]/10 blur-3xl' />
 
-        <div className='mx-auto grid max-w-7xl items-center gap-14 px-5 pb-20 pt-16 sm:px-8 md:pt-20 lg:grid-cols-[1.05fr_.95fr] lg:px-10 lg:pb-28 lg:pt-24'>
+        <div className='mx-auto grid max-w-7xl items-center gap-12 px-4 pb-16 pt-12 sm:gap-14 sm:px-8 sm:pb-20 sm:pt-16 md:pt-20 lg:grid-cols-[1.05fr_.95fr] lg:px-10 lg:pb-28 lg:pt-24'>
           {/* Hero content */}
 
           <div className='relative z-10'>
-            <div className='mb-6 inline-flex items-center gap-2 rounded-full border border-[#7678ed]/20 bg-white px-3.5 py-2 text-xs font-semibold text-[#3d348b] shadow-sm'>
+            <div className='mb-6 inline-flex max-w-full items-center gap-2 rounded-full border border-[#7678ed]/20 bg-white px-3 py-2 text-[11px] font-semibold text-[#3d348b] shadow-sm sm:px-3.5 sm:text-xs'>
               <Sparkles className='h-3.5 w-3.5' />A better place to learn and
               share
             </div>
 
-            <h1 className='max-w-3xl text-5xl font-black leading-[1.02] tracking-[-0.04em] text-gray-950 sm:text-6xl lg:text-7xl'>
+            <h1 className='max-w-[11ch] text-5xl font-black leading-[1.02] tracking-[-0.04em] text-gray-950 sm:max-w-3xl sm:text-6xl lg:text-7xl'>
               Ideas that make
               <span className='mx-2 text-[#3d348b]'>learning</span>
               easier.
             </h1>
 
-            <p className='mt-7 max-w-2xl text-base leading-7 text-gray-600 sm:text-lg sm:leading-8'>
+            <p className='mt-6 max-w-2xl text-[15px] leading-7 text-gray-600 sm:mt-7 sm:text-lg sm:leading-8'>
               Discover useful articles, follow the people and topics you care
               about, and share what you know with a growing learning community.
             </p>
 
             {/* CTA */}
 
-            <div className='mt-8 flex flex-col gap-3 sm:flex-row'>
+            <div className='mt-7 flex w-full flex-col gap-3 sm:mt-8 sm:w-auto sm:flex-row'>
               <Link
                 href='/latest'
-                className='inline-flex items-center justify-center gap-2 rounded-xl bg-[#3d348b] px-6 py-3.5 text-sm font-bold text-white shadow-lg shadow-[#3d348b]/20 transition hover:-translate-y-0.5 hover:bg-[#30286f]'
+                className='inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#3d348b] px-6 py-3.5 text-sm font-bold text-white shadow-lg shadow-[#3d348b]/20 transition hover:-translate-y-0.5 hover:bg-[#30286f] sm:w-auto'
               >
                 Start exploring
                 <ArrowRight className='h-4 w-4' />
@@ -132,7 +145,7 @@ export default async function LandingPage() {
 
               <Link
                 href='/write'
-                className='inline-flex items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-6 py-3.5 text-sm font-bold text-gray-800 shadow-sm transition hover:border-[#7678ed]/30 hover:bg-[#3d348b]/5 hover:text-[#3d348b]'
+                className='inline-flex w-full items-center justify-center gap-2 rounded-xl border border-gray-200 bg-white px-6 py-3.5 text-sm font-bold text-gray-800 shadow-sm transition hover:border-[#7678ed]/30 hover:bg-[#3d348b]/5 hover:text-[#3d348b] sm:w-auto'
               >
                 <PenLine className='h-4 w-4' />
                 Write an article
@@ -162,7 +175,7 @@ export default async function LandingPage() {
           {/* Hero visual */}
 
           <div className='relative mx-auto w-full max-w-xl lg:ml-auto'>
-            <div className='relative rounded-[2rem] border border-gray-200 bg-white p-4 shadow-2xl shadow-[#3d348b]/10 sm:p-5'>
+            <div className='relative rounded-[1.5rem] border border-gray-200 bg-white p-3 shadow-2xl shadow-[#3d348b]/10 sm:rounded-[2rem] sm:p-5'>
               {/* Feed heading */}
 
               <div className='flex items-center justify-between border-b border-gray-100 pb-4'>

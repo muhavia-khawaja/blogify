@@ -17,19 +17,29 @@ export default function AdBanner({
   fullWidthResponsive = true,
   className = '',
 }: AdBannerProps) {
-  const initialized = useRef(false)
+  const adRef = useRef<HTMLModElement>(null)
 
   useEffect(() => {
-    if (initialized.current) return
+    if (!adSlot || !adRef.current) return
+
+    const ad = adRef.current
+
+    if (
+      ad.dataset.adsenseInitialized === 'true' ||
+      ad.dataset.adsbygoogleStatus
+    ) {
+      return
+    }
+
+    ad.dataset.adsenseInitialized = 'true'
 
     try {
       window.adsbygoogle = window.adsbygoogle || []
       window.adsbygoogle.push({})
-      initialized.current = true
     } catch (error) {
       console.error('AdSense initialization failed:', error)
     }
-  }, [])
+  }, [adSlot])
 
   if (!adSlot) return null
 
@@ -39,6 +49,7 @@ export default function AdBanner({
       aria-label='Advertisement'
     >
       <ins
+        ref={adRef}
         className='adsbygoogle block min-h-[100px] w-full'
         style={{ display: 'block' }}
         data-ad-client={ADSENSE_CLIENT}

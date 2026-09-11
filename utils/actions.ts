@@ -2078,47 +2078,47 @@ export const unfollowTopic = async (topicId: string) => {
 }
 
 export async function toggleFollowTopic(topicId: string) {
-  const user = await getCurrentUser()
+  try {
+    const user = await getCurrentUser()
 
-  if (!user?.id) {
-    return {
-      success: false,
-      message: 'Please login first',
+    if (!user?.id) {
+      return {
+        success: false,
+        message: 'Please log in to follow topics.',
+      }
     }
-  }
 
-  const existing = await prisma.userTopic.findUnique({
-    where: {
-      userId_topicId: {
-        userId: user.id,
-        topicId: topicId,
-      },
-    },
-  })
-
-  if (existing) {
-    await prisma.userTopic.delete({
+    const existing = await prisma.userTopic.findUnique({
       where: {
-        id: existing.id,
+        userId_topicId: {
+          userId: user.id,
+          topicId,
+        },
       },
     })
 
+    if (existing) {
+      await prisma.userTopic.delete({ where: { id: existing.id } })
+    } else {
+      await prisma.userTopic.create({
+        data: { userId: user.id, topicId },
+      })
+    }
+
+    revalidatePath('/topics')
+    revalidatePath('/following')
+    revalidatePath('/for-you')
+
     return {
       success: true,
-      following: false,
+      following: !existing,
     }
-  }
-
-  await prisma.userTopic.create({
-    data: {
-      userId: user.id,
-      topicId: topicId,
-    },
-  })
-
-  return {
-    success: true,
-    following: true,
+  } catch (error) {
+    console.error('Toggle topic follow error:', error)
+    return {
+      success: false,
+      error: 'Failed to update this topic.',
+    }
   }
 }
 

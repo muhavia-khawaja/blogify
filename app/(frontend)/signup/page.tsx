@@ -5,6 +5,7 @@ import { useState } from 'react'
 import { registerUser } from '@/utils/actions'
 import { useRouter } from 'next/navigation'
 import { FiArrowLeft } from 'react-icons/fi'
+import { GraduationCap, Sparkles } from 'lucide-react'
 
 export default function SignUpPage() {
   const [loading, setLoading] = useState(false)
@@ -43,8 +44,8 @@ export default function SignUpPage() {
   }
 
   return (
-    <div className='min-h-screen bg-[#FCFBF9] antialiased text-[#1A1A1A] flex'>
-      <div className='hidden lg:flex lg:w-1/2 relative bg-[#0F0F0F] flex-col justify-between p-14 overflow-hidden'>
+    <div className='flex min-h-screen bg-[#f8f9fc] text-gray-950 antialiased'>
+      <div className='relative hidden overflow-hidden bg-[#211b59] p-10 lg:flex lg:w-[48%] lg:flex-col lg:justify-between xl:p-16'>
         <div
           className='absolute inset-0 opacity-[0.04]'
           style={{
@@ -54,35 +55,47 @@ export default function SignUpPage() {
           }}
         />
 
-        <div className='absolute bottom-0 right-0 text-[22rem] font-serif font-bold leading-none text-white/[0.03] select-none pointer-events-none'>
-          J
+        <div className='pointer-events-none absolute -bottom-12 -right-8 select-none font-serif text-[20rem] font-bold leading-none text-white/[0.04] xl:text-[25rem]'>
+          E
         </div>
 
-        <div>
-          <span className='text-[10px] font-black uppercase tracking-[0.4em] text-emerald-500'>
-            The Journal
-          </span>
+        <div className='relative z-10 flex items-center gap-3'>
+          <div className='flex h-11 w-11 items-center justify-center rounded-2xl bg-[#f7b801] text-[#211b59] shadow-lg shadow-black/10'>
+            <GraduationCap className='h-5 w-5' />
+          </div>
+          <div className='leading-tight'>
+            <p className='text-sm font-extrabold tracking-tight text-white'>
+              Education
+            </p>
+            <p className='text-xs font-medium text-white/60'>With Hamza</p>
+          </div>
         </div>
 
-        <div className='space-y-8 relative z-10'>
-          <div className='h-px w-12 bg-emerald-500' />
-          <blockquote className='font-serif text-3xl font-bold text-white leading-snug max-w-xs'>
-            Every great author began with a single signature.
+        <div className='relative z-10 space-y-8'>
+          <div className='flex items-center gap-2 text-[#f7b801]'>
+            <Sparkles className='h-4 w-4' />
+            <span className='text-[10px] font-black uppercase tracking-[0.3em]'>
+              Your learning space
+            </span>
+          </div>
+          <blockquote className='max-w-md font-serif text-3xl font-bold leading-snug text-white xl:text-4xl'>
+            Every useful idea becomes more powerful when you share it.
           </blockquote>
-          <p className='text-[11px] font-black uppercase tracking-[0.3em] text-white/30'>
-            Join the Archive
+          <p className='max-w-sm text-sm leading-6 text-white/60'>
+            Create your account, follow your interests, and add your own
+            perspective to the community.
           </p>
         </div>
 
-        <div className='flex gap-10 relative z-10'>
+        <div className='relative z-10 flex gap-8 xl:gap-10'>
           {[
             ['∞', 'Articles'],
             ['24h', 'Publishing'],
             ['Open', 'Access'],
           ].map(([val, label]) => (
             <div key={label}>
-              <p className='text-2xl font-serif font-bold text-white'>{val}</p>
-              <p className='text-[9px] font-black uppercase tracking-widest text-white/30 mt-1'>
+              <p className='font-serif text-2xl font-bold text-white'>{val}</p>
+              <p className='mt-1 text-[9px] font-black uppercase tracking-widest text-white/35'>
                 {label}
               </p>
             </div>
@@ -90,42 +103,42 @@ export default function SignUpPage() {
         </div>
       </div>
 
-      <div className='flex-1 flex flex-col justify-center px-6 py-16 lg:px-20 xl:px-28'>
-        <nav className='absolute top-0 left-0 w-full p-8 lg:hidden'>
+      <div className='flex flex-1 flex-col justify-center px-5 py-20 sm:px-8 lg:px-14 xl:px-24'>
+        <nav className='absolute left-0 top-0 w-full p-5 sm:p-8 lg:hidden'>
           <Link
             href='/'
-            className='group flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 hover:text-black transition-all'
+            className='group flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 transition-all hover:text-[#3d348b]'
           >
             <FiArrowLeft className='group-hover:-translate-x-1 transition-transform' />
             Return to Archive
           </Link>
         </nav>
-        <nav className='absolute top-0 right-0 p-8 hidden lg:block'>
+        <nav className='absolute right-0 top-0 hidden p-8 lg:block'>
           <Link
             href='/'
-            className='group flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 hover:text-black transition-all'
+            className='group flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-gray-400 transition-all hover:text-[#3d348b]'
           >
             <FiArrowLeft className='group-hover:-translate-x-1 transition-transform' />
             Return to Archive
           </Link>
         </nav>
 
-        <div className='max-w-sm w-full mx-auto'>
-          <div className='mb-10'>
-            <span className='text-[9px] font-black uppercase tracking-[0.4em] text-emerald-600 block mb-5'>
+        <div className='mx-auto w-full max-w-md'>
+          <div className='mb-9'>
+            <span className='mb-5 block text-[9px] font-black uppercase tracking-[0.4em] text-[#7678ed]'>
               New Enrollment
             </span>
-            <h1 className='text-4xl font-serif font-bold tracking-tight leading-tight mb-3'>
+            <h1 className='mb-3 font-serif text-4xl font-bold leading-tight tracking-tight sm:text-5xl'>
               Join the{' '}
               <span className='italic font-normal text-gray-400'>Journal.</span>
             </h1>
-            <p className='text-gray-400 font-serif italic'>
+            <p className='font-serif italic text-gray-500'>
               Create your unique signature today.
             </p>
           </div>
 
           {error && (
-            <div className='mb-6 px-5 py-4 bg-red-50 border-l-4 border-red-400 rounded-xl text-red-600 text-[11px] font-bold uppercase tracking-widest'>
+            <div className='mb-6 rounded-xl border-l-4 border-red-400 bg-red-50 px-5 py-4 text-[11px] font-bold uppercase tracking-widest text-red-600'>
               {error}
             </div>
           )}
@@ -140,7 +153,7 @@ export default function SignUpPage() {
                 name='name'
                 required
                 placeholder='John Doe'
-                className='w-full px-5 py-4 bg-white border border-gray-100 rounded-2xl text-sm font-serif outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-50 transition-all placeholder:text-gray-300 text-[#1A1A1A]'
+                className='w-full rounded-xl border border-gray-200 bg-white px-5 py-4 font-serif text-sm text-gray-950 outline-none transition-all placeholder:text-gray-300 focus:border-[#7678ed] focus:ring-4 focus:ring-[#7678ed]/10'
               />
             </div>
 
@@ -153,7 +166,7 @@ export default function SignUpPage() {
                 name='email'
                 required
                 placeholder='you@example.com'
-                className='w-full px-5 py-4 bg-white border border-gray-100 rounded-2xl text-sm font-serif outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-50 transition-all placeholder:text-gray-300 text-[#1A1A1A]'
+                className='w-full rounded-xl border border-gray-200 bg-white px-5 py-4 font-serif text-sm text-gray-950 outline-none transition-all placeholder:text-gray-300 focus:border-[#7678ed] focus:ring-4 focus:ring-[#7678ed]/10'
               />
             </div>
 
@@ -166,7 +179,7 @@ export default function SignUpPage() {
                 name='password'
                 required
                 placeholder='••••••••'
-                className='w-full px-5 py-4 bg-white border border-gray-100 rounded-2xl text-sm font-serif outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-50 transition-all placeholder:text-gray-300 text-[#1A1A1A]'
+                className='w-full rounded-xl border border-gray-200 bg-white px-5 py-4 font-serif text-sm text-gray-950 outline-none transition-all placeholder:text-gray-300 focus:border-[#7678ed] focus:ring-4 focus:ring-[#7678ed]/10'
               />
             </div>
 
@@ -179,19 +192,19 @@ export default function SignUpPage() {
                 name='confirmPassword'
                 required
                 placeholder='••••••••'
-                className='w-full px-5 py-4 bg-white border border-gray-100 rounded-2xl text-sm font-serif outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-50 transition-all placeholder:text-gray-300 text-[#1A1A1A]'
+                className='w-full rounded-xl border border-gray-200 bg-white px-5 py-4 font-serif text-sm text-gray-950 outline-none transition-all placeholder:text-gray-300 focus:border-[#7678ed] focus:ring-4 focus:ring-[#7678ed]/10'
               />
             </div>
 
             <button
               type='submit'
               disabled={loading}
-              className='group relative w-full py-5 mt-2 bg-[#0F0F0F] text-white rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] overflow-hidden transition-all active:scale-[0.98] disabled:opacity-50'
+              className='group relative mt-2 w-full overflow-hidden rounded-xl bg-[#3d348b] py-5 text-[10px] font-black uppercase tracking-[0.2em] text-white shadow-lg shadow-[#3d348b]/20 transition-all active:scale-[0.98] disabled:opacity-50'
             >
               <span className='relative z-10'>
                 {loading ? 'Processing...' : 'Register Signature'}
               </span>
-              <div className='absolute inset-0 bg-emerald-600 translate-y-full group-hover:translate-y-0 transition-transform duration-500' />
+              <div className='absolute inset-0 translate-y-full bg-[#f7b801] transition-transform duration-500 group-hover:translate-y-0' />
             </button>
           </form>
 
@@ -200,7 +213,7 @@ export default function SignUpPage() {
               <div className='w-full border-t border-gray-100' />
             </div>
             <div className='relative flex justify-center'>
-              <span className='px-4 bg-[#FCFBF9] text-[9px] font-black uppercase tracking-[0.2em] text-gray-300'>
+              <span className='bg-[#f8f9fc] px-4 text-[9px] font-black uppercase tracking-[0.2em] text-gray-400'>
                 Already enrolled?
               </span>
             </div>
@@ -208,7 +221,7 @@ export default function SignUpPage() {
 
           <Link
             href='/login'
-            className='block w-full text-center py-4 border border-gray-200 hover:border-emerald-500 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] transition-all hover:text-emerald-600 text-gray-500'
+            className='block w-full rounded-xl border border-gray-200 py-4 text-center text-[10px] font-black uppercase tracking-[0.2em] text-gray-500 transition-all hover:border-[#7678ed] hover:bg-[#3d348b]/5 hover:text-[#3d348b]'
           >
             Authorize Existing Account
           </Link>
