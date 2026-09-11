@@ -10,7 +10,12 @@ import {
 
 import { getForYouFeed } from '@/utils/actions'
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 0
+export const metadata = {
+  title: 'For You | Education With Hamza',
+  description:
+    'Discover stories based on the people you follow, topics you enjoy, and what you are learning on Education With Hamza.',
+}
 
 export default async function ForYouPage() {
   const articles = await getForYouFeed()

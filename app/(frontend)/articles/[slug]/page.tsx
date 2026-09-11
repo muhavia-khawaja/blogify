@@ -38,6 +38,7 @@ import AnalyticsTracker from '@/components/AnalyticsTracker'
 import JsonLd from '@/components/JsonLd'
 
 import { buildMetadata, getAbsoluteUrl, SITE_NAME } from '@/utils/seo'
+import ReadingMode from '@/components/ReadingMode'
 
 const FALLBACK_IMAGE = '/banner.jpg'
 
@@ -63,10 +64,6 @@ function formatFullDate(date: Date | string) {
 function getInitial(name?: string | null) {
   return name?.trim()?.charAt(0)?.toUpperCase() || 'E'
 }
-
-/* =========================================================
-   ARTICLE IMAGE
-========================================================= */
 
 function ArticleImage({
   src,
@@ -109,10 +106,6 @@ function ArticleImage({
     </div>
   )
 }
-
-/* =========================================================
-   AUTHOR AVATAR
-========================================================= */
 
 function AuthorAvatar({
   image,
@@ -159,10 +152,6 @@ function AuthorAvatar({
   )
 }
 
-/* =========================================================
-   METADATA
-========================================================= */
-
 export async function generateMetadata({
   params,
 }: {
@@ -201,10 +190,6 @@ export async function generateMetadata({
   })
 }
 
-/* =========================================================
-   PAGE
-========================================================= */
-
 export default async function ArticleDetail({
   params,
 }: {
@@ -232,10 +217,6 @@ export default async function ArticleDetail({
   const reviews = article.reviews || []
 
   const authorId = article.user?.id
-
-  /* =========================================================
-     JSON LD
-  ========================================================== */
 
   const articleJsonLd = {
     '@context': 'https://schema.org',
@@ -318,62 +299,66 @@ export default async function ArticleDetail({
       <AnalyticsTracker articleId={article.id} userId={currentUser?.id} />
 
       <article className='min-h-screen bg-[#f8f9fc] text-gray-950'>
-        {/* =====================================================
-            TOP ARTICLE HEADER
-        ====================================================== */}
-
         <header className='border-b border-gray-200 bg-white'>
-          <div className='mx-auto max-w-5xl px-5 pb-10 pt-10 sm:px-8 lg:px-10 lg:pt-14'>
-            {/* Back */}
-
+          <div className='mx-auto max-w-5xl px-5 py-8 sm:px-8 sm:py-10 lg:px-10 lg:py-14'>
             <Link
               href='/latest'
-              className='mb-8 inline-flex items-center gap-2 text-sm font-semibold text-gray-500 transition hover:text-[#3d348b]'
+              className='mb-7 inline-flex items-center gap-2 text-sm font-semibold text-gray-500 transition-colors hover:text-[#3d348b]'
             >
               <ArrowLeft className='h-4 w-4' />
               Back to articles
             </Link>
 
-            {/* Category */}
-
-            <div className='mb-6 flex flex-wrap items-center gap-2'>
+            <div className='mb-5 flex flex-wrap items-center gap-2'>
               {article.category?.title && (
-                <Link
-                  href={`/latest?category=${article.category.id}`}
-                  className='inline-flex items-center gap-1.5 rounded-full bg-[#3d348b]/10 px-3 py-1.5 text-xs font-bold uppercase tracking-wider text-[#3d348b] transition hover:bg-[#3d348b]/15'
-                >
+                <span className='inline-flex items-center gap-1.5 rounded-full bg-[#3d348b]/10 px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-[#3d348b]'>
                   <Sparkles className='h-3.5 w-3.5' />
-
                   {article.category.title}
-                </Link>
+                </span>
               )}
 
               {article.featured && (
-                <span className='inline-flex items-center gap-1.5 rounded-full bg-[#f7b801]/15 px-3 py-1.5 text-xs font-bold text-[#9a6800]'>
+                <span className='inline-flex items-center gap-1.5 rounded-full bg-[#f7b801]/15 px-3 py-1.5 text-[11px] font-bold text-[#9a6800]'>
                   <Sparkles className='h-3.5 w-3.5' />
                   Featured
                 </span>
               )}
             </div>
 
-            {/* Title */}
-
-            <h1 className='max-w-4xl text-4xl font-black leading-[1.08] tracking-[-0.035em] text-gray-950 sm:text-5xl lg:text-6xl'>
+            <h1
+              className='
+        max-w-4xl
+        text-3xl
+        font-black
+        leading-[1.1]
+        tracking-tight
+        text-gray-950
+        sm:text-5xl
+        lg:text-6xl
+      '
+            >
               {article.title}
             </h1>
 
-            {/* Description */}
-
             {article.short_desc && (
-              <p className='mt-6 max-w-3xl text-lg leading-8 text-gray-500 sm:text-xl'>
+              <p
+                className='
+          mt-5
+          max-w-3xl
+          text-base
+          leading-7
+          text-gray-500
+          sm:mt-6
+          sm:text-lg
+          sm:leading-8
+        '
+              >
                 {article.short_desc}
               </p>
             )}
 
-            {/* Author */}
-
-            <div className='mt-9 flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between'>
-              <div className='flex items-center gap-3.5'>
+            <div className='mt-7 flex flex-col gap-5 sm:mt-8 sm:flex-row sm:items-center sm:justify-between'>
+              <div className='flex items-center gap-3'>
                 {authorId ? (
                   <Link href={`/profile/${authorId}`} className='shrink-0'>
                     <AuthorAvatar
@@ -390,23 +375,22 @@ export default async function ArticleDetail({
                   />
                 )}
 
-                <div>
+                <div className='min-w-0'>
                   {authorId ? (
                     <Link
                       href={`/profile/${authorId}`}
-                      className='block text-sm font-bold text-gray-950 transition hover:text-[#3d348b]'
+                      className='block truncate text-sm font-bold text-gray-950 transition-colors hover:text-[#3d348b]'
                     >
                       {article.user?.name || 'Education With Hamza'}
                     </Link>
                   ) : (
-                    <p className='text-sm font-bold text-gray-950'>
+                    <p className='truncate text-sm font-bold text-gray-950'>
                       {article.user?.name || 'Education With Hamza'}
                     </p>
                   )}
 
                   <div className='mt-1 flex flex-wrap items-center gap-2 text-xs text-gray-400'>
                     <span>{formatDate(article.createdAt)}</span>
-
                     <span>•</span>
 
                     {article.readTime ? (
@@ -418,8 +402,6 @@ export default async function ArticleDetail({
                 </div>
               </div>
 
-              {/* Follow */}
-
               {authorId && currentUser?.id && currentUser.id !== authorId && (
                 <FollowButton
                   authorId={authorId}
@@ -427,12 +409,68 @@ export default async function ArticleDetail({
                 />
               )}
             </div>
+
+            <div
+              className='
+        mt-7
+        flex
+        flex-wrap
+        items-center
+        gap-3
+        border-t
+        border-gray-100
+        pt-6
+      '
+            >
+              {reviews.length > 0 && (
+                <a
+                  href='#reviews'
+                  className='
+            inline-flex
+            items-center
+            gap-1.5
+            rounded-lg
+            border
+            border-[#f7b801]/20
+            bg-[#f7b801]/10
+            px-2.5
+            py-1.5
+            transition-all
+            hover:bg-[#f7b801]/20
+            hover:shadow-sm
+          '
+                  aria-label='View reviews'
+                >
+                  <div className='flex text-xs leading-none text-[#f18701]'>
+                    {[...Array(5)].map((_, i) => (
+                      <span key={i}>★</span>
+                    ))}
+                  </div>
+
+                  <span className='text-xs font-bold text-gray-800'>
+                    {(
+                      reviews.reduce(
+                        (total: number, review: any) => total + review.rating,
+                        0,
+                      ) / reviews.length
+                    ).toFixed(1)}
+                  </span>
+
+                  <span className='text-[11px] text-gray-400'>
+                    ({reviews.length})
+                  </span>
+                </a>
+              )}
+
+              {article.long_desc && (
+                <ReadingMode
+                  longDesc={article.long_desc}
+                  title={article.title}
+                />
+              )}
+            </div>
           </div>
         </header>
-
-        {/* =====================================================
-            FEATURED IMAGE
-        ====================================================== */}
 
         <div className='mx-auto max-w-6xl px-5 py-8 sm:px-8 lg:px-10 lg:py-12'>
           <div className='relative aspect-[16/9] w-full overflow-hidden rounded-2xl border border-gray-200 bg-gray-900 shadow-xl shadow-gray-900/5 sm:rounded-3xl'>
@@ -445,19 +483,9 @@ export default async function ArticleDetail({
           </div>
         </div>
 
-        {/* =====================================================
-            ARTICLE BODY
-        ====================================================== */}
-
         <div className='mx-auto max-w-6xl px-5 pb-20 sm:px-8 lg:px-10 lg:pb-28'>
           <div className='grid grid-cols-1 gap-12 lg:grid-cols-12'>
-            {/* =================================================
-                MAIN
-            ================================================== */}
-
             <main className='min-w-0 lg:col-span-8'>
-              {/* Article metadata */}
-
               <div className='mb-10 flex flex-wrap items-center gap-4 border-b border-gray-200 pb-6 text-sm text-gray-500'>
                 <div className='flex items-center gap-2'>
                   <CalendarDays className='h-4 w-4 text-[#7678ed]' />
@@ -473,8 +501,6 @@ export default async function ArticleDetail({
                   </div>
                 )}
               </div>
-
-              {/* Long description */}
 
               <div
                 className='
@@ -537,10 +563,6 @@ export default async function ArticleDetail({
                 }}
               />
 
-              {/* =================================================
-                  TOPICS
-              ================================================== */}
-
               {article.topics?.length > 0 && (
                 <div className='mt-12 border-t border-gray-200 pt-8'>
                   <div className='flex flex-wrap gap-2'>
@@ -557,20 +579,12 @@ export default async function ArticleDetail({
                 </div>
               )}
 
-              {/* =================================================
-                  INTERACTIONS
-              ================================================== */}
-
               <div className='mt-12 border-t border-gray-200 pt-8'>
                 <BlogInteraction
                   articleId={article.id}
                   articleSlug={article.slug}
                 />
               </div>
-
-              {/* =================================================
-                  ABOUT AUTHOR
-              ================================================== */}
 
               {article.user && (
                 <section className='mt-14 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm sm:p-8'>
@@ -626,10 +640,6 @@ export default async function ArticleDetail({
                   </div>
                 </section>
               )}
-
-              {/* =================================================
-                  REVIEWS
-              ================================================== */}
 
               <section
                 className='mt-16 border-t border-gray-200 pt-10'
@@ -757,14 +767,8 @@ export default async function ArticleDetail({
               </section>
             </main>
 
-            {/* =================================================
-                SIDEBAR
-            ================================================== */}
-
             <aside className='lg:col-span-4'>
               <div className='space-y-6 lg:sticky lg:top-24'>
-                {/* Audio */}
-
                 <div className='rounded-2xl border border-gray-200 bg-white p-6 shadow-sm'>
                   <div className='flex items-center gap-3'>
                     <div className='flex h-10 w-10 items-center justify-center rounded-xl bg-[#3d348b]/10'>
@@ -787,8 +791,6 @@ export default async function ArticleDetail({
                   </div>
                 </div>
 
-                {/* Interaction */}
-
                 <div className='rounded-2xl border border-gray-200 bg-white p-6 shadow-sm'>
                   <div className='mb-4 flex items-center gap-3'>
                     <div className='flex h-10 w-10 items-center justify-center rounded-xl bg-[#7678ed]/10'>
@@ -808,8 +810,6 @@ export default async function ArticleDetail({
 
                   <InteractionRail articleId={article.id} />
                 </div>
-
-                {/* Related */}
 
                 {relatedPosts.length > 0 && (
                   <div className='rounded-2xl border border-gray-200 bg-white p-6 shadow-sm'>
@@ -854,10 +854,6 @@ export default async function ArticleDetail({
             </aside>
           </div>
         </div>
-
-        {/* =====================================================
-            FURTHER ARTICLES
-        ====================================================== */}
 
         {relatedPosts.length > 0 && (
           <section className='border-t border-gray-200 bg-white'>
@@ -940,10 +936,6 @@ export default async function ArticleDetail({
     </>
   )
 }
-
-/* =========================================================
-   FOLLOW BUTTON
-========================================================= */
 
 async function FollowButton({
   authorId,

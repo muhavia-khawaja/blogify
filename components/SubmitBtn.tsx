@@ -1,24 +1,34 @@
 'use client'
-import { ArrowRight } from 'lucide-react'
+import { ArrowRight, Loader2 } from 'lucide-react'
 import React from 'react'
 import { useFormStatus } from 'react-dom'
 
 export default function SubmitBtn() {
   const { pending } = useFormStatus()
+
   return (
     <div>
       <button
         type='submit'
         disabled={pending}
-        className={`className='w-full inline-flex items-center justify-center gap-2.5 py-3.5 px-6 bg-gradient-to-r from-emerald-600 to-emerald-700 text-white rounded-xl font-black text-sm uppercase tracking-widest shadow-lg shadow-emerald-600/30 hover:shadow-xl hover:shadow-emerald-600/40 hover:from-emerald-700 hover:to-emerald-800 transition-all duration-200 active:scale-95 mt-2' ${
-          pending ? 'cursor-not-allowed opacity-50' : ''
+        className={`btn w-full border-none text-white rounded-xl font-black text-sm uppercase tracking-widest shadow-lg shadow-amber-500/20 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 active:scale-[0.98] transition-all duration-200 mt-2 ${
+          pending ? 'btn-disabled opacity-60' : ''
         }`}
       >
-        {pending ? 'Submitting...' : 'Submit'}
-        <ArrowRight
-          size={16}
-          className='group-hover:translate-x-0.5 transition-transform'
-        />
+        {pending ? (
+          <>
+            <Loader2 size={16} className='animate-spin' />
+            <span>Submitting...</span>
+          </>
+        ) : (
+          <>
+            <span>Submit</span>
+            <ArrowRight
+              size={16}
+              className='transition-transform group-hover:translate-x-0.5'
+            />
+          </>
+        )}
       </button>
     </div>
   )

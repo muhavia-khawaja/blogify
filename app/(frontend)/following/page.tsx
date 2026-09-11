@@ -11,8 +11,13 @@ import {
 
 import { getFollowingFeed, getCurrentUser } from '@/utils/actions'
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 0
 
+export const metadata = {
+  title: 'Following | Education With Hamza',
+  description:
+    'Read stories from the writers, creators, and topics you follow on Education With Hamza.',
+}
 export default async function FollowingPage() {
   const [articles, currentUser] = await Promise.all([
     getFollowingFeed(),

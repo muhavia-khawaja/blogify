@@ -117,7 +117,6 @@ export default async function LandingPage() {
           ====================================================== */}
           <div className='relative mx-auto w-full min-w-0 max-w-xl lg:ml-auto'>
             <div className='relative w-full min-w-0 max-w-full overflow-hidden rounded-[1.35rem] border border-gray-200 bg-white p-3 shadow-2xl shadow-[#3d348b]/10 sm:rounded-[2rem] sm:p-5'>
-              {/* Header */}
               <div className='flex min-w-0 items-center justify-between gap-3 border-b border-gray-100 pb-4'>
                 <div className='min-w-0'>
                   <p className='truncate text-[10px] font-semibold uppercase tracking-wider text-[#7678ed] sm:text-xs'>
@@ -136,7 +135,6 @@ export default async function LandingPage() {
 
               {articles.length > 0 ? (
                 <div className='min-w-0 py-5 sm:py-6'>
-                  {/* Author */}
                   <div className='flex min-w-0 items-center gap-3'>
                     {featuredArticle?.user?.image ? (
                       <Image
@@ -167,19 +165,16 @@ export default async function LandingPage() {
                     </div>
                   </div>
 
-                  {/* Title */}
                   <h4 className='mt-5 break-words text-xl font-bold leading-tight sm:text-2xl'>
                     {articles[0].title}
                   </h4>
 
-                  {/* Description */}
                   {articles[0].short_desc && (
                     <p className='mt-3 line-clamp-3 break-words text-sm leading-6 text-gray-500'>
                       {articles[0].short_desc}
                     </p>
                   )}
 
-                  {/* Topics */}
                   {articles[0].topics.length > 0 && (
                     <div className='mt-5 flex min-w-0 flex-wrap gap-2'>
                       {articles[0].topics.slice(0, 3).map(({ topic }) => (
@@ -207,7 +202,6 @@ export default async function LandingPage() {
                 </div>
               )}
 
-              {/* Article stats */}
               {articles.length > 0 && (
                 <div className='grid min-w-0 grid-cols-3 gap-2 border-t border-gray-100 pt-4 text-[9px] text-gray-400 sm:text-xs'>
                   <span className='min-w-0 truncate'>
@@ -225,7 +219,6 @@ export default async function LandingPage() {
               )}
             </div>
 
-            {/* Floating desktop card */}
             <div className='absolute -bottom-6 -left-5 hidden rounded-2xl border border-gray-200 bg-white p-4 shadow-xl sm:block'>
               <div className='flex items-center gap-3'>
                 <div className='flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#f7b801]/20'>
@@ -245,9 +238,6 @@ export default async function LandingPage() {
         </div>
       </section>
 
-      {/* =========================================================
-          STATS
-      ========================================================== */}
       <section className='w-full border-y border-gray-200 bg-white'>
         <div className='mx-auto grid w-full max-w-7xl grid-cols-2 divide-x divide-y divide-gray-200 sm:grid-cols-4 sm:divide-y-0'>
           <MiniStat
@@ -269,9 +259,6 @@ export default async function LandingPage() {
         </div>
       </section>
 
-      {/* =========================================================
-          TOPICS
-      ========================================================== */}
       <section className='w-full overflow-hidden'>
         <div className='mx-auto w-full max-w-7xl px-5 py-16 sm:px-8 sm:py-20 lg:px-10 lg:py-28'>
           <div className='flex min-w-0 flex-col justify-between gap-5 sm:flex-row sm:items-end'>
@@ -355,9 +342,6 @@ export default async function LandingPage() {
         </div>
       </section>
 
-      {/* =========================================================
-          WHY EDUCATION WITH HAMZA
-      ========================================================== */}
       <section className='w-full overflow-hidden bg-[#3d348b]'>
         <div className='mx-auto w-full max-w-7xl px-5 py-16 sm:px-8 sm:py-20 lg:px-10 lg:py-24'>
           <div className='max-w-2xl'>
@@ -397,9 +381,6 @@ export default async function LandingPage() {
         </div>
       </section>
 
-      {/* =========================================================
-          HOW IT WORKS
-      ========================================================== */}
       <section className='w-full overflow-hidden'>
         <div className='mx-auto w-full max-w-7xl px-5 py-16 sm:px-8 sm:py-20 lg:px-10 lg:py-28'>
           <div className='grid w-full min-w-0 gap-10 lg:grid-cols-[.8fr_1.2fr] lg:gap-12'>
@@ -455,9 +436,6 @@ export default async function LandingPage() {
         </div>
       </section>
 
-      {/* =========================================================
-          ARTICLES
-      ========================================================== */}
       <section className='w-full overflow-hidden border-y border-gray-200 bg-white'>
         <div className='mx-auto w-full max-w-7xl px-5 py-16 sm:px-8 sm:py-20 lg:px-10 lg:py-24'>
           <div className='flex min-w-0 flex-col justify-between gap-5 sm:flex-row sm:items-end'>
@@ -515,7 +493,6 @@ export default async function LandingPage() {
                   href={`/articles/${article.slug}`}
                   className='group min-w-0 overflow-hidden rounded-2xl border border-gray-200 bg-white transition duration-200 hover:-translate-y-1 hover:border-[#7678ed]/30 hover:shadow-xl hover:shadow-[#3d348b]/5'
                 >
-                  {/* Image */}
                   {article.image ? (
                     <div className='relative h-48 w-full overflow-hidden bg-gray-100 sm:h-52'>
                       <Image
@@ -533,7 +510,6 @@ export default async function LandingPage() {
                   )}
 
                   <div className='min-w-0 p-5 sm:p-6'>
-                    {/* Category */}
                     <div className='flex min-w-0 flex-wrap items-center gap-2'>
                       {article.category && (
                         <span className='max-w-full truncate rounded-full bg-[#3d348b]/10 px-3 py-1 text-[10px] font-bold text-[#3d348b] sm:text-[11px]'>
@@ -548,19 +524,16 @@ export default async function LandingPage() {
                       )}
                     </div>
 
-                    {/* Title */}
                     <h3 className='mt-4 break-words text-lg font-bold leading-snug text-gray-950 transition group-hover:text-[#3d348b] sm:mt-5 sm:text-xl'>
                       {article.title}
                     </h3>
 
-                    {/* Description */}
                     {article.short_desc && (
                       <p className='mt-3 line-clamp-3 break-words text-sm leading-6 text-gray-500'>
                         {article.short_desc}
                       </p>
                     )}
 
-                    {/* Topics */}
                     {article.topics.length > 0 && (
                       <div className='mt-4 flex min-w-0 flex-wrap gap-1.5'>
                         {article.topics.slice(0, 3).map(({ topic }) => (
@@ -574,7 +547,6 @@ export default async function LandingPage() {
                       </div>
                     )}
 
-                    {/* Author */}
                     <div className='mt-5 flex min-w-0 items-center gap-3 border-t border-gray-100 pt-5 sm:mt-6'>
                       {article.user?.image ? (
                         <Image
@@ -613,7 +585,6 @@ export default async function LandingPage() {
                       </div>
                     </div>
 
-                    {/* Engagement */}
                     <div className='mt-4 flex items-center gap-4 text-xs text-gray-400'>
                       <span className='flex items-center gap-1'>
                         <Heart className='h-3.5 w-3.5' />
@@ -633,9 +604,7 @@ export default async function LandingPage() {
         </div>
       </section>
 
-      {/* =========================================================
-          WRITER CTA
-      ========================================================== */}
+   
       <section className='w-full overflow-hidden'>
         <div className='mx-auto w-full max-w-7xl px-5 py-16 sm:px-8 sm:py-20 lg:px-10 lg:py-28'>
           <div className='relative w-full overflow-hidden rounded-[1.5rem] bg-[#f0effb] px-6 py-10 sm:rounded-[2rem] sm:px-10 sm:py-12 lg:px-16 lg:py-14'>
@@ -677,9 +646,6 @@ export default async function LandingPage() {
         </div>
       </section>
 
-      {/* =========================================================
-          FINAL CTA
-      ========================================================== */}
       <section className='w-full overflow-hidden bg-gray-950'>
         <div className='mx-auto w-full max-w-5xl px-5 py-16 text-center sm:px-8 sm:py-20 lg:py-24'>
           <div className='mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-[#f7b801]'>
@@ -716,9 +682,6 @@ export default async function LandingPage() {
         </div>
       </section>
 
-      {/* =========================================================
-          FOOTER
-      ========================================================== */}
       <footer className='w-full overflow-hidden bg-gray-950'>
         <div className='mx-auto flex w-full max-w-7xl flex-col gap-5 border-t border-white/10 px-5 py-7 sm:px-8 sm:py-8 md:flex-row md:items-center md:justify-between lg:px-10'>
           <div className='flex min-w-0 items-center gap-3'>
@@ -758,9 +721,6 @@ export default async function LandingPage() {
   )
 }
 
-/* =========================================================
-   COMPONENTS
-========================================================= */
 
 function MiniStat({ value, label }: { value: string; label: string }) {
   return (

@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef } from 'react'
-import { trackArticleView } from '@/utils/analytics'
+import { trackArticleView, trackArticleImpression } from '@/utils/analytics'
 
 interface AnalyticsTrackerProps {
   articleId: string
@@ -15,6 +15,7 @@ export default function AnalyticsTracker({
   const startTimeRef = useRef<number>(Date.now())
   const maxScrollRef = useRef<number>(0)
   const sessionIdRef = useRef<string>('')
+  const impressionTrackedRef = useRef<boolean>(false)
 
   useEffect(() => {
     sessionIdRef.current =
@@ -22,6 +23,15 @@ export default function AnalyticsTracker({
       `sess_${Math.random().toString(36).substring(2, 11)}_${Date.now()}`
 
     sessionStorage.setItem('analytics_session_id', sessionIdRef.current)
+
+    if (!impressionTrackedRef.current) {
+      trackArticleImpression({
+        articleId,
+        userId,
+        sessionId: sessionIdRef.current,
+      })
+      impressionTrackedRef.current = true
+    }
 
     const handleScroll = () => {
       const totalHeight =
