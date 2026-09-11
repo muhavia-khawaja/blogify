@@ -3,12 +3,15 @@
 import { useState, useEffect } from 'react'
 import {
   toggleLike,
+  toggleSavedArticle,
+  isArticleSavedByUser,
   getArticleLikes,
   isArticleLikedByUser,
   getCitationFormat,
   addCitation,
 } from '@/utils/actions'
 import { FiHeart, FiShare2, FiFileText, FiCheck } from 'react-icons/fi'
+import { FiBookmark } from 'react-icons/fi'
 
 interface BlogInteractionProps {
   articleId: string
@@ -24,16 +27,19 @@ export default function BlogInteraction({
   const [loading, setLoading] = useState(false)
   const [showCitationMenu, setShowCitationMenu] = useState(false)
   const [copiedFormat, setCopiedFormat] = useState<string | null>(null)
+  const [isSaved, setIsSaved] = useState(false)
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [likesCount, isLikedByUser] = await Promise.all([
+        const [likesCount, isLikedByUser, isSavedByUser] = await Promise.all([
           getArticleLikes(articleId),
           isArticleLikedByUser(articleId),
+          isArticleSavedByUser(articleId),
         ])
         setLikes(likesCount)
         setIsLiked(isLikedByUser)
+        setIsSaved(isSavedByUser)
       } catch (error) {
         console.error('Archive retrieval error:', error)
       }
@@ -47,16 +53,41 @@ export default function BlogInteraction({
     try {
       const result = await toggleLike(articleId)
       if (result?.error) {
-        alert(result.error)
+        window.dispatchEvent(
+          new CustomEvent('app:toast', { detail: result.error }),
+        )
         return
       }
       setIsLiked(!isLiked)
       setLikes((prev) => (isLiked ? prev - 1 : prev + 1))
+      window.dispatchEvent(
+        new CustomEvent('app:toast', {
+          detail: isLiked ? 'Like removed.' : 'Article liked.',
+        }),
+      )
     } catch (error) {
       console.error('System log error:', error)
     } finally {
       setLoading(false)
     }
+  }
+
+  const handleSave = async () => {
+    const result = await toggleSavedArticle(articleId)
+    if (result?.error) {
+      window.dispatchEvent(
+        new CustomEvent('app:toast', { detail: result.error }),
+      )
+      return
+    }
+    setIsSaved(Boolean(result.saved))
+    window.dispatchEvent(
+      new CustomEvent('app:toast', {
+        detail: result.saved
+          ? 'Article saved to your library.'
+          : 'Article removed from your library.',
+      }),
+    )
   }
 
   const handleCitation = async (format: string) => {
@@ -121,21 +152,17 @@ export default function BlogInteraction({
         </span>
       </button>
 
-      <div className='relative z-40'>
-        {/* <button
-          onClick={() => setShowCitationMenu(!showCitationMenu)}
-          className={`flex items-center gap-3 px-6 py-3 rounded-full border transition-all duration-300 z-[10] ${
-            showCitationMenu
-              ? 'bg-black text-white border-black'
-              : 'bg-white border-gray-100 text-gray-400 hover:border-black hover:text-black'
-          }`}
-        >
-          <FiFileText size={18} />
-          <span className='text-[10px] font-black uppercase tracking-widest'>
-            Cite Exhibit
-          </span>
-        </button> */}
+      <button
+        onClick={handleSave}
+        className={`flex items-center gap-3 rounded-full border px-6 py-3 transition-all ${isSaved ? 'border-[#3d348b]/20 bg-[#3d348b]/5 text-[#3d348b]' : 'border-gray-100 bg-white text-gray-400 hover:border-black hover:text-black'}`}
+      >
+        <FiBookmark size={18} className={isSaved ? 'fill-current' : ''} />
+        <span className='text-[10px] font-black uppercase tracking-widest'>
+          {isSaved ? 'Saved' : 'Save'}
+        </span>
+      </button>
 
+      <div className='relative z-40'>
         {showCitationMenu && (
           <div className='absolute bottom-full mb-4 left-0 w-48 bg-white border border-gray-100 rounded-[2rem] shadow-2xl overflow-hidden  p-2 animate-in fade-in slide-in-from-bottom-2'>
             {['APA', 'MLA', 'Chicago', 'Harvard'].map((format) => (

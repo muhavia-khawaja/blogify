@@ -2,18 +2,17 @@
 
 import { usePathname } from 'next/navigation'
 
-const AUTH_PATHS = ['/login', '/signup', '/forgot', '/write']
+const AUTH_PATHS = ['/login', '/signup', '/forgot']
 
 export default function ConditionalShell({
   children,
-  navbar,
   footer,
 }: {
   children: React.ReactNode
-  navbar: React.ReactNode
-  footer: React.ReactNode
+  footer?: React.ReactNode
 }) {
   const pathname = usePathname()
+
   const isAuthPage = AUTH_PATHS.includes(pathname)
 
   if (isAuthPage) {
@@ -21,9 +20,9 @@ export default function ConditionalShell({
   }
 
   return (
-    <div className='bg-white min-h-screen'>
-      {navbar}
-      <main>{children}</main>
+    <div className='min-h-screen bg-[#f8f9fc]'>
+      <main className='min-h-screen'>{children}</main>
+
       {footer}
     </div>
   )

@@ -17,6 +17,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     getAllAuthors(),
   ])
 
+  type SitemapArticle = {
+    slug?: string | null
+    published: boolean
+    updatedAt?: Date | string | null
+    createdAt: Date | string
+  }
+
+  type SitemapCategory = {
+    slug?: string | null
+  }
+
+  type SitemapAuthor = {
+    id?: string | null
+    name: string
+  }
+
   const staticPages: MetadataRoute.Sitemap = [
     {
       url: getAbsoluteUrl('/'),
@@ -55,7 +71,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     },
   ].map((p) => ({ ...p, lastModified: now }))
 
-  const articlePages: MetadataRoute.Sitemap = articles
+  const articlePages: MetadataRoute.Sitemap = (articles as SitemapArticle[])
     .filter((a) => a.slug && a.published)
     .map((a) => ({
       url: getAbsoluteUrl(`/blog/${a.slug}`),
@@ -66,7 +82,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.8,
     }))
 
-  const categoryPages: MetadataRoute.Sitemap = categories
+  const categoryPages: MetadataRoute.Sitemap = (categories as SitemapCategory[])
     .filter((c) => c.slug)
     .map((c) => ({
       url: getAbsoluteUrl(`/blog?category=${c.slug}`),
@@ -75,7 +91,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.7,
     }))
 
-  const authorPages: MetadataRoute.Sitemap = authors
+  const authorPages: MetadataRoute.Sitemap = (authors as SitemapAuthor[])
     .filter((a) => a.id)
     .map((a) => ({
       url: getAbsoluteUrl(`/blog?author=${encodeURIComponent(a.name)}`),

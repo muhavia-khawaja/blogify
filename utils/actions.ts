@@ -16,57 +16,97 @@ cloudinary.config({
 
 const JWT_SECRET = process.env.JWT_SECRET || 'default_secret'
 
-export const getAllCategories = async () => {
-  return await prisma.category.findMany({
-    orderBy: { createdAt: 'desc' },
-  })
-}
+/* =========================================================
+   HELPERS
+========================================================= */
 
-export const createCategory = async (formData: FormData) => {
-  const title = formData.get('title') as string
-  const short_desc = formData.get('short_desc') as string
-  const long_desc = formData.get('long_desc') as string
-  const image = formData.get('image') as File
-
-  let imageUrl = ''
-
-  if (image && image.size > 0) {
-    try {
-      const imageBuffer = await image.arrayBuffer()
-      const imageBuff = Buffer.from(imageBuffer)
-
-      const imageResult = await new Promise<UploadApiResponse>(
-        (resolve, reject) => {
-          const stream = cloudinary.uploader.upload_stream(
-            {
-              folder: 'geology/categories',
-              resource_type: 'image',
-            },
-            (error, result) => {
-              if (error || !result) {
-                return reject(error || new Error('Upload failed'))
-              }
-              resolve(result)
-            },
-          )
-          stream.end(imageBuff)
-        },
-      )
-      imageUrl = imageResult.secure_url
-    } catch (error) {
-      console.error('Cloudinary Error:', error)
-    }
-  }
-
-  const slug = title
+const createSlug = (text: string) => {
+  return text
     .toLowerCase()
     .trim()
     .replace(/[^\w\s-]/g, '')
     .replace(/[\s_-]+/g, '-')
     .replace(/^-+|-+$/g, '')
+}
+
+const uploadImage = async (
+  image: File,
+  folder: string,
+  transformation?: Record<string, unknown>[],
+): Promise<string> => {
+  const imageBuffer = await image.arrayBuffer()
+  const imageBuff = Buffer.from(imageBuffer)
+
+  return await new Promise<string>((resolve, reject) => {
+    const uploadOptions: Record<string, unknown> = {
+      folder,
+      resource_type: 'image',
+    }
+
+    if (transformation) {
+      uploadOptions.transformation = transformation
+    }
+
+    const stream = cloudinary.uploader.upload_stream(
+      uploadOptions,
+      (error, result) => {
+        if (error || !result) {
+          reject(error || new Error('Image upload failed'))
+          return
+        }
+
+        resolve(result.secure_url)
+      },
+    )
+
+    stream.end(imageBuff)
+  })
+}
+
+/* =========================================================
+   CATEGORY
+========================================================= */
+
+export const getAllCategories = async () => {
+  return await prisma.category.findMany({
+    orderBy: {
+      createdAt: 'desc',
+    },
+  })
+}
+
+export const createCategory = async (formData: FormData) => {
+  const title = (formData.get('title') as string)?.trim()
+  const short_desc = (formData.get('short_desc') as string)?.trim()
+  const long_desc = (formData.get('long_desc') as string)?.trim()
+  const image = formData.get('image') as File | null
+
+  if (!title || !short_desc || !long_desc) {
+    throw new Error(
+      'Title, short description and long description are required.',
+    )
+  }
+
+  let imageUrl = ''
+
+  if (image && image.size > 0) {
+    try {
+      imageUrl = await uploadImage(image, 'geology/categories')
+    } catch (error) {
+      console.error('Cloudinary Error:', error)
+    }
+  }
+
+  const slug = createSlug(title)
 
   await prisma.category.create({
-    data: { title, short_desc, long_desc, slug, image: imageUrl },
+    data: {
+      title,
+      short_desc,
+      long_desc,
+      slug,
+      image: imageUrl || null,
+    },
   })
 
   revalidatePath('/control/categories')
@@ -75,47 +115,41 @@ export const createCategory = async (formData: FormData) => {
 
 export const getCategoryBySlug = async (slug: string) => {
   return await prisma.category.findUnique({
-    where: { slug },
+    where: {
+      slug,
+    },
   })
 }
 
 export const updateCategory = async (formData: FormData) => {
   const id = formData.get('id') as string
-  const title = formData.get('title') as string
-  const short_desc = formData.get('short_desc') as string
-  const long_desc = formData.get('long_desc') as string
+  const title = (formData.get('title') as string)?.trim()
+  const short_desc = (formData.get('short_desc') as string)?.trim()
+  const long_desc = (formData.get('long_desc') as string)?.trim()
   const image = formData.get('image') as File | null
 
-  const newSlug = title
-    .toLowerCase()
-    .trim()
-    .replace(/[^\w\s-]/g, '')
-    .replace(/[\s_-]+/g, '-')
-    .replace(/^-+|-+$/g, '')
+  if (!id || !title || !short_desc || !long_desc) {
+    throw new Error('Required category information is missing.')
+  }
 
-  let imageUrl: string | undefined = undefined
+  const newSlug = createSlug(title)
+
+  let imageUrl: string | undefined
 
   if (image && image.size > 0) {
-    const imageBuffer = await image.arrayBuffer()
-    const imageBuff = Buffer.from(imageBuffer)
-    const result = await new Promise<UploadApiResponse>((resolve, reject) => {
-      const stream = cloudinary.uploader.upload_stream(
-        { folder: 'geology/categories', resource_type: 'image' },
-        (err, res) => (err ? reject(err) : resolve(res!)),
-      )
-      stream.end(imageBuff)
-    })
-    imageUrl = result.secure_url
+    imageUrl = await uploadImage(image, 'geology/categories')
   }
 
   await prisma.category.update({
-    where: { id },
+    where: {
+      id,
+    },
     data: {
       title,
       short_desc,
       long_desc,
       slug: newSlug,
-      ...(imageUrl && { image: imageUrl }),
+      ...(imageUrl ? { image: imageUrl } : {}),
     },
   })
 
@@ -126,34 +160,81 @@ export const updateCategory = async (formData: FormData) => {
 export const deleteCategory = async (formData: FormData) => {
   const id = formData.get('id') as string
 
+  if (!id) {
+    throw new Error('Category ID is required.')
+  }
+
   try {
     await prisma.category.delete({
-      where: { id },
+      where: {
+        id,
+      },
     })
 
     revalidatePath('/control/categories')
   } catch (error) {
-    console.error('Delete Error:', error)
+    console.error('Delete Category Error:', error)
+    throw new Error('Unable to delete category.')
   }
 }
 
+/* =========================================================
+   ARTICLES
+========================================================= */
+
+/**
+ * Get all published articles.
+ *
+ * IMPORTANT:
+ * Article creator is now `user`, not `author`.
+ */
 export const getAllArticles = async (query?: string) => {
+  const search = query?.trim()
+
   return await prisma.article.findMany({
     where: {
       published: true,
-      ...(query && {
-        title: {
-          contains: query,
-          mode: 'insensitive',
-        },
-      }),
+      ...(search
+        ? {
+            OR: [
+              {
+                title: {
+                  contains: search,
+                  mode: 'insensitive',
+                },
+              },
+              {
+                short_desc: {
+                  contains: search,
+                  mode: 'insensitive',
+                },
+              },
+              {
+                user: {
+                  name: {
+                    contains: search,
+                    mode: 'insensitive',
+                  },
+                },
+              },
+            ],
+          }
+        : {}),
     },
+
     include: {
       category: true,
-      author: true,
       user: true,
+      topics: {
+        include: {
+          topic: true,
+        },
+      },
     },
-    orderBy: { createdAt: 'desc' },
+
+    orderBy: {
+      createdAt: 'desc',
+    },
   })
 }
 
@@ -162,190 +243,438 @@ export const getArticles = async () => {
     include: {
       user: true,
       category: true,
+      topics: {
+        include: {
+          topic: true,
+        },
+      },
+    },
+
+    orderBy: {
+      createdAt: 'desc',
     },
   })
 }
 
 export const createArticle = async (formData: FormData) => {
-  const currentUser = await getCurrentUser()
-  if (!currentUser) {
-    return { error: 'Authentication required.' }
-  }
+  try {
+    const currentUser = await getCurrentUser()
 
-  const title = formData.get('title') as string
-  const short_desc = formData.get('short_desc') as string
-  const long_desc = formData.get('long_desc') as string
-  const categoryId = formData.get('categoryId') as string
-  const tagsStr = formData.get('tags') as string
-  const image = formData.get('image') as File
+    if (!currentUser?.id) {
+      return {
+        success: false,
+        error: 'Authentication required.',
+      }
+    }
 
-  const adminRecord = await prisma.admin.findUnique({
-    where: { email: currentUser.email },
-  })
-  const isAdmin = !!adminRecord
+    const title = (formData.get('title') as string)?.trim()
+    const short_desc = (formData.get('short_desc') as string)?.trim()
+    const long_desc = (formData.get('long_desc') as string)?.trim()
+    const categoryId = (formData.get('categoryId') as string)?.trim()
+    const tagsStr = (formData.get('tags') as string)?.trim()
 
-  const intent = formData.get('intent') as string
-  const status = isAdmin && intent === 'publish' ? 'PUBLISHED' : 'PENDING'
-  const published = status === 'PUBLISHED'
+    const image = formData.get('image') as File | null
 
-  const words = long_desc.split(/\s+/).length
-  const minutes = Math.ceil(words / 200)
-  const readTime = `${minutes} min read`
+    const topicIds = Array.from(
+      new Set(
+        formData
+          .getAll('topicIds')
+          .map((id) => String(id).trim())
+          .filter(Boolean),
+      ),
+    )
 
-  const slug = `${title
-    .toLowerCase()
-    .trim()
-    .replace(/[^\w\s-]/g, '')
-    .replace(/[\s_-]+/g, '-')
-    .replace(/^-+|-+$/g, '')}-${Date.now().toString().slice(-4)}`
+    if (!title) {
+      return {
+        success: false,
+        error: 'Title is required.',
+      }
+    }
 
-  const tags = tagsStr ? tagsStr.split(',').map((t) => t.trim()) : []
+    if (!short_desc) {
+      return {
+        success: false,
+        error: 'Short description is required.',
+      }
+    }
 
-  let imageUrl = ''
-  if (image && image.size > 0) {
-    try {
-      const imageBuffer = await image.arrayBuffer()
-      const imageBuff = Buffer.from(imageBuffer)
+    if (!long_desc) {
+      return {
+        success: false,
+        error: 'Article content is required.',
+      }
+    }
 
-      const imageResult = await new Promise<UploadApiResponse>(
-        (resolve, reject) => {
-          const stream = cloudinary.uploader.upload_stream(
-            {
-              folder: 'education/articles',
-              resource_type: 'image',
-            },
-            (error, result) => {
-              if (error || !result)
-                return reject(error || new Error('Upload failed'))
-              resolve(result)
-            },
-          )
-          stream.end(imageBuff)
+    if (!categoryId) {
+      return {
+        success: false,
+        error: 'Please select a category.',
+      }
+    }
+
+    const category = await prisma.category.findUnique({
+      where: {
+        id: categoryId,
+      },
+      select: {
+        id: true,
+      },
+    })
+
+    if (!category) {
+      return {
+        success: false,
+        error: 'Selected category does not exist.',
+      }
+    }
+
+    let validTopicIds: string[] = []
+
+    if (topicIds.length > 0) {
+      const existingTopics = await prisma.topic.findMany({
+        where: {
+          id: {
+            in: topicIds,
+          },
         },
-      )
-      imageUrl = imageResult.secure_url
-    } catch (err) {
-      console.error('Cloudinary Error:', err)
+        select: {
+          id: true,
+        },
+      })
+
+      validTopicIds = existingTopics.map((topic) => topic.id)
+    }
+
+    const adminRecord = await prisma.admin.findUnique({
+      where: {
+        email: currentUser.email,
+      },
+      select: {
+        id: true,
+      },
+    })
+
+    const isAdmin = !!adminRecord
+
+    const intent = (formData.get('intent') as string)?.trim()
+
+    const status = isAdmin && intent === 'publish' ? 'PUBLISHED' : 'PENDING'
+
+    const published = status === 'PUBLISHED'
+
+    const plainText = long_desc
+      .replace(/<[^>]*>/g, ' ')
+      .replace(/&nbsp;/g, ' ')
+      .replace(/\s+/g, ' ')
+      .trim()
+
+    const words = plainText ? plainText.split(/\s+/).filter(Boolean).length : 0
+
+    const minutes = Math.max(1, Math.ceil(words / 200))
+
+    const readTime = `${minutes} min read`
+
+    const baseSlug = createSlug(title)
+
+    const slug = `${baseSlug}-${Date.now().toString().slice(-6)}`
+
+    const tags = tagsStr
+      ? Array.from(
+          new Set(
+            tagsStr
+              .split(',')
+              .map((tag) => tag.trim())
+              .filter(Boolean),
+          ),
+        )
+      : []
+
+    let imageUrl = ''
+
+    if (image && image instanceof File && image.size > 0) {
+      try {
+        imageUrl = await uploadImage(image, 'education/articles')
+      } catch (error) {
+        console.error('Cloudinary article image upload failed:', error)
+
+        imageUrl = ''
+      }
+    }
+
+    const article = await prisma.article.create({
+      data: {
+        title,
+        short_desc,
+        long_desc,
+
+        categoryId,
+
+        userId: currentUser.id,
+
+        featured: isAdmin && formData.get('featured') === 'on',
+
+        mainPost: isAdmin && formData.get('mainPost') === 'on',
+
+        status,
+        published,
+
+        image: imageUrl || null,
+
+        tags,
+
+        slug,
+
+        readTime,
+
+        ...(validTopicIds.length > 0
+          ? {
+              topics: {
+                create: validTopicIds.map((topicId) => ({
+                  topic: {
+                    connect: {
+                      id: topicId,
+                    },
+                  },
+                })),
+              },
+            }
+          : {}),
+      },
+
+      select: {
+        id: true,
+        slug: true,
+        title: true,
+        status: true,
+        published: true,
+      },
+    })
+
+    revalidatePath('/latest')
+    revalidatePath('/for-you')
+    revalidatePath('/following')
+    revalidatePath('/library')
+
+    revalidatePath(`/profile/${currentUser.id}`)
+
+    revalidatePath(`/articles/${article.slug}`)
+
+    if (isAdmin) {
+      revalidatePath('/control/articles')
+
+      redirect(`/control/articles?success=true`)
+    }
+
+    redirect(`/profile/${currentUser.id}?submitted=true`)
+  } catch (error) {
+    if (
+      error &&
+      typeof error === 'object' &&
+      'digest' in error &&
+      typeof (error as { digest?: unknown }).digest === 'string' &&
+      (error as { digest: string }).digest.startsWith('NEXT_REDIRECT')
+    ) {
+      throw error
+    }
+
+    console.error('createArticle error:', error)
+
+    return {
+      success: false,
+      error: 'Something went wrong while creating the article.',
     }
   }
-
-  await prisma.article.create({
-    data: {
-      title,
-      short_desc,
-      long_desc,
-      categoryId: categoryId || null,
-      userId: currentUser.id,
-      featured: isAdmin ? formData.get('featured') === 'on' : false,
-      mainPost: isAdmin ? formData.get('mainPost') === 'on' : false,
-      status,
-      published,
-      image: imageUrl,
-      tags,
-      slug,
-      readTime,
-    },
-  })
-
-  revalidatePath('/blog')
-  revalidatePath('/profile')
-
-  if (isAdmin) {
-    revalidatePath('/control/articles')
-    redirect('/control/articles?success=true')
-  } else {
-    redirect('/profile?submitted=true')
-  }
 }
+
+/* =========================================================
+   DELETE ARTICLE
+========================================================= */
 
 export const deleteArticle = async (formData: FormData) => {
   const id = formData.get('id') as string
-  await prisma.article.delete({ where: { id } })
+
+  if (!id) {
+    throw new Error('Article ID is required.')
+  }
+
+  await prisma.article.delete({
+    where: {
+      id,
+    },
+  })
+
   revalidatePath('/control/articles')
+  revalidatePath('/blog')
+  revalidatePath('/following')
+  revalidatePath('/for-you')
 }
+
+/* =========================================================
+   UPDATE ARTICLE
+========================================================= */
 
 export const updateArticle = async (formData: FormData) => {
   const id = formData.get('id') as string
-  const title = formData.get('title') as string
-  const short_desc = formData.get('short_desc') as string
-  const long_desc = formData.get('long_desc') as string
-  const categoryId = formData.get('categoryId') as string
-  const authorId = formData.get('authorId') as string
-  const tagsStr = formData.get('tags') as string
+
+  const title = (formData.get('title') as string)?.trim()
+  const short_desc = (formData.get('short_desc') as string)?.trim()
+  const long_desc = (formData.get('long_desc') as string)?.trim()
+  const categoryId = (formData.get('categoryId') as string)?.trim()
+
+  /*
+   * OLD SYSTEM:
+   * authorId
+   *
+   * NEW SYSTEM:
+   * userId
+   *
+   * We support both field names here so your existing admin
+   * form does not immediately break.
+   */
+  const userId =
+    (formData.get('userId') as string)?.trim() ||
+    (formData.get('authorId') as string)?.trim() ||
+    ''
+
+  const tagsStr = (formData.get('tags') as string)?.trim()
 
   const featured = formData.get('featured') === 'on'
   const mainPost = formData.get('mainPost') === 'on'
 
   const intent = formData.get('intent') as string
+
   const isPublished = intent === 'publish'
+
   const image = formData.get('image') as File | null
 
-  const words = long_desc.split(/\s+/).length
-  const minutes = Math.ceil(words / 200)
+  if (!id || !title || !short_desc || !long_desc) {
+    throw new Error('Required article information is missing.')
+  }
+
+  const words = long_desc.split(/\s+/).filter(Boolean).length
+  const minutes = Math.max(1, Math.ceil(words / 200))
   const readTime = `${minutes} min read`
 
-  const tags = tagsStr ? tagsStr.split(',').map((t) => t.trim()) : []
-  const slug = title
-    .toLowerCase()
-    .trim()
-    .replace(/[^\w\s-]/g, '')
-    .replace(/[\s_-]+/g, '-')
-    .replace(/^-+|-+$/g, '')
+  const tags = tagsStr
+    ? tagsStr
+        .split(',')
+        .map((tag) => tag.trim())
+        .filter(Boolean)
+    : []
 
-  let imageUrl: string | undefined = undefined
+  const slug = createSlug(title)
+
+  let imageUrl: string | undefined
 
   if (image && image.size > 0) {
-    const imageBuffer = await image.arrayBuffer()
-    const imageBuff = Buffer.from(imageBuffer)
-    const result = await new Promise<UploadApiResponse>((resolve, reject) => {
-      const stream = cloudinary.uploader.upload_stream(
-        { folder: 'geology/articles', resource_type: 'image' },
-        (err, res) => (err ? reject(err) : resolve(res!)),
-      )
-      stream.end(imageBuff)
-    })
-    imageUrl = result.secure_url
+    imageUrl = await uploadImage(image, 'education/articles')
   }
 
   if (mainPost) {
     await prisma.article.updateMany({
-      where: { mainPost: true, id: { not: id } },
-      data: { mainPost: false },
+      where: {
+        mainPost: true,
+        id: {
+          not: id,
+        },
+      },
+      data: {
+        mainPost: false,
+      },
     })
   }
 
+  /*
+   * Optional topic IDs.
+   */
+  const topicIds = formData
+    .getAll('topicIds')
+    .map((topicId) => String(topicId).trim())
+    .filter(Boolean)
+
+  /*
+   * Update article first.
+   */
   await prisma.article.update({
-    where: { id },
+    where: {
+      id,
+    },
+
     data: {
       title,
       short_desc,
       long_desc,
+
       categoryId: categoryId || null,
-      authorId: authorId || null,
+
+      /*
+       * Only change the creator if a userId/authorId
+       * was actually supplied.
+       */
+      ...(userId
+        ? {
+            userId,
+          }
+        : {}),
+
       featured,
       mainPost,
       readTime,
+
       published: isPublished,
       status: isPublished ? 'PUBLISHED' : 'PENDING',
+
       slug,
       tags,
-      ...(imageUrl && { image: imageUrl }),
+
+      ...(imageUrl
+        ? {
+            image: imageUrl,
+          }
+        : {}),
     },
   })
 
+  if (topicIds.length > 0) {
+    await prisma.articleTopic.deleteMany({
+      where: {
+        articleId: id,
+      },
+    })
+
+    await prisma.articleTopic.createMany({
+      data: topicIds.map((topicId) => ({
+        articleId: id,
+        topicId,
+      })),
+    })
+  }
+
   revalidatePath('/control/articles')
   revalidatePath('/blog')
+  revalidatePath('/following')
+  revalidatePath('/for-you')
+
   redirect('/control/articles')
 }
 
 export const getArticleBySlug = async (slug: string) => {
   return await prisma.article.findUnique({
-    where: { slug },
+    where: {
+      slug,
+    },
+
     include: {
       category: true,
       reviews: true,
-      author: true,
+
       user: true,
+
+      topics: {
+        include: {
+          topic: true,
+        },
+      },
     },
   })
 }
@@ -370,11 +699,15 @@ export const createReview = async (data: ReviewInput) => {
       },
     })
 
-    revalidatePath(`/blog/[slug]`, 'page')
+    revalidatePath('/blog/[slug]', 'page')
 
-    return { success: true, data: review }
+    return {
+      success: true,
+      data: review,
+    }
   } catch (error) {
     console.error('Review creation error:', error)
+
     throw new Error('Could not save review')
   }
 }
@@ -384,6 +717,7 @@ export const getAllReviews = async () => {
     orderBy: {
       createdAt: 'desc',
     },
+
     include: {
       article: true,
     },
@@ -406,27 +740,49 @@ export const deleteReview = async (formData: FormData) => {
   revalidatePath('/control/reviews')
 }
 
+/* =========================================================
+   ADMIN LOGIN
+========================================================= */
+
 export const login = async (formData: FormData) => {
-  const email = formData.get('email') as string
+  const email = (formData.get('email') as string)?.trim()
+
   const password = formData.get('password') as string
 
-  const user = await prisma.admin.findUnique({ where: { email } })
-  if (!user) redirect('/login?error=Invalid credentials')
+  const user = await prisma.admin.findUnique({
+    where: {
+      email,
+    },
+  })
+
+  if (!user) {
+    redirect('/login?error=Invalid credentials')
+  }
 
   const isMatch = await bcrypt.compare(password, user.password)
-  if (!isMatch) redirect('/login?error=Invalid credentials')
+
+  if (!isMatch) {
+    redirect('/login?error=Invalid credentials')
+  }
 
   const secret = new TextEncoder().encode(JWT_SECRET)
-  const token = await new SignJWT({ id: user.id })
-    .setProtectedHeader({ alg: 'HS256' })
+
+  const token = await new SignJWT({
+    id: user.id,
+  })
+    .setProtectedHeader({
+      alg: 'HS256',
+    })
     .setExpirationTime('2h')
     .sign(secret)
 
   const cookieStore = await cookies()
+
   cookieStore.set('token', token, {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     path: '/',
+    sameSite: 'lax',
   })
 
   redirect('/control')
@@ -434,9 +790,15 @@ export const login = async (formData: FormData) => {
 
 export const logout = async () => {
   const cookieStore = await cookies()
+
   cookieStore.delete('token')
+
   redirect('/control/login')
 }
+
+/* =========================================================
+   CREATE FIRST ADMIN
+========================================================= */
 
 export async function createFirstAdmin() {
   const isAlreadyAdmin = await prisma.admin.findFirst()
@@ -454,37 +816,82 @@ export async function createFirstAdmin() {
       password: hashedPassword,
     },
   })
+
   return admin
 }
 
+/* =========================================================
+   DASHBOARD
+========================================================= */
+
 export const getDashboardStats = async () => {
-  const [totalArticles, totalCategories, totalReviews, totalAdmins] =
-    await Promise.all([
-      prisma.article.count(),
-      prisma.category.count(),
-      prisma.review.count(),
-      prisma.admin.count(),
-    ])
-  return { totalArticles, totalCategories, totalReviews, totalAdmins }
+  const [
+    totalArticles,
+    totalCategories,
+    totalReviews,
+    totalAdmins,
+    totalUsers,
+  ] = await Promise.all([
+    prisma.article.count(),
+    prisma.category.count(),
+    prisma.review.count(),
+    prisma.admin.count(),
+    prisma.user.count(),
+  ])
+
+  return {
+    totalArticles,
+    totalCategories,
+    totalReviews,
+    totalAdmins,
+    totalUsers,
+  }
 }
 
 export const getRecentArticles = async () => {
   const published = await prisma.article.findMany({
-    where: { published: true },
+    where: {
+      published: true,
+    },
+
     take: 5,
-    orderBy: { createdAt: 'desc' },
-    include: { category: true },
+
+    orderBy: {
+      createdAt: 'desc',
+    },
+
+    include: {
+      category: true,
+      user: true,
+    },
   })
 
   const drafts = await prisma.article.findMany({
-    where: { published: false },
+    where: {
+      published: false,
+    },
+
     take: 5,
-    orderBy: { createdAt: 'desc' },
-    include: { category: true },
+
+    orderBy: {
+      createdAt: 'desc',
+    },
+
+    include: {
+      category: true,
+      user: true,
+    },
   })
 
-  return { published, drafts }
+  return {
+    published,
+    drafts,
+  }
 }
+
+/* =========================================================
+   BLOG HOME DATA
+========================================================= */
 
 export const getBlogData = async () => {
   const [heroPost, featuredPosts, latestPosts] = await Promise.all([
@@ -493,8 +900,15 @@ export const getBlogData = async () => {
         published: true,
         mainPost: true,
       },
-      include: { category: true, author: true, user: true },
-      orderBy: { createdAt: 'desc' },
+
+      include: {
+        category: true,
+        user: true,
+      },
+
+      orderBy: {
+        createdAt: 'desc',
+      },
     }),
 
     prisma.article.findMany({
@@ -503,9 +917,17 @@ export const getBlogData = async () => {
         featured: true,
         mainPost: false,
       },
-      orderBy: { createdAt: 'desc' },
+
+      orderBy: {
+        createdAt: 'desc',
+      },
+
       take: 4,
-      include: { category: true, author: true, user: true },
+
+      include: {
+        category: true,
+        user: true,
+      },
     }),
 
     prisma.article.findMany({
@@ -513,14 +935,30 @@ export const getBlogData = async () => {
         published: true,
         mainPost: false,
       },
-      orderBy: { createdAt: 'desc' },
+
+      orderBy: {
+        createdAt: 'desc',
+      },
+
       take: 5,
-      include: { category: true, author: true, user: true },
+
+      include: {
+        category: true,
+        user: true,
+      },
     }),
   ])
 
-  return { heroPost, featuredPosts, latestPosts }
+  return {
+    heroPost,
+    featuredPosts,
+    latestPosts,
+  }
 }
+
+/* =========================================================
+   BLOG PAGE
+========================================================= */
 
 export async function getBlogPageData(searchParams: {
   page?: string
@@ -529,7 +967,9 @@ export async function getBlogPageData(searchParams: {
   author?: string
 }) {
   const limit = 12
-  const page = Number(searchParams.page) || 1
+
+  const page = Math.max(1, Number(searchParams.page) || 1)
+
   const skip = (page - 1) * limit
 
   const where: any = {
@@ -542,19 +982,47 @@ export async function getBlogPageData(searchParams: {
     }
   }
 
+  /*
+   * `author` query parameter now searches
+   * the User who created the article.
+   */
   if (searchParams.author) {
-    where.author = {
-      name: { contains: searchParams.author, mode: 'insensitive' },
+    where.user = {
+      name: {
+        contains: searchParams.author,
+        mode: 'insensitive',
+      },
     }
   }
 
   if (searchParams.search) {
     where.OR = [
-      { title: { contains: searchParams.search, mode: 'insensitive' } },
-      { short_desc: { contains: searchParams.search, mode: 'insensitive' } },
       {
-        author: {
-          name: { contains: searchParams.search, mode: 'insensitive' },
+        title: {
+          contains: searchParams.search,
+          mode: 'insensitive',
+        },
+      },
+
+      {
+        short_desc: {
+          contains: searchParams.search,
+          mode: 'insensitive',
+        },
+      },
+
+      {
+        user: {
+          name: {
+            contains: searchParams.search,
+            mode: 'insensitive',
+          },
+        },
+      },
+
+      {
+        tags: {
+          has: searchParams.search,
         },
       },
     ]
@@ -563,16 +1031,39 @@ export async function getBlogPageData(searchParams: {
   const [blogs, totalCount, categories] = await Promise.all([
     prisma.article.findMany({
       where,
+
       skip,
       take: limit,
-      orderBy: { createdAt: 'desc' },
-      include: { category: true, author: true, user: true },
+
+      orderBy: {
+        createdAt: 'desc',
+      },
+
+      include: {
+        category: true,
+        user: true,
+        topics: {
+          include: {
+            topic: true,
+          },
+        },
+      },
     }),
-    prisma.article.count({ where }),
+
+    prisma.article.count({
+      where,
+    }),
+
     prisma.category.findMany({
       include: {
         _count: {
-          select: { articles: { where: { published: true } } },
+          select: {
+            articles: {
+              where: {
+                published: true,
+              },
+            },
+          },
         },
       },
     }),
@@ -580,6 +1071,7 @@ export async function getBlogPageData(searchParams: {
 
   return {
     blogs,
+
     categories: categories.map((cat) => ({
       id: cat.id,
       slug: cat.slug,
@@ -588,10 +1080,16 @@ export async function getBlogPageData(searchParams: {
       short: cat.short_desc,
       long: cat.long_desc,
     })),
+
     totalPages: Math.ceil(totalCount / limit),
+
     currentPage: page,
   }
 }
+
+/* =========================================================
+   RELATED POSTS
+========================================================= */
 
 export async function getRelatedPosts(
   categoryId?: string,
@@ -601,37 +1099,94 @@ export async function getRelatedPosts(
   try {
     const relatedPosts = await prisma.article.findMany({
       where: {
-        categoryId: categoryId,
-        id: { not: currentPostId },
+        ...(categoryId
+          ? {
+              categoryId,
+            }
+          : {}),
+
+        ...(currentPostId
+          ? {
+              id: {
+                not: currentPostId,
+              },
+            }
+          : {}),
+
         published: true,
       },
+
       take: limit,
-      orderBy: { createdAt: 'desc' },
+
+      orderBy: {
+        createdAt: 'desc',
+      },
+
       select: {
         id: true,
         title: true,
         slug: true,
         image: true,
         createdAt: true,
-        category: { select: { title: true, slug: true } },
+
+        category: {
+          select: {
+            title: true,
+            slug: true,
+          },
+        },
+
+        user: {
+          select: {
+            id: true,
+            name: true,
+            image: true,
+          },
+        },
       },
     })
 
     if (relatedPosts.length === 0) {
       return await prisma.article.findMany({
         where: {
-          id: { not: currentPostId },
+          ...(currentPostId
+            ? {
+                id: {
+                  not: currentPostId,
+                },
+              }
+            : {}),
+
           published: true,
         },
+
         take: limit,
-        orderBy: { createdAt: 'desc' },
+
+        orderBy: {
+          createdAt: 'desc',
+        },
+
         select: {
           id: true,
           title: true,
           slug: true,
           image: true,
           createdAt: true,
-          category: { select: { title: true, slug: true } },
+
+          category: {
+            select: {
+              title: true,
+              slug: true,
+            },
+          },
+
+          user: {
+            select: {
+              id: true,
+              name: true,
+              image: true,
+            },
+          },
         },
       })
     }
@@ -639,338 +1194,1287 @@ export async function getRelatedPosts(
     return relatedPosts
   } catch (error) {
     console.error('Error fetching related posts:', error)
+
     return []
   }
 }
 
-export const createAuthor = async (formData: FormData) => {
-  const name = formData.get('name') as string
-  const bio = formData.get('bio') as string
-  const image = formData.get('image') as File
-
-  let imageUrl: string | undefined = undefined
-
-  if (image && image.size > 0) {
-    const imageBuffer = await image.arrayBuffer()
-    const imageBuff = Buffer.from(imageBuffer)
-    const result = await new Promise<UploadApiResponse>((resolve, reject) => {
-      const stream = cloudinary.uploader.upload_stream(
-        { folder: 'geology/authors', resource_type: 'image' },
-        (err, res) => (err ? reject(err) : resolve(res!)),
-      )
-      stream.end(imageBuff)
-    })
-    imageUrl = result.secure_url
-  }
-
-  try {
-    await prisma.author.create({
-      data: {
-        name,
-        bio,
-        image: imageUrl,
-      },
-    })
-  } catch (error) {
-    console.error('Failed to create author:', error)
-    return
-  }
-
-  revalidatePath('/control/author')
-  revalidatePath('/blog')
-  redirect('/control/author')
-}
-
-export const getAllAuthors = async () => {
-  try {
-    const authors = await prisma.author.findMany({
-      include: {
-        _count: {
-          select: { articles: true },
-        },
-      },
-      orderBy: { createdAt: 'desc' },
-    })
-    return authors
-  } catch (error) {
-    console.error(error)
-    return []
-  }
-}
-
-export const getAuthor = async (id: string) => {
-  return await prisma.author.findUnique({
-    where: { id },
-  })
-}
-
-export const updateAuthor = async (formData: FormData) => {
-  const id = formData.get('id') as string
-  const name = formData.get('name') as string
-  const bio = formData.get('bio') as string
-  const image = formData.get('image') as File | null
-
-  let imageUrl: string | undefined = undefined
-
-  if (image && image.size > 0) {
-    const imageBuffer = await image.arrayBuffer()
-    const imageBuff = Buffer.from(imageBuffer)
-
-    const result = await new Promise<UploadApiResponse>((resolve, reject) => {
-      const stream = cloudinary.uploader.upload_stream(
-        {
-          folder: 'geology/authors',
-          resource_type: 'image',
-          transformation: [{ width: 400, height: 400, crop: 'fill' }],
-        },
-        (err, res) => (err ? reject(err) : resolve(res!)),
-      )
-      stream.end(imageBuff)
-    })
-    imageUrl = result.secure_url
-  }
-
-  await prisma.author.update({
-    where: { id },
-    data: {
-      name,
-      bio,
-      ...(imageUrl && { image: imageUrl }),
-    },
-  })
-
-  revalidatePath('/control/author')
-  revalidatePath('/blog')
-  redirect('/control/author')
-}
-
-export const sendMessage = async (formData: FormData) => {
-  const name = formData.get('name') as string
-  const email = formData.get('email') as string
-  const message = formData.get('message') as string
-
-  if (!name || !email || !message) {
-    throw new Error('All Fields are required!')
-  }
-
-  await prisma.contact.create({
-    data: { name, email, message },
-  })
-
-  revalidatePath('/contact')
-  redirect('/contact?success=true')
-}
-
-export const getContacts = async () => {
-  return await prisma.contact.findMany({
-    orderBy: { createdAt: 'desc' },
-  })
-}
-
-export const deleteContact = async (formData: FormData) => {
-  const id = formData.get('id') as string
-  await prisma.contact.delete({ where: { id } })
-  revalidatePath('/control/contacts')
-}
-
-export const sendEmailReply = async (formData: FormData) => {
-  const email = formData.get('email') as string
-  const message = formData.get('message') as string
-
-  console.log(`Sending email to ${email}: ${message}`)
-
-  return { success: true }
-}
+/* =========================================================
+   USER AUTHENTICATION
+========================================================= */
 
 export const registerUser = async (formData: FormData) => {
-  const name = formData.get('name') as string
-  const email = formData.get('email') as string
+  const name = (formData.get('name') as string)?.trim()
+
+  const email = (formData.get('email') as string)?.trim().toLowerCase()
+
   const password = formData.get('password') as string
+
   const confirmPassword = formData.get('confirmPassword') as string
 
   if (!name || !email || !password || !confirmPassword) {
-    return { error: 'All fields are required to join the archive.' }
+    return {
+      error: 'All fields are required to join the archive.',
+    }
   }
 
   if (password !== confirmPassword) {
-    return { error: 'Secrets do not match.' }
+    return {
+      error: 'Secrets do not match.',
+    }
   }
 
   if (password.length < 6) {
-    return { error: 'Secret must be at least 6 characters.' }
+    return {
+      error: 'Secret must be at least 6 characters.',
+    }
   }
 
   try {
-    const existingUser = await prisma.user.findUnique({ where: { email } })
+    const existingUser = await prisma.user.findUnique({
+      where: {
+        email,
+      },
+    })
+
     if (existingUser) {
-      return { error: 'This identity is already cataloged.' }
+      return {
+        error: 'This identity is already cataloged.',
+      }
     }
 
     const hashedPassword = await bcrypt.hash(password, 10)
+
     const user = await prisma.user.create({
-      data: { name, email, password: hashedPassword },
+      data: {
+        name,
+        email,
+        password: hashedPassword,
+      },
     })
 
     const secret = new TextEncoder().encode(JWT_SECRET)
-    const token = await new SignJWT({ userId: user.id, email: user.email })
-      .setProtectedHeader({ alg: 'HS256' })
+
+    const token = await new SignJWT({
+      userId: user.id,
+      email: user.email,
+    })
+      .setProtectedHeader({
+        alg: 'HS256',
+      })
       .setExpirationTime('7d')
       .sign(secret)
 
     const cookieStore = await cookies()
+
     cookieStore.set('auth_token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       maxAge: 60 * 60 * 24 * 7,
+      path: '/',
     })
   } catch (err) {
     console.error(err)
-    return { error: 'The system failed to register your signature.' }
+
+    return {
+      error: 'The system failed to register your signature.',
+    }
   }
 
   revalidatePath('/')
+
   redirect('/?status=registered')
 }
 
 export const loginUser = async (formData: FormData) => {
-  const email = formData.get('email') as string
+  const email = (formData.get('email') as string)?.trim().toLowerCase()
+
   const password = formData.get('password') as string
 
   if (!email || !password) {
-    return { error: 'Identity and secret are required.' }
+    return {
+      error: 'Identity and secret are required.',
+    }
   }
 
   try {
-    const user = await prisma.user.findUnique({ where: { email } })
+    const user = await prisma.user.findUnique({
+      where: {
+        email,
+      },
+    })
 
     if (!user) {
-      return { error: 'Invalid identity or secret.' }
+      return {
+        error: 'Invalid identity or secret.',
+      }
     }
 
     const passwordMatch = await bcrypt.compare(password, user.password)
+
     if (!passwordMatch) {
-      return { error: 'Invalid identity or secret.' }
+      return {
+        error: 'Invalid identity or secret.',
+      }
     }
 
     const secret = new TextEncoder().encode(JWT_SECRET)
-    const token = await new SignJWT({ userId: user.id, email: user.email })
-      .setProtectedHeader({ alg: 'HS256' })
+
+    const token = await new SignJWT({
+      userId: user.id,
+      email: user.email,
+    })
+      .setProtectedHeader({
+        alg: 'HS256',
+      })
       .setExpirationTime('7d')
       .sign(secret)
 
     const cookieStore = await cookies()
+
     cookieStore.set('auth_token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       maxAge: 60 * 60 * 24 * 7,
+      path: '/',
     })
   } catch (err) {
     console.error(err)
-    return { error: 'Authentication protocol failed.' }
+
+    return {
+      error: 'Authentication protocol failed.',
+    }
   }
 
   revalidatePath('/')
+
   redirect('/')
 }
 
 export const logoutUser = async () => {
   const cookieStore = await cookies()
+
   cookieStore.delete('auth_token')
+
   revalidatePath('/')
+
   redirect('/')
 }
 
+/* =========================================================
+   CURRENT USER
+========================================================= */
+
 export const getCurrentUser = async () => {
   const cookieStore = await cookies()
+
   const token = cookieStore.get('auth_token')?.value
 
-  if (!token) return null
+  if (!token) {
+    return null
+  }
 
   try {
     const secret = new TextEncoder().encode(JWT_SECRET)
+
     const { payload } = await jwtVerify(token, secret)
 
+    const userId = payload.userId as string
+
+    if (!userId) {
+      return null
+    }
+
     const user = await prisma.user.findUnique({
-      where: { id: payload.userId as string },
+      where: {
+        id: userId,
+      },
+
       include: {
         _count: {
           select: {
             likes: true,
             citations: true,
+            articles: true,
+            followers: true,
+            following: true,
+            topicFollows: true,
           },
         },
+
         articles: true,
       },
     })
 
     return user
   } catch (error) {
+    console.error('getCurrentUser error:', error)
+
     return null
   }
+}
+
+export const getUserById = async (userId: string) => {
+  if (!userId) {
+    return null
+  }
+
+  return await prisma.user.findUnique({
+    where: {
+      id: userId,
+    },
+
+    include: {
+      _count: {
+        select: {
+          articles: true,
+          followers: true,
+          following: true,
+          likes: true,
+        },
+      },
+    },
+  })
+}
+
+export const getUserByEmail = async (email: string) => {
+  return await prisma.user.findUnique({
+    where: {
+      email: email.trim().toLowerCase(),
+    },
+  })
+}
+
+export const updateProfile = async (formData: FormData) => {
+  const currentUser = await getCurrentUser()
+  const name = (formData.get('name') as string)?.trim()
+  const image = formData.get('image') as File | null
+
+  if (!currentUser) redirect('/login')
+  if (!name) throw new Error('Your name is required.')
+
+  let imageUrl: string | undefined
+  if (image && image.size > 0) imageUrl = await uploadImage(image, 'authors')
+
+  await prisma.user.update({
+    where: { id: currentUser.id },
+    data: { name, ...(imageUrl ? { image: imageUrl } : {}) },
+  })
+
+  revalidatePath('/profile')
+  revalidatePath(`/profile/${currentUser.id}`)
+  redirect('/profile?updated=1')
+}
+
+/* =========================================================
+   FOLLOW USER
+========================================================= */
+
+/**
+ * Follow another user.
+ *
+ * currentUser -> targetUser
+ */
+export const followUser = async (targetUserId: string) => {
+  try {
+    const currentUser = await getCurrentUser()
+
+    if (!currentUser) {
+      return {
+        error: 'You must be logged in to follow users.',
+      }
+    }
+
+    if (!targetUserId) {
+      return {
+        error: 'User ID is required.',
+      }
+    }
+
+    if (currentUser.id === targetUserId) {
+      return {
+        error: 'You cannot follow yourself.',
+      }
+    }
+
+    const targetUser = await prisma.user.findUnique({
+      where: {
+        id: targetUserId,
+      },
+    })
+
+    if (!targetUser) {
+      return {
+        error: 'User not found.',
+      }
+    }
+
+    const existingFollow = await prisma.userFollow.findUnique({
+      where: {
+        followerId_followingId: {
+          followerId: currentUser.id,
+          followingId: targetUserId,
+        },
+      },
+    })
+
+    if (existingFollow) {
+      return {
+        success: true,
+        following: true,
+      }
+    }
+
+    await prisma.userFollow.create({
+      data: {
+        followerId: currentUser.id,
+        followingId: targetUserId,
+      },
+    })
+
+    revalidatePath('/profile')
+    revalidatePath(`/profile/${targetUserId}`)
+    revalidatePath('/following')
+    revalidatePath('/for-you')
+
+    return {
+      success: true,
+      following: true,
+    }
+  } catch (error) {
+    console.error('Follow user error:', error)
+
+    return {
+      error: 'Failed to follow this user.',
+    }
+  }
+}
+
+/* =========================================================
+   UNFOLLOW USER
+========================================================= */
+
+export const unfollowUser = async (targetUserId: string) => {
+  try {
+    const currentUser = await getCurrentUser()
+
+    if (!currentUser) {
+      return {
+        error: 'You must be logged in to unfollow users.',
+      }
+    }
+
+    if (!targetUserId) {
+      return {
+        error: 'User ID is required.',
+      }
+    }
+
+    await prisma.userFollow.deleteMany({
+      where: {
+        followerId: currentUser.id,
+        followingId: targetUserId,
+      },
+    })
+
+    revalidatePath('/profile')
+    revalidatePath(`/profile/${targetUserId}`)
+    revalidatePath('/following')
+    revalidatePath('/for-you')
+
+    return {
+      success: true,
+      following: false,
+    }
+  } catch (error) {
+    console.error('Unfollow user error:', error)
+
+    return {
+      error: 'Failed to unfollow this user.',
+    }
+  }
+}
+
+/* =========================================================
+   TOGGLE USER FOLLOW
+========================================================= */
+
+export const toggleFollowUser = async (targetUserId: string) => {
+  try {
+    const currentUser = await getCurrentUser()
+
+    if (!currentUser) {
+      return {
+        error: 'You must be logged in to follow users.',
+      }
+    }
+
+    if (!targetUserId) {
+      return {
+        error: 'User ID is required.',
+      }
+    }
+
+    if (currentUser.id === targetUserId) {
+      return {
+        error: 'You cannot follow yourself.',
+      }
+    }
+
+    const existingFollow = await prisma.userFollow.findUnique({
+      where: {
+        followerId_followingId: {
+          followerId: currentUser.id,
+          followingId: targetUserId,
+        },
+      },
+    })
+
+    if (existingFollow) {
+      await prisma.userFollow.delete({
+        where: {
+          id: existingFollow.id,
+        },
+      })
+
+      revalidatePath('/profile')
+      revalidatePath(`/profile/${targetUserId}`)
+      revalidatePath('/following')
+      revalidatePath('/for-you')
+
+      return {
+        success: true,
+        following: false,
+      }
+    }
+
+    await prisma.userFollow.create({
+      data: {
+        followerId: currentUser.id,
+        followingId: targetUserId,
+      },
+    })
+
+    revalidatePath('/profile')
+    revalidatePath(`/profile/${targetUserId}`)
+    revalidatePath('/following')
+    revalidatePath('/for-you')
+
+    return {
+      success: true,
+      following: true,
+    }
+  } catch (error) {
+    console.error('Toggle follow error:', error)
+
+    return {
+      error: 'Failed to update follow status.',
+    }
+  }
+}
+
+/* =========================================================
+   CHECK FOLLOWING
+========================================================= */
+
+export async function isFollowingUser(followingId: string) {
+  const user = await getCurrentUser()
+
+  if (!user?.id) return false
+
+  const follow = await prisma.userFollow.findUnique({
+    where: {
+      followerId_followingId: {
+        followerId: user.id,
+        followingId,
+      },
+    },
+  })
+
+  return !!follow
+}
+
+/* =========================================================
+   FOLLOWER / FOLLOWING COUNTS
+========================================================= */
+
+export const getFollowerCount = async (userId: string) => {
+  if (!userId) {
+    return 0
+  }
+
+  return await prisma.userFollow.count({
+    where: {
+      followingId: userId,
+    },
+  })
+}
+
+export const getFollowingCount = async (userId: string) => {
+  if (!userId) {
+    return 0
+  }
+
+  return await prisma.userFollow.count({
+    where: {
+      followerId: userId,
+    },
+  })
+}
+
+/* =========================================================
+   GET FOLLOWERS
+========================================================= */
+
+export const getFollowers = async (userId: string) => {
+  if (!userId) {
+    return []
+  }
+
+  const follows = await prisma.userFollow.findMany({
+    where: {
+      followingId: userId,
+    },
+
+    orderBy: {
+      createdAt: 'desc',
+    },
+
+    include: {
+      follower: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          image: true,
+          createdAt: true,
+        },
+      },
+    },
+  })
+
+  return follows.map((follow) => follow.follower)
+}
+
+/* =========================================================
+   GET FOLLOWING
+========================================================= */
+
+export const getFollowing = async (userId: string) => {
+  if (!userId) {
+    return []
+  }
+
+  const follows = await prisma.userFollow.findMany({
+    where: {
+      followerId: userId,
+    },
+
+    orderBy: {
+      createdAt: 'desc',
+    },
+
+    include: {
+      following: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          image: true,
+          createdAt: true,
+        },
+      },
+    },
+  })
+
+  return follows.map((follow) => follow.following)
+}
+
+/* =========================================================
+   FOLLOWING FEED
+========================================================= */
+
+/**
+ * Gets articles from users that the current
+ * logged-in user follows.
+ */
+export async function getFollowingFeed() {
+  const user = await getCurrentUser()
+
+  if (!user?.id) {
+    return []
+  }
+
+  const following = await prisma.userFollow.findMany({
+    where: {
+      followerId: user.id,
+    },
+    select: {
+      followingId: true,
+    },
+  })
+
+  const followingIds = following.map((item) => item.followingId)
+
+  if (followingIds.length === 0) {
+    return []
+  }
+
+  return await prisma.article.findMany({
+    where: {
+      published: true,
+      userId: {
+        in: followingIds,
+      },
+    },
+
+    include: {
+      user: {
+        select: {
+          id: true,
+          name: true,
+          image: true,
+        },
+      },
+
+      category: true,
+
+      topics: {
+        include: {
+          topic: true,
+        },
+      },
+
+      _count: {
+        select: {
+          likes: true,
+          reviews: true,
+        },
+      },
+    },
+
+    orderBy: {
+      createdAt: 'desc',
+    },
+
+    take: 30,
+  })
+}
+
+/* =========================================================
+   TOPICS
+========================================================= */
+
+export const getAllTopics = async () => {
+  return await prisma.topic.findMany({
+    orderBy: {
+      name: 'asc',
+    },
+
+    include: {
+      _count: {
+        select: {
+          followers: true,
+          articles: true,
+        },
+      },
+    },
+  })
+}
+
+export const getTopicBySlug = async (slug: string) => {
+  return await prisma.topic.findUnique({
+    where: {
+      slug,
+    },
+
+    include: {
+      articles: {
+        include: {
+          article: {
+            include: {
+              user: true,
+              category: true,
+            },
+          },
+        },
+      },
+
+      _count: {
+        select: {
+          followers: true,
+        },
+      },
+    },
+  })
+}
+
+/* =========================================================
+   CREATE TOPIC
+========================================================= */
+
+export const createTopic = async (formData: FormData) => {
+  const name = (formData.get('name') as string)?.trim()
+
+  if (!name) {
+    return {
+      error: 'Topic name is required.',
+    }
+  }
+
+  const slug = createSlug(name)
+
+  try {
+    const existingTopic = await prisma.topic.findUnique({
+      where: {
+        slug,
+      },
+    })
+
+    if (existingTopic) {
+      return {
+        error: 'This topic already exists.',
+      }
+    }
+
+    const topic = await prisma.topic.create({
+      data: {
+        name,
+        slug,
+      },
+    })
+
+    revalidatePath('/topics')
+
+    return {
+      success: true,
+      topic,
+    }
+  } catch (error) {
+    console.error('Create topic error:', error)
+
+    return {
+      error: 'Failed to create topic.',
+    }
+  }
+}
+
+/* =========================================================
+   FOLLOW TOPIC
+========================================================= */
+
+export const followTopic = async (topicId: string) => {
+  try {
+    const currentUser = await getCurrentUser()
+
+    if (!currentUser) {
+      return {
+        error: 'You must be logged in to follow topics.',
+      }
+    }
+
+    if (!topicId) {
+      return {
+        error: 'Topic ID is required.',
+      }
+    }
+
+    const topic = await prisma.topic.findUnique({
+      where: {
+        id: topicId,
+      },
+    })
+
+    if (!topic) {
+      return {
+        error: 'Topic not found.',
+      }
+    }
+
+    const existing = await prisma.userTopic.findUnique({
+      where: {
+        userId_topicId: {
+          userId: currentUser.id,
+          topicId,
+        },
+      },
+    })
+
+    if (existing) {
+      return {
+        success: true,
+        following: true,
+      }
+    }
+
+    await prisma.userTopic.create({
+      data: {
+        userId: currentUser.id,
+        topicId,
+      },
+    })
+
+    revalidatePath('/topics')
+    revalidatePath('/following')
+    revalidatePath('/for-you')
+
+    return {
+      success: true,
+      following: true,
+    }
+  } catch (error) {
+    console.error('Follow topic error:', error)
+
+    return {
+      error: 'Failed to follow this topic.',
+    }
+  }
+}
+
+/* =========================================================
+   UNFOLLOW TOPIC
+========================================================= */
+
+export const unfollowTopic = async (topicId: string) => {
+  try {
+    const currentUser = await getCurrentUser()
+
+    if (!currentUser) {
+      return {
+        error: 'You must be logged in to unfollow topics.',
+      }
+    }
+
+    if (!topicId) {
+      return {
+        error: 'Topic ID is required.',
+      }
+    }
+
+    await prisma.userTopic.deleteMany({
+      where: {
+        userId: currentUser.id,
+        topicId,
+      },
+    })
+
+    revalidatePath('/topics')
+    revalidatePath('/following')
+    revalidatePath('/for-you')
+
+    return {
+      success: true,
+      following: false,
+    }
+  } catch (error) {
+    console.error('Unfollow topic error:', error)
+
+    return {
+      error: 'Failed to unfollow this topic.',
+    }
+  }
+}
+
+export async function toggleFollowTopic(topicId: string) {
+  const user = await getCurrentUser()
+
+  if (!user?.id) {
+    return {
+      success: false,
+      message: 'Please login first',
+    }
+  }
+
+  const existing = await prisma.userTopic.findUnique({
+    where: {
+      userId_topicId: {
+        userId: user.id,
+        topicId: topicId,
+      },
+    },
+  })
+
+  if (existing) {
+    await prisma.userTopic.delete({
+      where: {
+        id: existing.id,
+      },
+    })
+
+    return {
+      success: true,
+      following: false,
+    }
+  }
+
+  await prisma.userTopic.create({
+    data: {
+      userId: user.id,
+      topicId: topicId,
+    },
+  })
+
+  return {
+    success: true,
+    following: true,
+  }
+}
+
+/* =========================================================
+   CHECK TOPIC FOLLOW
+========================================================= */
+
+export async function isFollowingTopic(topicId: string) {
+  const user = await getCurrentUser()
+
+  if (!user?.id) {
+    return false
+  }
+
+  const follow = await prisma.userTopic.findUnique({
+    where: {
+      userId_topicId: {
+        userId: user.id,
+        topicId: topicId,
+      },
+    },
+  })
+
+  return !!follow
+}
+/* =========================================================
+   USER'S FOLLOWED TOPICS
+========================================================= */
+
+export const getUserTopics = async (userId?: string) => {
+  const targetUserId = userId || (await getCurrentUser())?.id
+
+  if (!targetUserId) {
+    return []
+  }
+
+  const follows = await prisma.userTopic.findMany({
+    where: {
+      userId: targetUserId,
+    },
+
+    orderBy: {
+      createdAt: 'desc',
+    },
+
+    include: {
+      topic: true,
+    },
+  })
+
+  return follows.map((follow) => follow.topic)
+}
+
+/* =========================================================
+   TOPIC FEED
+========================================================= */
+
+export async function getTopicFeed(topicId: string) {
+  const articles = await prisma.article.findMany({
+    where: {
+      published: true,
+      topics: {
+        some: {
+          topicId: topicId,
+        },
+      },
+    },
+
+    include: {
+      user: {
+        select: {
+          id: true,
+          name: true,
+          image: true,
+        },
+      },
+
+      category: true,
+
+      topics: {
+        include: {
+          topic: true,
+        },
+      },
+
+      _count: {
+        select: {
+          likes: true,
+          reviews: true,
+        },
+      },
+    },
+
+    orderBy: {
+      createdAt: 'desc',
+    },
+
+    take: 30,
+  })
+
+  return articles
+}
+
+/* =========================================================
+   FOR YOU FEED
+========================================================= */
+
+/**
+ * Initial personalized feed.
+ *
+ * Combines:
+ *
+ * 1. Articles from followed users
+ * 2. Articles from followed topics
+ * 3. Recent popular/published articles as fallback
+ *
+ * This is intentionally simple for the first version.
+ * Later we can rank it using views, likes, read time,
+ * scroll depth and impressions.
+ */
+export async function getForYouFeed() {
+  const user = await getCurrentUser()
+
+  const where: any = {
+    published: true,
+  }
+
+  if (user?.id) {
+    const following = await prisma.userFollow.findMany({
+      where: {
+        followerId: user.id,
+      },
+      select: {
+        followingId: true,
+      },
+    })
+
+    const topicFollows = await prisma.userTopic.findMany({
+      where: {
+        userId: user.id,
+      },
+      select: {
+        topicId: true,
+      },
+    })
+
+    const followingIds = following.map((item) => item.followingId)
+
+    const topicIds = topicFollows.map((item) => item.topicId)
+
+    const personalizedConditions: any[] = []
+
+    if (followingIds.length > 0) {
+      personalizedConditions.push({
+        userId: {
+          in: followingIds,
+        },
+      })
+    }
+
+    if (topicIds.length > 0) {
+      personalizedConditions.push({
+        topics: {
+          some: {
+            topicId: {
+              in: topicIds,
+            },
+          },
+        },
+      })
+    }
+
+    if (personalizedConditions.length > 0) {
+      where.OR = personalizedConditions
+    }
+  }
+
+  const articles = await prisma.article.findMany({
+    where,
+
+    include: {
+      user: {
+        select: {
+          id: true,
+          name: true,
+          image: true,
+        },
+      },
+
+      category: true,
+
+      topics: {
+        include: {
+          topic: true,
+        },
+      },
+
+      _count: {
+        select: {
+          likes: true,
+          reviews: true,
+        },
+      },
+    },
+
+    orderBy: {
+      createdAt: 'desc',
+    },
+
+    take: 20,
+  })
+
+  return articles
 }
 
 export const toggleLike = async (articleId: string) => {
   try {
     const user = await getCurrentUser()
+
     if (!user) {
-      return { error: 'Authorization required to record preference.' }
+      return {
+        error: 'Authorization required to record preference.',
+      }
     }
 
     const existingLike = await prisma.like.findUnique({
-      where: { articleId_userId: { articleId, userId: user.id } },
+      where: {
+        articleId_userId: {
+          articleId,
+          userId: user.id,
+        },
+      },
     })
 
     if (existingLike) {
       await prisma.like.delete({
-        where: { id: existingLike.id },
+        where: {
+          id: existingLike.id,
+        },
       })
     } else {
       await prisma.like.create({
-        data: { articleId, userId: user.id },
+        data: {
+          articleId,
+          userId: user.id,
+        },
       })
     }
 
-    revalidatePath(`/blog/[slug]`, 'page')
-    return { success: true }
+    revalidatePath('/blog/[slug]', 'page')
+    revalidatePath('/for-you')
+    revalidatePath('/library/liked')
+
+    return {
+      success: true,
+      liked: !existingLike,
+    }
   } catch (error) {
     console.error('Like toggle error:', error)
-    return { error: 'Failed to update system logs.' }
+
+    return {
+      error: 'Failed to update system logs.',
+    }
   }
 }
 
 export const getArticleLikes = async (articleId: string) => {
-  return await prisma.like.count({ where: { articleId } })
+  return await prisma.like.count({
+    where: {
+      articleId,
+    },
+  })
 }
 
 export const isArticleLikedByUser = async (articleId: string) => {
   const user = await getCurrentUser()
-  if (!user) return false
+
+  if (!user) {
+    return false
+  }
 
   const like = await prisma.like.findUnique({
-    where: { articleId_userId: { articleId, userId: user.id } },
+    where: {
+      articleId_userId: {
+        articleId,
+        userId: user.id,
+      },
+    },
   })
 
   return !!like
 }
 
+export const toggleSavedArticle = async (articleId: string) => {
+  try {
+    const user = await getCurrentUser()
+    if (!user) return { error: 'You must be logged in to save articles.' }
+
+    const existing = await prisma.savedArticle.findUnique({
+      where: { articleId_userId: { articleId, userId: user.id } },
+    })
+
+    if (existing) {
+      await prisma.savedArticle.delete({ where: { id: existing.id } })
+    } else {
+      await prisma.savedArticle.create({ data: { articleId, userId: user.id } })
+    }
+
+    revalidatePath('/library')
+    return { success: true, saved: !existing }
+  } catch (error) {
+    console.error('Save toggle error:', error)
+    return { error: 'Failed to update saved articles.' }
+  }
+}
+
+export const isArticleSavedByUser = async (articleId: string) => {
+  const user = await getCurrentUser()
+  if (!user) return false
+
+  const saved = await prisma.savedArticle.findUnique({
+    where: { articleId_userId: { articleId, userId: user.id } },
+  })
+
+  return !!saved
+}
+
 export const addCitation = async (articleId: string, format: string) => {
   try {
     const user = await getCurrentUser()
+
     if (!user) {
-      return { error: 'Authentication required to log citation.' }
+      return {
+        error: 'Authentication required to log citation.',
+      }
     }
 
     await prisma.citation.create({
-      data: { articleId, userId: user.id, format },
+      data: {
+        articleId,
+        userId: user.id,
+        format,
+      },
     })
 
-    revalidatePath(`/blog/[slug]`, 'page')
-    return { success: true }
+    revalidatePath('/blog/[slug]', 'page')
+
+    return {
+      success: true,
+    }
   } catch (error) {
     console.error('Citation error:', error)
-    return { error: 'The citation registry is currently unavailable.' }
+
+    return {
+      error: 'The citation registry is currently unavailable.',
+    }
   }
 }
 
@@ -979,14 +2483,23 @@ export const getCitationFormat = async (
   format: string,
 ): Promise<string> => {
   const article = await prisma.article.findUnique({
-    where: { id: articleId },
-    include: { author: true },
+    where: {
+      id: articleId,
+    },
+
+    include: {
+      user: true,
+    },
   })
 
-  if (!article) return ''
+  if (!article) {
+    return ''
+  }
 
-  const authorName = article.author?.name || 'Anonymous'
+  const authorName = article.user?.name || 'Anonymous'
+
   const year = article.createdAt.getFullYear()
+
   const fullDate = article.createdAt.toLocaleDateString('en-GB', {
     day: 'numeric',
     month: 'long',
@@ -995,6 +2508,7 @@ export const getCitationFormat = async (
 
   const baseUrl =
     process.env.NEXT_PUBLIC_SITE_URL || 'https://blogifyguides.vercel.app'
+
   const url = `${baseUrl}/blog/${article.slug}`
 
   switch (format) {
@@ -1016,41 +2530,631 @@ export const getCitationFormat = async (
 }
 
 export const subscribeToNewsletter = async (formData: FormData) => {
-  const email = formData.get('email') as string
+  const email = (formData.get('email') as string)?.trim().toLowerCase()
 
   if (!email) {
     throw new Error('Email is required')
   }
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
   if (!emailRegex.test(email)) {
     throw new Error('Invalid email format')
   }
 
   const existingSubscription = await prisma.subscription.findUnique({
-    where: { email },
+    where: {
+      email,
+    },
   })
 
   if (existingSubscription) {
     throw new Error('Email already subscribed')
   }
 
-  await prisma.subscription.create({ data: { email } })
+  await prisma.subscription.create({
+    data: {
+      email,
+    },
+  })
 
-  return { success: true }
+  return {
+    success: true,
+  }
+}
+
+export const sendMessage = async (formData: FormData) => {
+  const name = (formData.get('name') as string)?.trim()
+
+  const email = (formData.get('email') as string)?.trim()
+
+  const message = (formData.get('message') as string)?.trim()
+
+  if (!name || !email || !message) {
+    throw new Error('All Fields are required!')
+  }
+
+  await prisma.contact.create({
+    data: {
+      name,
+      email,
+      message,
+    },
+  })
+
+  revalidatePath('/contact')
+
+  redirect('/contact?success=true')
+}
+
+export const getContacts = async () => {
+  return await prisma.contact.findMany({
+    orderBy: {
+      createdAt: 'desc',
+    },
+  })
+}
+
+export const deleteContact = async (formData: FormData) => {
+  const id = formData.get('id') as string
+
+  if (!id) {
+    throw new Error('Contact ID is required.')
+  }
+
+  await prisma.contact.delete({
+    where: {
+      id,
+    },
+  })
+
+  revalidatePath('/control/contacts')
+}
+
+export const sendEmailReply = async (formData: FormData) => {
+  const email = formData.get('email') as string
+
+  const message = formData.get('message') as string
+
+  console.log(`Sending email to ${email}: ${message}`)
+
+  return {
+    success: true,
+  }
 }
 
 export const getAllUsers = async () => {
   return await prisma.user.findMany({
     include: {
       articles: true,
+
       _count: {
         select: {
           articles: true,
           likes: true,
           citations: true,
+          followers: true,
+          following: true,
+          topicFollows: true,
+        },
+      },
+    },
+
+    orderBy: {
+      createdAt: 'desc',
+    },
+  })
+}
+
+export const getAllAuthors = async () => {
+  return await getAllUsers()
+}
+
+export const getAuthor = async (id: string) => {
+  const user = await prisma.user.findUnique({
+    where: { id },
+  })
+
+  return user
+    ? ({
+        ...user,
+        bio: null,
+      } as typeof user & { bio?: string | null })
+    : null
+}
+
+export const createAuthor = async (formData: FormData) => {
+  const name = (formData.get('name') as string)?.trim()
+  const bio = (formData.get('bio') as string)?.trim()
+  const image = formData.get('image') as File | null
+
+  if (!name) {
+    throw new Error('Author name is required.')
+  }
+
+  let imageUrl: string | null = null
+
+  if (image && image.size > 0) {
+    imageUrl = await uploadImage(image, 'authors')
+  }
+
+  const email = `${name.toLowerCase().replace(/\s+/g, '.')}@example.com`
+  const password = 'temporary-password'
+
+  await prisma.user.create({
+    data: {
+      name,
+      email,
+      password: await bcrypt.hash(password, 10),
+      image: imageUrl,
+    },
+  })
+
+  revalidatePath('/control/author')
+  redirect('/control/author')
+}
+
+export const updateAuthor = async (formData: FormData) => {
+  const id = (formData.get('id') as string)?.trim()
+  const name = (formData.get('name') as string)?.trim()
+  const bio = (formData.get('bio') as string)?.trim()
+  const image = formData.get('image') as File | null
+
+  if (!id || !name) {
+    throw new Error('Author ID and name are required.')
+  }
+
+  let imageUrl: string | undefined
+
+  if (image && image.size > 0) {
+    imageUrl = await uploadImage(image, 'authors')
+  }
+
+  await prisma.user.update({
+    where: { id },
+    data: {
+      name,
+      ...(imageUrl ? { image: imageUrl } : {}),
+    },
+  })
+
+  revalidatePath('/control/author')
+  redirect('/control/author')
+}
+
+export const getUserArticles = async (userId: string) => {
+  if (!userId) {
+    return []
+  }
+
+  return await prisma.article.findMany({
+    where: {
+      userId,
+      published: true,
+    },
+
+    orderBy: {
+      createdAt: 'desc',
+    },
+
+    include: {
+      category: true,
+
+      user: true,
+
+      topics: {
+        include: {
+          topic: true,
         },
       },
     },
   })
+}
+
+export const getUserProfileData = async (userId: string) => {
+  if (!userId) {
+    return null
+  }
+
+  const [user, articles, followersCount, followingCount] = await Promise.all([
+    prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        image: true,
+        createdAt: true,
+      },
+    }),
+
+    prisma.article.findMany({
+      where: {
+        userId,
+        published: true,
+      },
+
+      orderBy: {
+        createdAt: 'desc',
+      },
+
+      include: {
+        category: true,
+        user: true,
+
+        topics: {
+          include: {
+            topic: true,
+          },
+        },
+      },
+    }),
+
+    prisma.userFollow.count({
+      where: {
+        followingId: userId,
+      },
+    }),
+
+    prisma.userFollow.count({
+      where: {
+        followerId: userId,
+      },
+    }),
+  ])
+
+  if (!user) {
+    return null
+  }
+
+  const currentUser = await getCurrentUser()
+
+  let isFollowing = false
+
+  if (currentUser && currentUser.id !== userId) {
+    isFollowing = await isFollowingUser(userId)
+  }
+
+  return {
+    user,
+    articles,
+    followersCount,
+    followingCount,
+    isFollowing,
+  }
+}
+
+export async function getLatestArticles() {
+  return await prisma.article.findMany({
+    where: {
+      published: true,
+    },
+
+    include: {
+      user: {
+        select: {
+          id: true,
+          name: true,
+          image: true,
+        },
+      },
+
+      category: true,
+
+      topics: {
+        include: {
+          topic: true,
+        },
+      },
+
+      _count: {
+        select: {
+          likes: true,
+          reviews: true,
+        },
+      },
+    },
+
+    orderBy: {
+      createdAt: 'desc',
+    },
+
+    take: 30,
+  })
+}
+
+export async function getLibraryArticles() {
+  const user = await getCurrentUser()
+
+  if (!user?.id) {
+    return []
+  }
+
+  const articles = await prisma.article.findMany({
+    where: {
+      published: true,
+
+      savedArticles: {
+        some: {
+          userId: user.id,
+        },
+      },
+    },
+
+    include: {
+      user: {
+        select: {
+          id: true,
+          name: true,
+          image: true,
+        },
+      },
+
+      category: true,
+
+      topics: {
+        include: {
+          topic: true,
+        },
+      },
+
+      _count: {
+        select: {
+          likes: true,
+          reviews: true,
+        },
+      },
+    },
+
+    orderBy: {
+      createdAt: 'desc',
+    },
+
+    take: 50,
+  })
+
+  return articles
+}
+
+export async function getLikedArticles() {
+  const user = await getCurrentUser()
+
+  if (!user?.id) {
+    return []
+  }
+
+  const articles = await prisma.article.findMany({
+    where: {
+      published: true,
+      likes: {
+        some: {
+          userId: user.id,
+        },
+      },
+    },
+
+    include: {
+      user: {
+        select: {
+          id: true,
+          name: true,
+          image: true,
+        },
+      },
+
+      category: true,
+
+      topics: {
+        include: {
+          topic: true,
+        },
+      },
+
+      _count: {
+        select: {
+          likes: true,
+          reviews: true,
+        },
+      },
+    },
+
+    orderBy: {
+      createdAt: 'desc',
+    },
+
+    take: 50,
+  })
+
+  return articles
+}
+
+export async function getMyProfile() {
+  const user = await getCurrentUser()
+
+  if (!user?.id) {
+    return null
+  }
+
+  const profile = await prisma.user.findUnique({
+    where: {
+      id: user.id,
+    },
+    select: {
+      id: true,
+      name: true,
+      email: true,
+      image: true,
+      createdAt: true,
+
+      _count: {
+        select: {
+          articles: true,
+          followers: true,
+          following: true,
+          topicFollows: true,
+          likes: true,
+        },
+      },
+
+      articles: {
+        where: {
+          published: true,
+        },
+        orderBy: {
+          createdAt: 'desc',
+        },
+        take: 30,
+
+        include: {
+          category: true,
+
+          topics: {
+            include: {
+              topic: true,
+            },
+          },
+
+          _count: {
+            select: {
+              likes: true,
+              reviews: true,
+            },
+          },
+        },
+      },
+    },
+  })
+
+  return profile
+}
+
+export async function getLandingPageArticles() {
+  return await prisma.article.findMany({
+    where: {
+      published: true,
+    },
+    include: {
+      user: {
+        select: {
+          id: true,
+          name: true,
+          image: true,
+        },
+      },
+
+      category: true,
+
+      topics: {
+        include: {
+          topic: true,
+        },
+      },
+
+      _count: {
+        select: {
+          likes: true,
+          reviews: true,
+        },
+      },
+    },
+
+    orderBy: [
+      {
+        featured: 'desc',
+      },
+      {
+        createdAt: 'desc',
+      },
+    ],
+
+    take: 6,
+  })
+}
+
+export async function getLandingPageTopics() {
+  return await prisma.topic.findMany({
+    orderBy: {
+      createdAt: 'desc',
+    },
+    take: 6,
+    select: {
+      id: true,
+      name: true,
+      slug: true,
+
+      _count: {
+        select: {
+          followers: true,
+          articles: true,
+        },
+      },
+    },
+  })
+}
+
+export async function getPublicProfile(userId: string) {
+  try {
+    if (!userId) {
+      return null
+    }
+
+    const user = await prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        image: true,
+        createdAt: true,
+
+        _count: {
+          select: {
+            articles: true,
+            followers: true,
+            following: true,
+            topicFollows: true,
+          },
+        },
+
+        articles: {
+          where: {
+            published: true,
+          },
+
+          orderBy: {
+            createdAt: 'desc',
+          },
+
+          take: 30,
+
+          include: {
+            category: true,
+
+            topics: {
+              include: {
+                topic: true,
+              },
+            },
+
+            _count: {
+              select: {
+                likes: true,
+                reviews: true,
+              },
+            },
+          },
+        },
+      },
+    })
+
+    return user
+  } catch (error) {
+    console.error('getPublicProfile error:', error)
+    return null
+  }
 }
