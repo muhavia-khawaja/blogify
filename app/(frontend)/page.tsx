@@ -28,11 +28,8 @@ export default async function LandingPage() {
 
   return (
     <main className='min-h-screen w-full max-w-full overflow-x-hidden bg-[#f8f9fc] text-gray-950'>
-      {/* =========================================================
-          HERO
-      ========================================================== */}
+    
       <section className='relative w-full max-w-full overflow-hidden'>
-        {/* Background decoration */}
         <div
           className='pointer-events-none absolute -right-32 -top-20 h-64 w-64 rounded-full bg-[#7678ed]/10 blur-3xl sm:h-80 sm:w-80 lg:h-96 lg:w-96'
           aria-hidden='true'
@@ -44,11 +41,8 @@ export default async function LandingPage() {
         />
 
         <div className='relative mx-auto flex w-full max-w-7xl flex-col gap-10 px-4 pb-14 pt-8 sm:gap-14 sm:px-6 sm:pb-20 sm:pt-14 md:px-8 lg:grid lg:grid-cols-2 lg:items-center lg:gap-16 lg:px-10 lg:pb-28 lg:pt-20'>
-          {/* =====================================================
-              HERO CONTENT
-          ====================================================== */}
+        
           <div className='relative z-10 w-full min-w-0 max-w-full'>
-            {/* Badge */}
             <div className='mb-5 inline-flex max-w-full items-center gap-2 rounded-full border border-[#7678ed]/20 bg-white px-3 py-2 text-[10px] font-semibold text-[#3d348b] shadow-sm sm:mb-6 sm:px-3.5 sm:text-xs'>
               <Sparkles className='h-3.5 w-3.5 shrink-0' />
 
@@ -57,9 +51,6 @@ export default async function LandingPage() {
               </span>
             </div>
 
-            {/* =================================================
-                MOBILE-SAFE HEADING
-            ================================================== */}
             <h1 className='w-full max-w-full break-words text-[2.25rem] font-black leading-[1.02] tracking-[-0.035em] text-gray-950 min-[375px]:text-[2.45rem] sm:text-6xl sm:leading-[1.02] sm:tracking-[-0.04em] lg:text-7xl'>
               <span className='block'>Ideas that make</span>
 
@@ -68,13 +59,11 @@ export default async function LandingPage() {
               </span>
             </h1>
 
-            {/* Description */}
             <p className='mt-5 w-full max-w-2xl text-[14px] leading-6 text-gray-600 sm:mt-7 sm:text-lg sm:leading-8'>
               Discover useful articles, follow the people and topics you care
               about, and share what you know with a growing learning community.
             </p>
 
-            {/* CTA buttons */}
             <div className='mt-6 flex w-full flex-col gap-3 sm:mt-8 sm:flex-row'>
               <Link
                 href='/latest'
@@ -93,7 +82,6 @@ export default async function LandingPage() {
               </Link>
             </div>
 
-            {/* Benefits */}
             <div className='mt-7 flex w-full flex-col gap-3 text-xs text-gray-500 sm:mt-8 sm:flex-row sm:flex-wrap sm:gap-x-6 sm:gap-y-3 sm:text-sm'>
               <span className='flex items-center gap-2'>
                 <CheckCircle2 className='h-4 w-4 shrink-0 text-[#3d348b]' />
@@ -112,9 +100,6 @@ export default async function LandingPage() {
             </div>
           </div>
 
-          {/* =====================================================
-              FEATURED ARTICLE PREVIEW
-          ====================================================== */}
           <div className='relative mx-auto w-full min-w-0 max-w-xl lg:ml-auto'>
             <div className='relative w-full min-w-0 max-w-full overflow-hidden rounded-[1.35rem] border border-gray-200 bg-white p-3 shadow-2xl shadow-[#3d348b]/10 sm:rounded-[2rem] sm:p-5'>
               <div className='flex min-w-0 items-center justify-between gap-3 border-b border-gray-100 pb-4'>

@@ -239,36 +239,6 @@ export interface UpdateArticleInput {
   image?: string | null
 }
 
-export async function getArticleById(id: string) {
-  try {
-    return await prisma.article.findUnique({
-      where: { id },
-      include: {
-        category: {
-          select: {
-            id: true,
-            title: true,
-          },
-        },
-        user: {
-          select: {
-            name: true,
-            email: true,
-          },
-        },
-        analytics: {
-          select: {
-            totalViews: true,
-            uniqueVisitors: true,
-          },
-        },
-      },
-    })
-  } catch (error) {
-    console.error('Error fetching article by ID:', error)
-    return null
-  }
-}
 
 export async function getArticleBySlug(slug: string) {
   try {
