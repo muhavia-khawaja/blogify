@@ -158,7 +158,7 @@ export default function NotFound() {
                 </Link>
 
                 <Link
-                  href='/blog'
+                  href='/latest'
                   className='group inline-flex items-center
                     justify-center gap-3 rounded-xl
                     border border-gray-200 bg-white

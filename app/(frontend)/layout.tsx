@@ -3,6 +3,8 @@ import React from 'react'
 import type { Metadata } from 'next'
 import ActionToast from '@/components/ActionToast'
 import AdBanner from '@/components/AdBanner'
+import NewsletterModal from '@/components/Newsletter'
+import { saveSubscriptionAction } from '@/utils/actions'
 
 export const metadata: Metadata = {
   title: 'Education With Hamza',
@@ -27,6 +29,11 @@ export default function HomeLayout({
           className='mx-auto max-w-5xl px-5 pt-4 sm:px-8 lg:px-10'
         />
         {children}
+
+        <NewsletterModal
+          saveSubscription={saveSubscriptionAction}
+          delay={5000}
+        />
       </main>
     </div>
   )

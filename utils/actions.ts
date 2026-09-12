@@ -3164,3 +3164,56 @@ export async function getPublicProfile(userId: string) {
     return null
   }
 }
+
+export async function saveSubscriptionAction(email: string) {
+  try {
+    const cleanEmail = email.trim().toLowerCase()
+
+    if (!cleanEmail) {
+      return {
+        success: false,
+        message: 'Please enter your email address.',
+      }
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+    if (!emailRegex.test(cleanEmail)) {
+      return {
+        success: false,
+        message: 'Please enter a valid email address.',
+      }
+    }
+
+    const existingSubscription = await prisma.subscription.findUnique({
+      where: {
+        email: cleanEmail,
+      },
+    })
+
+    if (existingSubscription) {
+      return {
+        success: true,
+        message: 'You are already subscribed to our newsletter.',
+      }
+    }
+
+    await prisma.subscription.create({
+      data: {
+        email: cleanEmail,
+      },
+    })
+
+    return {
+      success: true,
+      message: 'Successfully subscribed to our newsletter!',
+    }
+  } catch (error) {
+    console.error('saveSubscriptionAction error:', error)
+
+    return {
+      success: false,
+      message: 'Something went wrong. Please try again later.',
+    }
+  }
+}
