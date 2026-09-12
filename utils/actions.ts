@@ -486,9 +486,6 @@ export const createArticle = async (formData: FormData) => {
   }
 }
 
-/* =========================================================
-   DELETE ARTICLE
-========================================================= */
 
 export const deleteArticle = async (formData: FormData) => {
   const id = formData.get('id') as string

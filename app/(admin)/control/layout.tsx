@@ -19,6 +19,8 @@ import {
   Settings,
   MoreHorizontal,
   PanelLeft,
+  Lock,
+  Image,
 } from 'lucide-react'
 import { logout } from '@/utils/actions'
 
@@ -77,6 +79,16 @@ export default function AdminLayout({
       href: '/control/settings',
       icon: Settings,
     },
+    {
+      name: 'AI Write',
+      href: 'ai-article',
+      icon: Zap,
+    },
+    {
+      name: 'AI Images',
+      href: 'ai-images',
+      icon: Image,
+    },
   ]
 
   const mobileDockItems: NavItem[] = [
@@ -86,7 +98,13 @@ export default function AdminLayout({
     navItems[4],
   ]
 
-  const mobileMoreItems: NavItem[] = [navItems[2], navItems[5], navItems[6]]
+  const mobileMoreItems: NavItem[] = [
+    navItems[2],
+    navItems[5],
+    navItems[6],
+    navItems[7],
+    navItems[8],
+  ]
 
   const isActive = (path: string) => {
     if (path === '/control') {
@@ -154,17 +172,10 @@ export default function AdminLayout({
             href='/control'
             className='group inline-flex items-center gap-3'
           >
-            <div className='flex h-11 w-11 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-emerald-600 text-white shadow-lg shadow-emerald-500/25 transition duration-300 group-hover:scale-105'>
-              <Zap size={22} strokeWidth={2.5} />
-            </div>
-
             <div>
-              <p className='text-[9px] font-black uppercase tracking-[0.3em] text-[#9B9890]'>
-                Content Hub
-              </p>
-
-              <p className='font-serif text-base font-bold text-[#1A1A18]'>
-                Registry
+              <p className='text-[9px] font-black uppercase tracking-[0.3em] text-[#9B9890] flex items-center gap-1'>
+                <Lock className='text-amber-600 ' size='9' />
+                Admin
               </p>
             </div>
           </Link>
@@ -185,7 +196,7 @@ export default function AdminLayout({
                 href={item.href}
                 className={`group flex items-center justify-between rounded-xl px-4 py-3.5 transition-all duration-200 ${
                   active
-                    ? 'border border-emerald-200/60 bg-gradient-to-r from-emerald-50 to-emerald-50/50 text-emerald-700 shadow-sm'
+                    ? 'border border-amber-200/60 bg-gradient-to-r from-amber-50 to-amber-50/50 text-amber-700 shadow-sm'
                     : 'text-[#6B6860] hover:bg-[#F7F5F0] hover:text-[#1A1A18]'
                 }`}
               >
