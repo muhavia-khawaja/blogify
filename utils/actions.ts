@@ -239,21 +239,45 @@ export const getAllArticles = async (query?: string) => {
 }
 
 export const getArticles = async () => {
-  return await prisma.article.findMany({
-    include: {
-      user: true,
-      category: true,
-      topics: {
-        include: {
-          topic: true,
+  try {
+    const articles = await prisma.article.findMany({
+      where: {
+        published: true,
+      },
+      include: {
+        user: true,
+        category: true,
+        topics: {
+          include: {
+            topic: true,
+          },
         },
       },
-    },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    })
 
-    orderBy: {
-      createdAt: 'desc',
-    },
-  })
+    return JSON.parse(JSON.stringify(articles))
+  } catch (error) {
+    console.error('getArticles error:', error)
+    return []
+  }
+}
+
+export async function getSubscribers() {
+  try {
+    const subscribers = await prisma.subscription.findMany({
+      orderBy: {
+        createdAt: 'desc',
+      },
+    })
+
+    return JSON.parse(JSON.stringify(subscribers))
+  } catch (error) {
+    console.error('getSubscribers error:', error)
+    return []
+  }
 }
 
 export const createArticle = async (formData: FormData) => {
@@ -486,7 +510,6 @@ export const createArticle = async (formData: FormData) => {
   }
 }
 
-
 export const deleteArticle = async (formData: FormData) => {
   const id = formData.get('id') as string
 
@@ -506,10 +529,6 @@ export const deleteArticle = async (formData: FormData) => {
   revalidatePath('/for-you')
 }
 
-/* =========================================================
-   UPDATE ARTICLE
-========================================================= */
-
 export const updateArticle = async (formData: FormData) => {
   const id = formData.get('id') as string
 
@@ -518,16 +537,6 @@ export const updateArticle = async (formData: FormData) => {
   const long_desc = (formData.get('long_desc') as string)?.trim()
   const categoryId = (formData.get('categoryId') as string)?.trim()
 
-  /*
-   * OLD SYSTEM:
-   * authorId
-   *
-   * NEW SYSTEM:
-   * userId
-   *
-   * We support both field names here so your existing admin
-   * form does not immediately break.
-   */
   const userId =
     (formData.get('userId') as string)?.trim() ||
     (formData.get('authorId') as string)?.trim() ||

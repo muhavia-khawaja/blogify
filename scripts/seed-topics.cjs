@@ -13,42 +13,39 @@ const env = fs
   }, {})
 
 const prisma = new PrismaClient({ datasourceUrl: env.DATABASE_URL })
-const names = [
-  'Mathematics',
-  'Physics',
-  'Chemistry',
-  'Biology',
-  'Computer Science',
-  'English',
-  'Study Skills',
-  'General Science',
-  'Pakistan Studies',
-  'Exam Preparation',
-]
 
-const slugify = (value) =>
-  value
-    .toLowerCase()
-    .trim()
-    .replace(/[^\w\s-]/g, '')
-    .replace(/[\s_-]+/g, '-')
-    .replace(/^-+|-+$/g, '')
+async function seedSubscriptions() {
+  console.log('--- Syncing User Emails to Subscriptions ---')
 
-async function seedTopics() {
-  for (const name of names) {
-    const slug = slugify(name)
-    const topic = await prisma.topic.upsert({
-      where: { slug },
+  const users = await prisma.user.findMany({
+    select: { email: true },
+    where: {
+      email: {
+        not: '',
+      },
+    },
+  })
+
+  console.log(`Found ${users.length} users to process.`)
+
+  for (const user of users) {
+    if (!user.email) continue
+
+    const subscription = await prisma.subscription.upsert({
+      where: { email: user.email },
       update: {},
-      create: { name, slug },
+      create: {
+        email: user.email,
+        status: true,
+      },
     })
-    console.log(`${topic.name} (${topic.slug})`)
+    console.log(`Subscription created/verified for: ${subscription.email}`)
   }
 }
 
-seedTopics()
+seedSubscriptions()
   .catch((error) => {
-    console.error(error)
+    console.error('Error seeding subscriptions:', error)
     process.exitCode = 1
   })
   .finally(() => prisma.$disconnect())

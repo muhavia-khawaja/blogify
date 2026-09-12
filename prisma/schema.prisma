@@ -265,6 +265,8 @@ model ArticleAnalytics {
 model Subscription {
   id        String   @id @default(auto()) @map("_id") @db.ObjectId
   email     String   @unique
+  status    Boolean @default(false)
+  
   createdAt DateTime @default(now())
 }
 

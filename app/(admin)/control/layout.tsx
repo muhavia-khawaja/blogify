@@ -81,13 +81,18 @@ export default function AdminLayout({
     },
     {
       name: 'AI Write',
-      href: 'ai-article',
+      href: '/control/ai-article',
       icon: Zap,
     },
     {
       name: 'AI Images',
-      href: 'ai-images',
+      href: '/control/ai-images',
       icon: Image,
+    },
+    {
+      name: 'Newsletter',
+      href: '/control/newsletter',
+      icon: MessageCircle,
     },
   ]
 
@@ -104,6 +109,7 @@ export default function AdminLayout({
     navItems[6],
     navItems[7],
     navItems[8],
+    navItems[9],
   ]
 
   const isActive = (path: string) => {
