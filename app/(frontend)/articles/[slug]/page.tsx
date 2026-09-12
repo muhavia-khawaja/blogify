@@ -25,7 +25,6 @@ import {
   isFollowingUser,
 } from '@/utils/actions'
 
-import InteractionRail from '@/components/InteractionRail'
 import ReadAloud from '@/components/ReadAloud'
 import BlogInteraction from '@/components/BlogInteraction'
 import ReadingProgress from '@/components/ReadingProgress'
@@ -630,10 +629,6 @@ export default async function ArticleDetail({
                 </div>
               )}
 
-              {/* ===================================================
-                  BLOG INTERACTION
-              =================================================== */}
-
               <div className='mt-12 border-t border-gray-200 pt-8'>
                 <BlogInteraction
                   articleId={article.id}
@@ -742,34 +737,6 @@ export default async function ArticleDetail({
                     <ReadAloud text={article.long_desc} />
                   </div>
                 </div>
-
-                {/* =================================================
-                    ARTICLE ACTIONS
-                ================================================= */}
-
-                <div className='rounded-2xl border border-gray-200 bg-white p-6 shadow-sm'>
-                  <div className='mb-4 flex items-center gap-3'>
-                    <div className='flex h-10 w-10 items-center justify-center rounded-xl bg-[#7678ed]/10'>
-                      <Share2 className='h-4 w-4 text-[#3d348b]' />
-                    </div>
-
-                    <div>
-                      <h3 className='text-sm font-bold text-gray-950'>
-                        Article actions
-                      </h3>
-
-                      <p className='mt-0.5 text-xs text-gray-400'>
-                        Like and share
-                      </p>
-                    </div>
-                  </div>
-
-                  <InteractionRail articleId={article.id} />
-                </div>
-
-                {/* =================================================
-                    RECOMMENDED
-                ================================================= */}
 
                 {relatedPosts.length > 0 && (
                   <div className='rounded-2xl border border-gray-200 bg-white p-6 shadow-sm'>

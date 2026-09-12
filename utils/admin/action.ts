@@ -239,7 +239,6 @@ export interface UpdateArticleInput {
   image?: string | null
 }
 
-
 export async function getArticleBySlug(slug: string) {
   try {
     const article = await prisma.article.findUnique({
@@ -557,7 +556,10 @@ export async function deleteTopic(id: string) {
 export async function getReviews() {
   try {
     return await prisma.review.findMany({
-      orderBy: { createdAt: 'desc' },
+      orderBy: {
+        createdAt: 'desc',
+      },
+
       select: {
         id: true,
         name: true,
@@ -565,6 +567,10 @@ export async function getReviews() {
         content: true,
         rating: true,
         createdAt: true,
+
+        articleId: true,
+        parentId: true,
+
         article: {
           select: {
             id: true,
@@ -572,24 +578,134 @@ export async function getReviews() {
             slug: true,
           },
         },
+
+        parent: {
+          select: {
+            id: true,
+            name: true,
+            content: true,
+          },
+        },
       },
     })
   } catch (error) {
     console.error('getReviews error:', error)
+
     return []
   }
 }
 
 export async function deleteReview(id: string) {
   try {
-    await prisma.review.delete({
-      where: { id },
+    const review = await prisma.review.findUnique({
+      where: {
+        id,
+      },
+
+      select: {
+        id: true,
+      },
+    })
+
+    if (!review) {
+      throw new Error('Review not found')
+    }
+    const idsToDelete = new Set<string>([id])
+
+    let currentParentIds = [id]
+
+    while (currentParentIds.length > 0) {
+      const children = await prisma.review.findMany({
+        where: {
+          parentId: {
+            in: currentParentIds,
+          },
+        },
+
+        select: {
+          id: true,
+        },
+      })
+
+      if (children.length === 0) {
+        break
+      }
+
+      const nextParentIds: string[] = []
+
+      for (const child of children) {
+        if (!idsToDelete.has(child.id)) {
+          idsToDelete.add(child.id)
+          nextParentIds.push(child.id)
+        }
+      }
+
+      currentParentIds = nextParentIds
+    }
+
+    const ids = Array.from(idsToDelete)
+
+    await prisma.$transaction(async (tx) => {
+      const remaining = new Set(ids)
+
+      while (remaining.size > 0) {
+        const removable = await tx.review.findMany({
+          where: {
+            id: {
+              in: Array.from(remaining),
+            },
+          },
+
+          select: {
+            id: true,
+            parentId: true,
+          },
+        })
+
+        const remainingIds = new Set(remaining)
+
+        const idsThatHaveChildren = new Set<string>()
+
+        for (const item of removable) {
+          if (item.parentId && remaining.has(item.parentId)) {
+            idsThatHaveChildren.add(item.parentId)
+          }
+        }
+
+        const deleteNow = removable
+          .filter((item) => !idsThatHaveChildren.has(item.id))
+          .map((item) => item.id)
+
+        if (deleteNow.length === 0) {
+          throw new Error('Unable to safely delete review thread.')
+        }
+
+        await tx.review.deleteMany({
+          where: {
+            id: {
+              in: deleteNow,
+            },
+          },
+        })
+
+        for (const deleteId of deleteNow) {
+          remainingIds.delete(deleteId)
+        }
+
+        remaining.clear()
+
+        for (const remainingId of remainingIds) {
+          remaining.add(remainingId)
+        }
+      }
     })
 
     revalidatePath('/control/reviews')
+
     return true
   } catch (error) {
     console.error('deleteReview error:', error)
+
     throw new Error('Failed to delete review')
   }
 }
