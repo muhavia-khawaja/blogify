@@ -12,8 +12,6 @@ import {
   CalendarDays,
   ChevronRight,
   Clock3,
-  MessageCircle,
-  Share2,
   Sparkles,
 } from 'lucide-react'
 
@@ -32,9 +30,11 @@ import AnalyticsTracker from '@/components/AnalyticsTracker'
 import JsonLd from '@/components/JsonLd'
 import ReadingMode from '@/components/ReadingMode'
 import ReviewsSection from '@/components/ReviewsSection'
-import { createReviewAction } from '@/utils/reviewsAction'
+import TranslatableArticleContent from '@/components/TranslatableArticleContent'
+import TranslateArticle from '@/components/TranslateArticle'
 
 import { buildMetadata, getAbsoluteUrl, SITE_NAME } from '@/utils/seo'
+import { createReviewAction } from '@/utils/reviewsAction'
 
 const FALLBACK_IMAGE = '/banner.jpg'
 
@@ -248,11 +248,9 @@ export default async function ArticleDetail({
 
   const articleJsonLd = {
     '@context': 'https://schema.org',
-
     '@graph': [
       {
         '@type': 'BreadcrumbList',
-
         itemListElement: [
           {
             '@type': 'ListItem',
@@ -274,47 +272,35 @@ export default async function ArticleDetail({
           },
         ],
       },
-
       {
         '@type': 'BlogPosting',
-
         headline: article.title,
-
         description: article.short_desc || article.long_desc || article.title,
-
         image: article.image
           ? getAbsoluteUrl(article.image)
           : getAbsoluteUrl(FALLBACK_IMAGE),
-
         datePublished: article.createdAt?.toISOString(),
-
         dateModified:
           article.updatedAt?.toISOString() || article.createdAt?.toISOString(),
-
         author: {
           '@type': 'Person',
           name: article.user?.name || 'Education With Hamza Writer',
-
           ...(authorId
             ? {
                 url: getAbsoluteUrl(`/profile/${authorId}`),
               }
             : {}),
         },
-
         publisher: {
           '@type': 'Organization',
           name: SITE_NAME,
           url: getAbsoluteUrl('/'),
-
           logo: {
             '@type': 'ImageObject',
             url: getAbsoluteUrl('/images/logo.png'),
           },
         },
-
         mainEntityOfPage: getAbsoluteUrl(`/articles/${article.slug}`),
-
         url: getAbsoluteUrl(`/articles/${article.slug}`),
       },
     ],
@@ -441,10 +427,6 @@ export default async function ArticleDetail({
               )}
             </div>
 
-            {/* =====================================================
-                ARTICLE ACTIONS / RATING
-            ===================================================== */}
-
             <div
               className='
                 mt-7
@@ -493,6 +475,13 @@ export default async function ArticleDetail({
               )}
 
               {article.long_desc && (
+                <TranslateArticle
+                  title={article.title}
+                  content={article.long_desc}
+                />
+              )}
+
+              {article.long_desc && (
                 <ReadingMode
                   longDesc={article.long_desc}
                   title={article.title}
@@ -501,10 +490,6 @@ export default async function ArticleDetail({
             </div>
           </div>
         </header>
-
-        {/* =========================================================
-            FEATURED IMAGE
-        ========================================================= */}
 
         <div className='mx-auto max-w-6xl px-5 py-8 sm:px-8 lg:px-10 lg:py-12'>
           <div className='relative aspect-[16/9] w-full overflow-hidden rounded-2xl border border-gray-200 bg-gray-900 shadow-xl shadow-gray-900/5 sm:rounded-3xl'>
@@ -517,101 +502,27 @@ export default async function ArticleDetail({
           </div>
         </div>
 
-        {/* =========================================================
-            MAIN CONTENT
-        ========================================================= */}
-
         <div className='mx-auto max-w-6xl px-5 pb-20 sm:px-8 lg:px-10 lg:pb-28'>
           <div className='grid grid-cols-1 gap-12 lg:grid-cols-12'>
-            {/* =====================================================
-                MAIN ARTICLE COLUMN
-            ===================================================== */}
-
             <main className='min-w-0 lg:col-span-8'>
               <div className='mb-10 flex flex-wrap items-center gap-4 border-b border-gray-200 pb-6 text-sm text-gray-500'>
                 <div className='flex items-center gap-2'>
                   <CalendarDays className='h-4 w-4 text-[#7678ed]' />
-
                   <span>Published {formatFullDate(article.createdAt)}</span>
                 </div>
 
                 {article.readTime && (
                   <div className='flex items-center gap-2'>
                     <Clock3 className='h-4 w-4 text-[#7678ed]' />
-
                     <span>{article.readTime} min read</span>
                   </div>
                 )}
               </div>
 
-              {/* ===================================================
-                  ARTICLE BODY
-              =================================================== */}
-
-              <div
-                className='
-                  prose
-                  prose-lg
-                  max-w-none
-                  text-gray-800
-
-                  prose-headings:font-black
-                  prose-headings:tracking-tight
-                  prose-headings:text-gray-950
-
-                  prose-h1:text-4xl
-                  prose-h2:mt-12
-                  prose-h2:text-3xl
-                  prose-h3:mt-10
-                  prose-h3:text-2xl
-                  prose-h4:text-xl
-
-                  prose-p:leading-8
-                  prose-p:text-gray-700
-
-                  prose-a:font-semibold
-                  prose-a:text-[#3d348b]
-                  prose-a:no-underline
-                  hover:prose-a:underline
-
-                  prose-strong:text-gray-950
-
-                  prose-blockquote:border-l-4
-                  prose-blockquote:border-[#7678ed]
-                  prose-blockquote:bg-[#3d348b]/5
-                  prose-blockquote:px-6
-                  prose-blockquote:py-3
-                  prose-blockquote:rounded-r-xl
-                  prose-blockquote:text-gray-700
-
-                  prose-img:rounded-2xl
-                  prose-img:border
-                  prose-img:border-gray-200
-                  prose-img:shadow-lg
-
-                  prose-code:rounded
-                  prose-code:bg-[#3d348b]/10
-                  prose-code:px-1.5
-                  prose-code:py-0.5
-                  prose-code:text-[#3d348b]
-                  prose-code:before:content-none
-                  prose-code:after:content-none
-
-                  prose-pre:rounded-2xl
-                  prose-pre:bg-gray-950
-                  prose-pre:border
-                  prose-pre:border-gray-800
-
-                  prose-li:marker:text-[#7678ed]
-                '
-                dangerouslySetInnerHTML={{
-                  __html: article.long_desc,
-                }}
+              <TranslatableArticleContent
+                title={article.title}
+                content={article.long_desc}
               />
-
-              {/* ===================================================
-                  TOPICS
-              =================================================== */}
 
               {article.topics?.length > 0 && (
                 <div className='mt-12 border-t border-gray-200 pt-8'>
@@ -635,10 +546,6 @@ export default async function ArticleDetail({
                   articleSlug={article.slug}
                 />
               </div>
-
-              {/* ===================================================
-                  AUTHOR
-              =================================================== */}
 
               {article.user && (
                 <section className='mt-14 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm sm:p-8'>
@@ -695,10 +602,6 @@ export default async function ArticleDetail({
                 </section>
               )}
 
-              {/* ===================================================
-                  THREADED REVIEWS / COMMENTS
-              =================================================== */}
-
               <ReviewsSection
                 reviews={reviewData}
                 articleId={article.id}
@@ -706,16 +609,8 @@ export default async function ArticleDetail({
               />
             </main>
 
-            {/* =====================================================
-                SIDEBAR
-            ===================================================== */}
-
             <aside className='lg:col-span-4'>
               <div className='space-y-6 lg:sticky lg:top-24'>
-                {/* =================================================
-                    READ ALOUD
-                ================================================= */}
-
                 <div className='rounded-2xl border border-gray-200 bg-white p-6 shadow-sm'>
                   <div className='flex items-center gap-3'>
                     <div className='flex h-10 w-10 items-center justify-center rounded-xl bg-[#3d348b]/10'>
@@ -781,10 +676,6 @@ export default async function ArticleDetail({
             </aside>
           </div>
         </div>
-
-        {/* =========================================================
-            RELATED ARTICLES
-        ========================================================= */}
 
         {relatedPosts.length > 0 && (
           <section className='border-t border-gray-200 bg-white'>

@@ -28,7 +28,6 @@ export default async function LandingPage() {
 
   return (
     <main className='min-h-screen w-full max-w-full overflow-x-hidden bg-[#f8f9fc] text-gray-950'>
-    
       <section className='relative w-full max-w-full overflow-hidden'>
         <div
           className='pointer-events-none absolute -right-32 -top-20 h-64 w-64 rounded-full bg-[#7678ed]/10 blur-3xl sm:h-80 sm:w-80 lg:h-96 lg:w-96'
@@ -41,7 +40,6 @@ export default async function LandingPage() {
         />
 
         <div className='relative mx-auto flex w-full max-w-7xl flex-col gap-10 px-4 pb-14 pt-8 sm:gap-14 sm:px-6 sm:pb-20 sm:pt-14 md:px-8 lg:grid lg:grid-cols-2 lg:items-center lg:gap-16 lg:px-10 lg:pb-28 lg:pt-20'>
-        
           <div className='relative z-10 w-full min-w-0 max-w-full'>
             <div className='mb-5 inline-flex max-w-full items-center gap-2 rounded-full border border-[#7678ed]/20 bg-white px-3 py-2 text-[10px] font-semibold text-[#3d348b] shadow-sm sm:mb-6 sm:px-3.5 sm:text-xs'>
               <Sparkles className='h-3.5 w-3.5 shrink-0' />
@@ -589,7 +587,6 @@ export default async function LandingPage() {
         </div>
       </section>
 
-   
       <section className='w-full overflow-hidden'>
         <div className='mx-auto w-full max-w-7xl px-5 py-16 sm:px-8 sm:py-20 lg:px-10 lg:py-28'>
           <div className='relative w-full overflow-hidden rounded-[1.5rem] bg-[#f0effb] px-6 py-10 sm:rounded-[2rem] sm:px-10 sm:py-12 lg:px-16 lg:py-14'>
@@ -650,18 +647,18 @@ export default async function LandingPage() {
 
           <div className='mt-7 flex w-full flex-col justify-center gap-3 sm:mt-8 sm:flex-row'>
             <Link
-              href='/signup'
+              href='/contact'
               className='inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[#f7b801] px-6 py-3.5 text-sm font-bold text-gray-950 transition hover:bg-[#f9c52e] sm:w-auto'
             >
-              Get started
+              Contact US
               <ArrowRight className='h-4 w-4 shrink-0' />
             </Link>
 
             <Link
-              href='/latest'
+              href='/pricing'
               className='inline-flex w-full items-center justify-center gap-2 rounded-xl border border-white/15 px-6 py-3.5 text-sm font-bold text-white transition hover:bg-white/10 sm:w-auto'
             >
-              Explore articles
+              Pricing
             </Link>
           </div>
         </div>
@@ -705,7 +702,6 @@ export default async function LandingPage() {
     </main>
   )
 }
-
 
 function MiniStat({ value, label }: { value: string; label: string }) {
   return (
@@ -772,10 +768,6 @@ function Step({
     </div>
   )
 }
-
-/* =========================================================
-   HELPERS
-========================================================= */
 
 function formatDate(date: Date | string) {
   return new Date(date).toLocaleDateString('en-US', {

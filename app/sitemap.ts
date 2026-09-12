@@ -68,6 +68,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'yearly' as const,
     },
     {
+      url: getAbsoluteUrl('/pricing'),
+      priority: 0.4,
+      changeFrequency: 'yearly' as const,
+    },
+    {
       url: getAbsoluteUrl('/signup'),
       priority: 0.4,
       changeFrequency: 'yearly' as const,
