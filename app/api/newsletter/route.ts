@@ -18,9 +18,9 @@ function escapeHtml(value: string | null | undefined): string {
 
 export async function POST(req: Request) {
   try {
-    // ---------------------------------------------------------
-    // 1. Validate request
-    // ---------------------------------------------------------
+    
+    
+    
 
     const body = await req.json()
 
@@ -44,9 +44,9 @@ export async function POST(req: Request) {
       )
     }
 
-    // ---------------------------------------------------------
-    // 2. Get selected published articles
-    // ---------------------------------------------------------
+    
+    
+    
 
     const articles = await prisma.article.findMany({
       where: {
@@ -68,7 +68,7 @@ export async function POST(req: Request) {
       )
     }
 
-    // Preserve the exact order selected in the admin panel
+    
     const orderedArticles = uniqueArticleIds
       .map((id) => articles.find((article) => article.id === id))
       .filter((article): article is (typeof articles)[number] =>
@@ -86,9 +86,9 @@ export async function POST(req: Request) {
       )
     }
 
-    // ---------------------------------------------------------
-    // 3. Get active subscribers
-    // ---------------------------------------------------------
+    
+    
+    
 
     const activeSubscribers = await prisma.subscription.findMany({
       where: {
@@ -111,9 +111,9 @@ export async function POST(req: Request) {
       )
     }
 
-    // ---------------------------------------------------------
-    // 4. Check Gmail configuration
-    // ---------------------------------------------------------
+    
+    
+    
 
     const smtpUser = process.env.SMTP_USER
     const smtpPass = process.env.SMTP_PASS
@@ -132,9 +132,9 @@ export async function POST(req: Request) {
       )
     }
 
-    // ---------------------------------------------------------
-    // 5. Create Gmail transporter
-    // ---------------------------------------------------------
+    
+    
+    
 
     const transporter = nodemailer.createTransport({
       service: 'gmail',
@@ -144,9 +144,9 @@ export async function POST(req: Request) {
       },
     })
 
-    // ---------------------------------------------------------
-    // 6. Verify Gmail connection
-    // ---------------------------------------------------------
+    
+    
+    
 
     try {
       await transporter.verify()
@@ -166,9 +166,9 @@ export async function POST(req: Request) {
       )
     }
 
-    // ---------------------------------------------------------
-    // 7. Build article sections
-    // ---------------------------------------------------------
+    
+    
+    
 
     const articleSections = orderedArticles
       .map((article, index) => {
@@ -313,18 +313,18 @@ export async function POST(req: Request) {
       })
       .join('')
 
-    // ---------------------------------------------------------
-    // 8. Newsletter subject
-    // ---------------------------------------------------------
+    
+    
+    
 
     const subject =
       orderedArticles.length === 1
         ? orderedArticles[0].title
         : `Education With Hamza — ${orderedArticles.length} New Articles`
 
-    // ---------------------------------------------------------
-    // 9. Complete newsletter HTML
-    // ---------------------------------------------------------
+    
+    
+    
 
     const emailHtml = `
       <!DOCTYPE html>
@@ -506,9 +506,9 @@ export async function POST(req: Request) {
       </html>
     `
 
-    // ---------------------------------------------------------
-    // 10. Send emails one by one
-    // ---------------------------------------------------------
+    
+    
+    
 
     let sentCount = 0
     const failedEmails: string[] = []
@@ -535,9 +535,9 @@ export async function POST(req: Request) {
       }
     }
 
-    // ---------------------------------------------------------
-    // 11. Mark only successfully emailed subscribers as inactive
-    // ---------------------------------------------------------
+    
+    
+    
 
     if (successfulSubscriberIds.length > 0) {
       await prisma.subscription.updateMany({
@@ -552,9 +552,9 @@ export async function POST(req: Request) {
       })
     }
 
-    // ---------------------------------------------------------
-    // 12. Return result
-    // ---------------------------------------------------------
+    
+    
+    
 
     return NextResponse.json({
       success: sentCount > 0,

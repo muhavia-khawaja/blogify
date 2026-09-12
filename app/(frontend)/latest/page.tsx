@@ -10,6 +10,8 @@ import {
 
 import { getLatestArticles } from '@/utils/actions'
 
+export const revalidate = 0
+
 export const metadata = {
   title: 'Latest Articles | Education With Hamza',
   description:

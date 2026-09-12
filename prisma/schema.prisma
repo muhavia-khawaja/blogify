@@ -80,13 +80,19 @@ model Review {
   content   String
   name      String
   email     String
-  rating    Int
+  rating    Int?
   createdAt DateTime @default(now())
 
   articleId String?  @db.ObjectId
   article   Article? @relation(fields: [articleId], references: [id], onDelete: Cascade)
 
+  parentId  String?  @db.ObjectId
+  parent    Review?  @relation("ReviewReplies", fields: [parentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  replies   Review[] @relation("ReviewReplies")
+
   @@index([articleId])
+  @@index([parentId])
 }
 
 model User {

@@ -10,15 +10,11 @@ import {
   ArrowRight,
   BookOpen,
   CalendarDays,
-  CheckCircle2,
   ChevronRight,
   Clock3,
-  Heart,
   MessageCircle,
-  PenLine,
   Share2,
   Sparkles,
-  UserPlus,
 } from 'lucide-react'
 
 import {
@@ -33,12 +29,13 @@ import InteractionRail from '@/components/InteractionRail'
 import ReadAloud from '@/components/ReadAloud'
 import BlogInteraction from '@/components/BlogInteraction'
 import ReadingProgress from '@/components/ReadingProgress'
-import ViewAllReviewsButton from '@/components/ViewAllReviews'
 import AnalyticsTracker from '@/components/AnalyticsTracker'
 import JsonLd from '@/components/JsonLd'
+import ReadingMode from '@/components/ReadingMode'
+import ReviewsSection from '@/components/ReviewsSection'
+import { createReviewAction } from '@/utils/reviewsAction'
 
 import { buildMetadata, getAbsoluteUrl, SITE_NAME } from '@/utils/seo'
-import ReadingMode from '@/components/ReadingMode'
 
 const FALLBACK_IMAGE = '/banner.jpg'
 
@@ -216,6 +213,38 @@ export default async function ArticleDetail({
 
   const reviews = article.reviews || []
 
+  const reviewData = reviews.map((review: any) => ({
+    id: review.id,
+    content: review.content,
+    name: review.name,
+    email: review.email,
+    rating:
+      review.rating === null || review.rating === undefined
+        ? null
+        : review.rating,
+    createdAt:
+      review.createdAt instanceof Date
+        ? review.createdAt.toISOString()
+        : new Date(review.createdAt).toISOString(),
+    articleId: review.articleId ?? article.id,
+    parentId: review.parentId ?? null,
+  }))
+
+  const ratedReviews = reviews.filter(
+    (review: any) =>
+      review.rating !== null &&
+      review.rating !== undefined &&
+      Number(review.rating) > 0,
+  )
+
+  const averageRating =
+    ratedReviews.length > 0
+      ? ratedReviews.reduce(
+          (total: number, review: any) => total + Number(review.rating),
+          0,
+        ) / ratedReviews.length
+      : 0
+
   const authorId = article.user?.id
 
   const articleJsonLd = {
@@ -266,6 +295,7 @@ export default async function ArticleDetail({
         author: {
           '@type': 'Person',
           name: article.user?.name || 'Education With Hamza Writer',
+
           ...(authorId
             ? {
                 url: getAbsoluteUrl(`/profile/${authorId}`),
@@ -277,6 +307,7 @@ export default async function ArticleDetail({
           '@type': 'Organization',
           name: SITE_NAME,
           url: getAbsoluteUrl('/'),
+
           logo: {
             '@type': 'ImageObject',
             url: getAbsoluteUrl('/images/logo.png'),
@@ -327,15 +358,15 @@ export default async function ArticleDetail({
 
             <h1
               className='
-        max-w-4xl
-        text-3xl
-        font-black
-        leading-[1.1]
-        tracking-tight
-        text-gray-950
-        sm:text-5xl
-        lg:text-6xl
-      '
+                max-w-4xl
+                text-3xl
+                font-black
+                leading-[1.1]
+                tracking-tight
+                text-gray-950
+                sm:text-5xl
+                lg:text-6xl
+              '
             >
               {article.title}
             </h1>
@@ -343,15 +374,15 @@ export default async function ArticleDetail({
             {article.short_desc && (
               <p
                 className='
-          mt-5
-          max-w-3xl
-          text-base
-          leading-7
-          text-gray-500
-          sm:mt-6
-          sm:text-lg
-          sm:leading-8
-        '
+                  mt-5
+                  max-w-3xl
+                  text-base
+                  leading-7
+                  text-gray-500
+                  sm:mt-6
+                  sm:text-lg
+                  sm:leading-8
+                '
               >
                 {article.short_desc}
               </p>
@@ -391,6 +422,7 @@ export default async function ArticleDetail({
 
                   <div className='mt-1 flex flex-wrap items-center gap-2 text-xs text-gray-400'>
                     <span>{formatDate(article.createdAt)}</span>
+
                     <span>•</span>
 
                     {article.readTime ? (
@@ -410,35 +442,39 @@ export default async function ArticleDetail({
               )}
             </div>
 
+            {/* =====================================================
+                ARTICLE ACTIONS / RATING
+            ===================================================== */}
+
             <div
               className='
-        mt-7
-        flex
-        flex-wrap
-        items-center
-        gap-3
-        border-t
-        border-gray-100
-        pt-6
-      '
+                mt-7
+                flex
+                flex-wrap
+                items-center
+                gap-3
+                border-t
+                border-gray-100
+                pt-6
+              '
             >
-              {reviews.length > 0 && (
+              {ratedReviews.length > 0 && (
                 <a
                   href='#reviews'
                   className='
-            inline-flex
-            items-center
-            gap-1.5
-            rounded-lg
-            border
-            border-[#f7b801]/20
-            bg-[#f7b801]/10
-            px-2.5
-            py-1.5
-            transition-all
-            hover:bg-[#f7b801]/20
-            hover:shadow-sm
-          '
+                    inline-flex
+                    items-center
+                    gap-1.5
+                    rounded-lg
+                    border
+                    border-[#f7b801]/20
+                    bg-[#f7b801]/10
+                    px-2.5
+                    py-1.5
+                    transition-all
+                    hover:bg-[#f7b801]/20
+                    hover:shadow-sm
+                  '
                   aria-label='View reviews'
                 >
                   <div className='flex text-xs leading-none text-[#f18701]'>
@@ -448,16 +484,11 @@ export default async function ArticleDetail({
                   </div>
 
                   <span className='text-xs font-bold text-gray-800'>
-                    {(
-                      reviews.reduce(
-                        (total: number, review: any) => total + review.rating,
-                        0,
-                      ) / reviews.length
-                    ).toFixed(1)}
+                    {averageRating.toFixed(1)}
                   </span>
 
                   <span className='text-[11px] text-gray-400'>
-                    ({reviews.length})
+                    ({ratedReviews.length})
                   </span>
                 </a>
               )}
@@ -472,6 +503,10 @@ export default async function ArticleDetail({
           </div>
         </header>
 
+        {/* =========================================================
+            FEATURED IMAGE
+        ========================================================= */}
+
         <div className='mx-auto max-w-6xl px-5 py-8 sm:px-8 lg:px-10 lg:py-12'>
           <div className='relative aspect-[16/9] w-full overflow-hidden rounded-2xl border border-gray-200 bg-gray-900 shadow-xl shadow-gray-900/5 sm:rounded-3xl'>
             <ArticleImage
@@ -483,8 +518,16 @@ export default async function ArticleDetail({
           </div>
         </div>
 
+        {/* =========================================================
+            MAIN CONTENT
+        ========================================================= */}
+
         <div className='mx-auto max-w-6xl px-5 pb-20 sm:px-8 lg:px-10 lg:pb-28'>
           <div className='grid grid-cols-1 gap-12 lg:grid-cols-12'>
+            {/* =====================================================
+                MAIN ARTICLE COLUMN
+            ===================================================== */}
+
             <main className='min-w-0 lg:col-span-8'>
               <div className='mb-10 flex flex-wrap items-center gap-4 border-b border-gray-200 pb-6 text-sm text-gray-500'>
                 <div className='flex items-center gap-2'>
@@ -501,6 +544,10 @@ export default async function ArticleDetail({
                   </div>
                 )}
               </div>
+
+              {/* ===================================================
+                  ARTICLE BODY
+              =================================================== */}
 
               <div
                 className='
@@ -563,6 +610,10 @@ export default async function ArticleDetail({
                 }}
               />
 
+              {/* ===================================================
+                  TOPICS
+              =================================================== */}
+
               {article.topics?.length > 0 && (
                 <div className='mt-12 border-t border-gray-200 pt-8'>
                   <div className='flex flex-wrap gap-2'>
@@ -579,12 +630,20 @@ export default async function ArticleDetail({
                 </div>
               )}
 
+              {/* ===================================================
+                  BLOG INTERACTION
+              =================================================== */}
+
               <div className='mt-12 border-t border-gray-200 pt-8'>
                 <BlogInteraction
                   articleId={article.id}
                   articleSlug={article.slug}
                 />
               </div>
+
+              {/* ===================================================
+                  AUTHOR
+              =================================================== */}
 
               {article.user && (
                 <section className='mt-14 rounded-2xl border border-gray-200 bg-white p-6 shadow-sm sm:p-8'>
@@ -641,134 +700,27 @@ export default async function ArticleDetail({
                 </section>
               )}
 
-              <section
-                className='mt-16 border-t border-gray-200 pt-10'
-                id='reviews'
-              >
-                <div className='flex flex-col justify-between gap-5 sm:flex-row sm:items-end'>
-                  <div>
-                    <div className='mb-2 flex items-center gap-2'>
-                      <MessageCircle className='h-4 w-4 text-[#7678ed]' />
+              {/* ===================================================
+                  THREADED REVIEWS / COMMENTS
+              =================================================== */}
 
-                      <span className='text-xs font-bold uppercase tracking-widest text-[#3d348b]'>
-                        Community feedback
-                      </span>
-                    </div>
-
-                    <h2 className='text-2xl font-black tracking-tight text-gray-950 sm:text-3xl'>
-                      Reader Reviews
-                    </h2>
-
-                    <p className='mt-1 text-sm text-gray-500'>
-                      {reviews.length}{' '}
-                      {reviews.length === 1 ? 'review' : 'reviews'}
-                    </p>
-                  </div>
-
-                  {reviews.length > 0 && (
-                    <div className='flex items-center gap-2 rounded-xl bg-[#f7b801]/10 px-4 py-2.5'>
-                      <div className='flex text-[#f18701]'>
-                        {[...Array(5)].map((_, i) => (
-                          <span key={i}>★</span>
-                        ))}
-                      </div>
-
-                      <span className='text-sm font-bold text-gray-800'>
-                        {(
-                          reviews.reduce(
-                            (total: number, review: any) =>
-                              total + review.rating,
-                            0,
-                          ) / reviews.length
-                        ).toFixed(1)}
-                      </span>
-                    </div>
-                  )}
-                </div>
-
-                {reviews.length > 0 ? (
-                  <div className='mt-8 space-y-4'>
-                    {reviews.slice(0, 3).map((review: any) => (
-                      <div
-                        key={review.id}
-                        className='rounded-2xl border border-gray-200 bg-white p-6 transition hover:border-[#7678ed]/30 hover:shadow-md'
-                      >
-                        <div className='flex flex-col justify-between gap-4 border-b border-gray-100 pb-4 sm:flex-row sm:items-center'>
-                          <div className='flex items-center gap-3'>
-                            <div className='flex h-10 w-10 items-center justify-center rounded-full bg-[#3d348b]/10 text-sm font-bold text-[#3d348b]'>
-                              {getInitial(review.name)}
-                            </div>
-
-                            <div>
-                              <div className='flex flex-wrap items-center gap-2'>
-                                <h3 className='text-sm font-bold text-gray-950'>
-                                  {review.name}
-                                </h3>
-
-                                <span className='inline-flex items-center gap-1 rounded-full bg-[#3d348b]/5 px-2 py-0.5 text-[10px] font-bold text-[#3d348b]'>
-                                  <CheckCircle2 className='h-3 w-3' />
-                                  Reader
-                                </span>
-                              </div>
-
-                              <p className='mt-0.5 text-[11px] text-gray-400'>
-                                {formatDate(review.createdAt)}
-                              </p>
-                            </div>
-                          </div>
-
-                          <div className='flex items-center gap-1 rounded-full bg-gray-50 px-3 py-1.5'>
-                            {[...Array(5)].map((_, i) => (
-                              <span
-                                key={i}
-                                className={
-                                  i < review.rating
-                                    ? 'text-[#f18701]'
-                                    : 'text-gray-200'
-                                }
-                              >
-                                ★
-                              </span>
-                            ))}
-
-                            <span className='ml-1 text-xs font-bold text-gray-700'>
-                              {review.rating}.0
-                            </span>
-                          </div>
-                        </div>
-
-                        <p className='mt-5 border-l-2 border-[#7678ed] pl-4 text-sm leading-7 text-gray-600'>
-                          &ldquo;{review.content}&rdquo;
-                        </p>
-                      </div>
-                    ))}
-
-                    {reviews.length > 3 && (
-                      <div className='pt-2'>
-                        <ViewAllReviewsButton reviews={reviews} />
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  <div className='mt-8 rounded-2xl border border-dashed border-gray-300 bg-white px-6 py-12 text-center'>
-                    <div className='mx-auto flex h-12 w-12 items-center justify-center rounded-xl bg-[#3d348b]/10'>
-                      <MessageCircle className='h-5 w-5 text-[#3d348b]' />
-                    </div>
-
-                    <h3 className='mt-4 font-bold text-gray-900'>
-                      No reviews yet
-                    </h3>
-
-                    <p className='mt-2 text-sm text-gray-500'>
-                      Be the first reader to share your thoughts.
-                    </p>
-                  </div>
-                )}
-              </section>
+              <ReviewsSection
+                reviews={reviewData}
+                articleId={article.id}
+                createReview={createReviewAction}
+              />
             </main>
+
+            {/* =====================================================
+                SIDEBAR
+            ===================================================== */}
 
             <aside className='lg:col-span-4'>
               <div className='space-y-6 lg:sticky lg:top-24'>
+                {/* =================================================
+                    READ ALOUD
+                ================================================= */}
+
                 <div className='rounded-2xl border border-gray-200 bg-white p-6 shadow-sm'>
                   <div className='flex items-center gap-3'>
                     <div className='flex h-10 w-10 items-center justify-center rounded-xl bg-[#3d348b]/10'>
@@ -791,6 +743,10 @@ export default async function ArticleDetail({
                   </div>
                 </div>
 
+                {/* =================================================
+                    ARTICLE ACTIONS
+                ================================================= */}
+
                 <div className='rounded-2xl border border-gray-200 bg-white p-6 shadow-sm'>
                   <div className='mb-4 flex items-center gap-3'>
                     <div className='flex h-10 w-10 items-center justify-center rounded-xl bg-[#7678ed]/10'>
@@ -810,6 +766,10 @@ export default async function ArticleDetail({
 
                   <InteractionRail articleId={article.id} />
                 </div>
+
+                {/* =================================================
+                    RECOMMENDED
+                ================================================= */}
 
                 {relatedPosts.length > 0 && (
                   <div className='rounded-2xl border border-gray-200 bg-white p-6 shadow-sm'>
@@ -854,6 +814,10 @@ export default async function ArticleDetail({
             </aside>
           </div>
         </div>
+
+        {/* =========================================================
+            RELATED ARTICLES
+        ========================================================= */}
 
         {relatedPosts.length > 0 && (
           <section className='border-t border-gray-200 bg-white'>
