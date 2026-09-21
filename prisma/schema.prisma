@@ -291,3 +291,14 @@ model Form {
   message   String
   createdAt DateTime @default(now())
 }
+
+
+
+model Result {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  status    Boolean  @default(false)
+  title     String
+  url       String
+  refUrl    String?
+  createdAt DateTime @default(now())
+}

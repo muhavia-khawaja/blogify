@@ -14,6 +14,7 @@ import {
   GraduationCap,
   Search,
   MoreHorizontal,
+  BookA,
 } from 'lucide-react'
 
 type HomeSidebarProps = {
@@ -67,6 +68,11 @@ const navigation = [
     name: 'Library',
     href: '/library',
     icon: Bookmark,
+  },
+  {
+    name: 'Result',
+    href: '/result',
+    icon: BookA,
   },
 ]
 

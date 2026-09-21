@@ -326,7 +326,7 @@ function SuccessContent({ onClose }: { onClose: () => void }) {
       </div>
 
       <p className='relative mt-7 text-xs font-semibold uppercase tracking-[0.2em] text-[#3d348b]'>
-        Youre subscribed
+        You&apos;re subscribed
       </p>
 
       <h2 className='relative mt-3 font-serif text-4xl font-semibold tracking-tight text-[#1A1A1A] sm:text-5xl'>
