@@ -6,7 +6,6 @@ import Link from 'next/link'
 import {
   Printer,
   User,
-  Award,
   BookOpen,
   CheckCircle2,
   XCircle,
@@ -33,7 +32,7 @@ const ResultPdf = dynamic(() => import('./ResultPdf'), {
   loading: () => (
     <button
       disabled
-      className='w-full sm:w-auto flex items-center justify-center gap-2 bg-indigo-400 text-white px-4 py-2.5 rounded-xl text-sm font-medium'
+      className='flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-400 px-4 py-2.5 text-sm font-medium text-white sm:w-auto'
     >
       <Loader2 className='h-4 w-4 animate-spin' />
       <span>Loading PDF...</span>
@@ -44,7 +43,7 @@ const ResultPdf = dynamic(() => import('./ResultPdf'), {
 const ResultChart = dynamic(() => import('./ResultChart'), {
   ssr: false,
   loading: () => (
-    <div className='h-64 sm:h-72 bg-slate-50 rounded-2xl border border-slate-100 animate-pulse' />
+    <div className='h-64 animate-pulse rounded-2xl border border-slate-100 bg-slate-50 sm:h-72' />
   ),
 })
 
@@ -59,66 +58,112 @@ interface SubjectResultRaw {
   FNAME: string | null
   INS_NAME: string | null
 
-  SUB21_NAME: string | null
-  SUB1_OBT: string | null
-  SUB21_OBT: string | null
-  S1_OBT: string | null
-  S1_PASS: string | null
+  SUB1_NAME?: string | null
+  SUB1_OBT?: string | null
+  SUB1_PASS?: string | null
+  SUB1_REMARKS?: string | null
+  SUB1_TOTAL?: string | null
 
-  SUB22_NAME: string | null
-  SUB2_OBT: string | null
-  SUB22_OBT: string | null
-  S2_OBT: string | null
-  S2_PASS: string | null
+  SUB2_NAME?: string | null
+  SUB2_OBT?: string | null
+  SUB2_PASS?: string | null
+  SUB2_REMARKS?: string | null
+  SUB2_TOTAL?: string | null
 
-  SUB3_NAME: string | null
-  SUB3_OBT: string | null
-  SUB31_OBT: string | null
-  S3_OBT: string | null
-  S3_PASS: string | null
+  SUB3_NAME?: string | null
+  SUB3_OBT?: string | null
+  SUB3_PASS?: string | null
+  SUB3_REMARKS?: string | null
+  SUB3_TOTAL?: string | null
 
-  SUB23_NAME: string | null
-  SUB231_OBT: string | null
-  SUB23_OBT: string | null
-  S3P_OBT: string | null
-  S3P_PASS: string | null
+  SUB4_NAME?: string | null
+  SUB4_OBT?: string | null
+  SUB4_PASS?: string | null
+  SUB4_REMARKS?: string | null
+  SUB4_TOTAL?: string | null
 
-  SUB24_NAME: string | null
-  SUB4_OBT: string | null
-  SUB24_OBT: string | null
-  S4_OBT: string | null
-  S4_PASS: string | null
+  SUB5_NAME?: string | null
+  SUB5_OBT?: string | null
+  SUB5_PASS?: string | null
+  SUB5_REMARKS?: string | null
+  SUB5_TOTAL?: string | null
 
-  SUB25_NAME: string | null
-  SUB5_OBT: string | null
-  SUB25_OBT: string | null
-  SUB251_OBT: string | null
-  S5_OBT: string | null
-  S5_PASS: string | null
+  SUB6_NAME?: string | null
+  SUB6_OBT?: string | null
+  SUB6_PASS?: string | null
+  SUB6_REMARKS?: string | null
+  SUB6_TOTAL?: string | null
 
-  SUB26_NAME: string | null
-  SUB6_OBT: string | null
-  SUB26_OBT: string | null
-  SUB261_OBT: string | null
-  S6_OBT: string | null
-  S6_PASS: string | null
+  SUB7_NAME?: string | null
+  SUB7_OBT?: string | null
+  SUB7_PASS?: string | null
+  SUB7_REMARKS?: string | null
+  SUB7_TOTAL?: string | null
 
-  SUB27_NAME: string | null
-  SUB7_OBT: string | null
-  SUB27_OBT: string | null
-  SUB271_OBT: string | null
-  S7_OBT: string | null
-  S7_PASS: string | null
+  SUB8_NAME?: string | null
+  SUB8_OBT?: string | null
+  SUB8_PASS?: string | null
+  SUB8_REMARKS?: string | null
+  SUB8_TOTAL?: string | null
 
-  SUB28_NAME: string | null
-  SUB8_OBT: string | null
-  SUB28_OBT: string | null
-  S8_OBT: string | null
-  S8_PASS: string | null
+  SUB9_NAME?: string | null
+  SUB9_OBT?: string | null
+  SUB9_PASS?: string | null
+  SUB9_REMARKS?: string | null
+  SUB9_TOTAL?: string | null
+
+  SUB21_NAME?: string | null
+  SUB21_OBT?: string | null
+  S1_OBT?: string | null
+  S1_PASS?: string | null
+
+  SUB22_NAME?: string | null
+  SUB22_OBT?: string | null
+  S2_OBT?: string | null
+  S2_PASS?: string | null
+
+  SUB31_OBT?: string | null
+  S3_OBT?: string | null
+  S3_PASS?: string | null
+
+  SUB23_NAME?: string | null
+  SUB231_OBT?: string | null
+  SUB23_OBT?: string | null
+  S3P_OBT?: string | null
+  S3P_PASS?: string | null
+
+  SUB24_NAME?: string | null
+  SUB24_OBT?: string | null
+  S4_OBT?: string | null
+  S4_PASS?: string | null
+
+  SUB25_NAME?: string | null
+  SUB25_OBT?: string | null
+  SUB251_OBT?: string | null
+  S5_OBT?: string | null
+  S5_PASS?: string | null
+
+  SUB26_NAME?: string | null
+  SUB26_OBT?: string | null
+  SUB261_OBT?: string | null
+  S6_OBT?: string | null
+  S6_PASS?: string | null
+
+  SUB27_NAME?: string | null
+  SUB27_OBT?: string | null
+  SUB271_OBT?: string | null
+  S7_OBT?: string | null
+  S7_PASS?: string | null
+
+  SUB28_NAME?: string | null
+  SUB28_OBT?: string | null
+  S8_OBT?: string | null
+  S8_PASS?: string | null
 
   TOTAL_OBT: string | null
   TOTAL_MARKS: string | null
   RESULT: string | null
+  REMARKSF?: string | null
 }
 
 interface ResultApiResponse {
@@ -137,15 +182,16 @@ interface StudentInfo {
   totalMax: number
   percentage: string
   hasSupply: boolean
+  part: string
+  failSubjects: string[]
 }
 
 interface SubjectItem {
   name: string
-  p1: number
-  p2: number
-  practical: number
+  obtained: number
   total: number
   pass: string
+  remarks: string
   isFail: boolean
 }
 
@@ -156,20 +202,20 @@ interface ChatMessage {
 
 function ResultSkeletonLoader() {
   return (
-    <div className='rounded-3xl border border-slate-200 bg-white p-5 sm:p-8 shadow-sm animate-pulse space-y-7'>
+    <div className='animate-pulse space-y-7 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm sm:p-8'>
       <div className='flex flex-col items-center gap-3 border-b border-slate-100 pb-6'>
         <div className='h-7 w-2/3 rounded-lg bg-slate-200' />
         <div className='h-4 w-1/2 rounded-lg bg-slate-100' />
       </div>
 
-      <div className='grid grid-cols-2 lg:grid-cols-4 gap-3'>
+      <div className='grid grid-cols-2 gap-3 lg:grid-cols-4'>
         {Array.from({ length: 4 }).map((_, index) => (
           <div
             key={index}
             className='rounded-2xl border border-slate-100 bg-slate-50 p-4'
           >
-            <div className='h-8 w-8 rounded-xl bg-slate-200 mb-3' />
-            <div className='h-3 w-1/2 rounded bg-slate-200 mb-2' />
+            <div className='mb-3 h-8 w-8 rounded-xl bg-slate-200' />
+            <div className='mb-2 h-3 w-1/2 rounded bg-slate-200' />
             <div className='h-4 w-3/4 rounded bg-slate-300' />
           </div>
         ))}
@@ -177,10 +223,10 @@ function ResultSkeletonLoader() {
 
       <div className='h-16 rounded-2xl bg-slate-50' />
 
-      <div className='rounded-2xl border border-slate-200 overflow-hidden'>
+      <div className='overflow-hidden rounded-2xl border border-slate-200'>
         <div className='h-12 bg-slate-100' />
 
-        {Array.from({ length: 6 }).map((_, index) => (
+        {Array.from({ length: 8 }).map((_, index) => (
           <div
             key={index}
             className='h-12 border-t border-slate-100 bg-white'
@@ -236,154 +282,278 @@ export default function ResultSearchPage() {
 
     const raw = rawData.Results
 
-    const cleanStr = (value: string | null) => {
-      if (typeof value !== 'string') return 'N/A'
+    const cleanStr = (value: string | null | undefined) => {
+      if (typeof value !== 'string') return ''
 
       const cleaned = value.trim()
 
-      return cleaned || 'N/A'
+      return cleaned || ''
     }
 
-    const parseNum = (value: string | null) => {
-      const parsed = Number.parseInt(cleanStr(value), 10)
+    const parseNum = (value: string | null | undefined) => {
+      const cleaned = cleanStr(value)
+
+      if (!cleaned) return 0
+
+      const parsed = Number.parseInt(cleaned, 10)
 
       return Number.isFinite(parsed) ? parsed : 0
     }
 
-    const hasPractical = (name: string) => {
-      const lower = name.toLowerCase()
+    const isPartOne =
+      cleanStr(raw.SUB1_NAME).toUpperCase().includes('-I') ||
+      cleanStr(raw.SUB1_NAME).toUpperCase().endsWith('I')
 
-      return (
-        lower.includes('physics') ||
-        lower.includes('chemistry') ||
-        lower.includes('biology') ||
-        lower.includes('computer')
-      )
-    }
+    const isPartTwo =
+      cleanStr(raw.SUB1_NAME).toUpperCase().includes('-II') ||
+      cleanStr(raw.SUB1_NAME).toUpperCase().endsWith('II')
 
-    const subjectsRaw: SubjectItem[] = [
-      {
-        name: cleanStr(raw.SUB21_NAME),
-        p1: parseNum(raw.SUB1_OBT),
-        p2: parseNum(raw.SUB21_OBT),
-        practical: 0,
-        total: parseNum(raw.S1_OBT),
-        pass: cleanStr(raw.S1_PASS),
-        isFail: false,
-      },
-      {
-        name: cleanStr(raw.SUB22_NAME),
-        p1: parseNum(raw.SUB2_OBT),
-        p2: parseNum(raw.SUB22_OBT),
-        practical: 0,
-        total: parseNum(raw.S2_OBT),
-        pass: cleanStr(raw.S2_PASS),
-        isFail: false,
-      },
-      {
-        name: cleanStr(raw.SUB3_NAME),
-        p1: parseNum(raw.SUB3_OBT),
-        p2: parseNum(raw.SUB31_OBT),
-        practical: 0,
-        total: parseNum(raw.S3_OBT),
-        pass: cleanStr(raw.S3_PASS),
-        isFail: false,
-      },
-      {
-        name: cleanStr(raw.SUB23_NAME),
-        p1: parseNum(raw.SUB231_OBT),
-        p2: parseNum(raw.SUB23_OBT),
-        practical: hasPractical(cleanStr(raw.SUB23_NAME))
-          ? parseNum(raw.S3P_OBT)
-          : 0,
-        total:
-          parseNum(raw.SUB23_OBT) +
-          parseNum(raw.SUB231_OBT) +
-          (hasPractical(cleanStr(raw.SUB23_NAME)) ? parseNum(raw.S3P_OBT) : 0),
-        pass: cleanStr(raw.S3P_PASS),
-        isFail: false,
-      },
-      {
-        name: cleanStr(raw.SUB24_NAME),
-        p1: parseNum(raw.SUB4_OBT),
-        p2: parseNum(raw.SUB24_OBT),
-        practical: 0,
-        total: parseNum(raw.S4_OBT),
-        pass: cleanStr(raw.S4_PASS),
-        isFail: false,
-      },
-      {
-        name: cleanStr(raw.SUB25_NAME),
-        p1: parseNum(raw.SUB5_OBT),
-        p2: parseNum(raw.SUB25_OBT),
-        practical: hasPractical(cleanStr(raw.SUB25_NAME))
-          ? parseNum(raw.SUB251_OBT)
-          : 0,
-        total: parseNum(raw.S5_OBT),
-        pass: cleanStr(raw.S5_PASS),
-        isFail: false,
-      },
-      {
-        name: cleanStr(raw.SUB26_NAME),
-        p1: parseNum(raw.SUB6_OBT),
-        p2: parseNum(raw.SUB26_OBT),
-        practical: hasPractical(cleanStr(raw.SUB26_NAME))
-          ? parseNum(raw.SUB261_OBT)
-          : 0,
-        total: parseNum(raw.S6_OBT),
-        pass: cleanStr(raw.S6_PASS),
-        isFail: false,
-      },
-      {
-        name: cleanStr(raw.SUB27_NAME),
-        p1: parseNum(raw.SUB7_OBT),
-        p2: parseNum(raw.SUB27_OBT),
-        practical: hasPractical(cleanStr(raw.SUB27_NAME))
-          ? parseNum(raw.SUB271_OBT)
-          : 0,
-        total: parseNum(raw.S7_OBT),
-        pass: cleanStr(raw.S7_PASS),
-        isFail: false,
-      },
-      {
-        name: cleanStr(raw.SUB28_NAME),
-        p1: parseNum(raw.SUB8_OBT),
-        p2: parseNum(raw.SUB28_OBT),
-        practical: 0,
-        total: parseNum(raw.S8_OBT),
-        pass: cleanStr(raw.S8_PASS),
-        isFail: false,
-      },
-    ]
+    const part = isPartOne
+      ? 'Part-I'
+      : isPartTwo
+        ? 'Part-II'
+        : 'Annual Examination'
 
-    const subjects = subjectsRaw
-      .filter(
-        (subject) =>
-          subject.name && subject.name !== 'N/A' && subject.name !== 'null',
-      )
-      .map((subject) => {
-        const passUpper = subject.pass.toUpperCase()
+    /*
+     * Detect the new/current API format first.
+     *
+     * Example:
+     * SUB1_NAME
+     * SUB1_OBT
+     * SUB1_TOTAL
+     * SUB1_PASS
+     * SUB1_REMARKS
+     */
+    const currentApiSubjects: SubjectItem[] = Array.from(
+      { length: 9 },
+      (_, index) => {
+        const number = index + 1
+
+        const name = cleanStr(
+          raw[`SUB${number}_NAME` as keyof SubjectResultRaw] as
+            | string
+            | null
+            | undefined,
+        )
+
+        const obtained = parseNum(
+          raw[`SUB${number}_OBT` as keyof SubjectResultRaw] as
+            | string
+            | null
+            | undefined,
+        )
+
+        const total = parseNum(
+          raw[`SUB${number}_TOTAL` as keyof SubjectResultRaw] as
+            | string
+            | null
+            | undefined,
+        )
+
+        const pass = cleanStr(
+          raw[`SUB${number}_PASS` as keyof SubjectResultRaw] as
+            | string
+            | null
+            | undefined,
+        )
+
+        const remarks = cleanStr(
+          raw[`SUB${number}_REMARKS` as keyof SubjectResultRaw] as
+            | string
+            | null
+            | undefined,
+        )
 
         const isFail =
-          passUpper.includes('FAIL') ||
-          passUpper.includes('SUPPLY') ||
-          passUpper === 'F'
+          pass.toUpperCase().includes('FAIL') ||
+          pass.toUpperCase().includes('SUPPLY') ||
+          pass.toUpperCase() === 'F' ||
+          remarks.includes('<33%')
 
         return {
-          ...subject,
+          name,
+          obtained,
+          total,
+          pass: pass || (isFail ? 'FAIL' : 'PASS'),
+          remarks,
           isFail,
         }
-      })
+      },
+    ).filter((subject) => subject.name)
 
-    const totalObtained = parseNum(raw.TOTAL_OBT)
+    /*
+     * If the current API format exists, use it.
+     */
+    let subjects = currentApiSubjects
+
+    /*
+     * Otherwise fall back to the older API format.
+     */
+    if (subjects.length === 0) {
+      const oldSubjects: SubjectItem[] = [
+        {
+          name: cleanStr(raw.SUB21_NAME),
+          obtained: parseNum(raw.S1_OBT),
+          total: parseNum(raw.S1_OBT),
+          pass: cleanStr(raw.S1_PASS),
+          remarks: '',
+          isFail: false,
+        },
+        {
+          name: cleanStr(raw.SUB22_NAME),
+          obtained: parseNum(raw.S2_OBT),
+          total: parseNum(raw.S2_OBT),
+          pass: cleanStr(raw.S2_PASS),
+          remarks: '',
+          isFail: false,
+        },
+        {
+          name: cleanStr(raw.SUB3_NAME),
+          obtained: parseNum(raw.S3_OBT),
+          total: parseNum(raw.S3_OBT),
+          pass: cleanStr(raw.S3_PASS),
+          remarks: '',
+          isFail: false,
+        },
+        {
+          name: cleanStr(raw.SUB23_NAME),
+          obtained:
+            parseNum(raw.SUB23_OBT) +
+            parseNum(raw.SUB231_OBT) +
+            parseNum(raw.S3P_OBT),
+          total:
+            parseNum(raw.SUB23_OBT) +
+            parseNum(raw.SUB231_OBT) +
+            parseNum(raw.S3P_OBT),
+          pass: cleanStr(raw.S3P_PASS),
+          remarks: '',
+          isFail: false,
+        },
+        {
+          name: cleanStr(raw.SUB24_NAME),
+          obtained: parseNum(raw.S4_OBT),
+          total: parseNum(raw.S4_OBT),
+          pass: cleanStr(raw.S4_PASS),
+          remarks: '',
+          isFail: false,
+        },
+        {
+          name: cleanStr(raw.SUB25_NAME),
+          obtained: parseNum(raw.S5_OBT),
+          total: parseNum(raw.S5_OBT),
+          pass: cleanStr(raw.S5_PASS),
+          remarks: '',
+          isFail: false,
+        },
+        {
+          name: cleanStr(raw.SUB26_NAME),
+          obtained: parseNum(raw.S6_OBT),
+          total: parseNum(raw.S6_OBT),
+          pass: cleanStr(raw.S6_PASS),
+          remarks: '',
+          isFail: false,
+        },
+        {
+          name: cleanStr(raw.SUB27_NAME),
+          obtained: parseNum(raw.S7_OBT),
+          total: parseNum(raw.S7_OBT),
+          pass: cleanStr(raw.S7_PASS),
+          remarks: '',
+          isFail: false,
+        },
+        {
+          name: cleanStr(raw.SUB28_NAME),
+          obtained: parseNum(raw.S8_OBT),
+          total: parseNum(raw.S8_OBT),
+          pass: cleanStr(raw.S8_PASS),
+          remarks: '',
+          isFail: false,
+        },
+      ].filter((subject) => subject.name)
+
+      subjects = oldSubjects.map((subject) => ({
+        ...subject,
+        isFail:
+          subject.pass.toUpperCase().includes('FAIL') ||
+          subject.pass.toUpperCase().includes('SUPPLY') ||
+          subject.pass.toUpperCase() === 'F',
+      }))
+    }
+
+    /*
+     * REMARKSF contains:
+     * ISL MAT PHY BIO
+     *
+     * This is useful as an additional fail indicator.
+     */
+    const overallRemarks = cleanStr(raw.REMARKSF).toUpperCase()
+
+    const subjectsWithFailStatus = subjects.map((subject) => {
+      const upperName = subject.name.toUpperCase()
+
+      let failFromOverallRemarks = false
+
+      if (overallRemarks) {
+        if (upperName.includes('ISLAMIYAT') && overallRemarks.includes('ISL')) {
+          failFromOverallRemarks = true
+        }
+
+        if (
+          upperName.includes('MATHEMATICS') &&
+          overallRemarks.includes('MAT')
+        ) {
+          failFromOverallRemarks = true
+        }
+
+        if (upperName.includes('PHYSICS') && overallRemarks.includes('PHY')) {
+          failFromOverallRemarks = true
+        }
+
+        if (upperName.includes('BIOLOGY') && overallRemarks.includes('BIO')) {
+          failFromOverallRemarks = true
+        }
+      }
+
+      return {
+        ...subject,
+        isFail: subject.isFail || failFromOverallRemarks,
+        pass:
+          subject.isFail || failFromOverallRemarks
+            ? 'FAIL'
+            : subject.pass || 'PASS',
+      }
+    })
+
+    subjects = subjectsWithFailStatus
+
     const totalMax = parseNum(raw.TOTAL_MARKS)
 
-    const hasSupply =
-      subjects.some((subject) => subject.isFail) ||
-      cleanStr(raw.RESULT).toUpperCase().includes('FAIL')
+    /*
+     * Your API returns TOTAL_OBT:null.
+     *
+     * Therefore calculate obtained marks from subject marks.
+     */
+    const apiTotalObtained = parseNum(raw.TOTAL_OBT)
+
+    const calculatedTotalObtained = subjects.reduce(
+      (sum, subject) => sum + subject.obtained,
+      0,
+    )
+
+    const totalObtained =
+      apiTotalObtained > 0 ? apiTotalObtained : calculatedTotalObtained
 
     const calculatedPercentage =
       totalMax > 0 ? ((totalObtained / totalMax) * 100).toFixed(2) : '0.00'
+
+    const failSubjects = subjects
+      .filter((subject) => subject.isFail)
+      .map((subject) => subject.name)
+
+    const hasSupply =
+      subjects.some((subject) => subject.isFail) ||
+      cleanStr(raw.RESULT).toUpperCase().includes('SUPPLY') ||
+      cleanStr(raw.RESULT).toUpperCase().includes('FAIL')
 
     const studentInfo: StudentInfo = {
       rollNo: cleanStr(raw.ROLL_NO),
@@ -392,11 +562,13 @@ export default function ResultSearchPage() {
       regNo: cleanStr(raw.REG_NO),
       group: cleanStr(raw.GROUP_NAME),
       institution: cleanStr(raw.INS_NAME),
-      status: cleanStr(raw.RESULT),
+      status: cleanStr(raw.RESULT) || 'N/A',
       totalObtained,
       totalMax,
       percentage: calculatedPercentage,
       hasSupply,
+      part,
+      failSubjects,
     }
 
     return {
@@ -474,8 +646,16 @@ export default function ResultSearchPage() {
         },
         body: JSON.stringify({
           message: userMessage,
-          topic: 'AJK SSC Part-II Annual Result Gazette 2026',
-          context: `Candidate Roll No: ${parsedData.studentInfo.rollNo}, Name: ${parsedData.studentInfo.name}, Status: ${parsedData.studentInfo.status}`,
+          topic: `AJK ${parsedData.studentInfo.part} Result`,
+          context: `
+Candidate Roll No: ${parsedData.studentInfo.rollNo}
+Name: ${parsedData.studentInfo.name}
+Status: ${parsedData.studentInfo.status}
+Obtained Marks: ${parsedData.studentInfo.totalObtained}
+Total Marks: ${parsedData.studentInfo.totalMax}
+Percentage: ${parsedData.studentInfo.percentage}%
+Failed Subjects: ${parsedData.studentInfo.failSubjects.join(', ') || 'None'}
+          `,
           pdfUrl: GAZETTE_PDF_URL,
           isPremiumUser: true,
         }),
@@ -555,7 +735,7 @@ export default function ResultSearchPage() {
 
       <div className='relative mx-auto max-w-5xl px-3 sm:px-6 lg:px-8'>
         <div className='overflow-hidden rounded-3xl border border-slate-200 bg-white shadow-xl shadow-slate-200/50 print:hidden'>
-          <div className='bg-gradient-to-br from-indigo-950 via-indigo-900 to-purple-900 p-5 sm:p-8 lg:p-10 text-white'>
+          <div className='bg-gradient-to-br from-indigo-950 via-indigo-900 to-purple-900 p-5 text-white sm:p-8 lg:p-10'>
             <div className='flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between'>
               <div>
                 <div className='mb-3 inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/10 px-3 py-1.5 text-xs font-semibold'>
@@ -639,7 +819,6 @@ export default function ResultSearchPage() {
 
                   <div>
                     <p className='text-sm font-bold'>Result search failed</p>
-
                     <p className='mt-0.5 text-xs'>{error}</p>
                   </div>
                 </div>
@@ -671,7 +850,15 @@ export default function ResultSearchPage() {
             <div className='flex flex-col gap-3 sm:flex-row sm:justify-end print:hidden'>
               <ResultPdf
                 studentInfo={parsedData.studentInfo}
-                subjects={parsedData.subjects}
+                subjects={parsedData.subjects.map((subject) => ({
+                  name: subject.name,
+                  p1: subject.obtained,
+                  p2: 0,
+                  practical: 0,
+                  total: subject.total,
+                  pass: subject.pass,
+                  isFail: subject.isFail,
+                }))}
               />
 
               <button
@@ -705,7 +892,7 @@ export default function ResultSearchPage() {
                   </h2>
 
                   <p className='mt-2 text-xs font-semibold text-indigo-100 sm:text-sm'>
-                    Annual Examination
+                    {parsedData.studentInfo.part}
                   </p>
                 </div>
               </div>
@@ -851,6 +1038,24 @@ export default function ResultSearchPage() {
                   </div>
                 </div>
 
+                {parsedData.studentInfo.failSubjects.length > 0 && (
+                  <div className='rounded-2xl border border-rose-200 bg-rose-50 p-4'>
+                    <div className='flex items-start gap-3'>
+                      <XCircle className='mt-0.5 h-5 w-5 shrink-0 text-rose-600' />
+
+                      <div>
+                        <p className='text-sm font-black text-rose-900'>
+                          Subjects requiring improvement
+                        </p>
+
+                        <p className='mt-1 text-sm text-rose-700'>
+                          {parsedData.studentInfo.failSubjects.join(', ')}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 <div>
                   <div className='mb-4 flex items-center gap-2'>
                     <div className='flex h-9 w-9 items-center justify-center rounded-xl bg-indigo-50 text-indigo-600'>
@@ -863,26 +1068,20 @@ export default function ResultSearchPage() {
                       </h3>
 
                       <p className='text-xs text-slate-500'>
-                        Detailed marks breakdown
+                        {parsedData.studentInfo.part} detailed marks breakdown
                       </p>
                     </div>
                   </div>
 
                   <div className='overflow-hidden rounded-2xl border border-slate-200'>
                     <div className='overflow-x-auto'>
-                      <table className='w-full min-w-[720px] text-left text-xs sm:text-sm'>
+                      <table className='w-full min-w-[650px] text-left text-xs sm:text-sm'>
                         <thead className='bg-slate-950 text-white'>
                           <tr>
                             <th className='px-4 py-3 font-bold'>#</th>
                             <th className='px-4 py-3 font-bold'>Subject</th>
                             <th className='px-4 py-3 text-center font-bold'>
-                              P-I
-                            </th>
-                            <th className='px-4 py-3 text-center font-bold'>
-                              P-II
-                            </th>
-                            <th className='px-4 py-3 text-center font-bold'>
-                              Practical
+                              Obtained
                             </th>
                             <th className='px-4 py-3 text-center font-bold'>
                               Total
@@ -909,19 +1108,17 @@ export default function ResultSearchPage() {
                                 {subject.name}
                               </td>
 
-                              <td className='px-4 py-3 text-center text-slate-600'>
-                                {subject.p1 || '-'}
+                              <td
+                                className={`px-4 py-3 text-center font-black ${
+                                  subject.isFail
+                                    ? 'text-rose-700'
+                                    : 'text-slate-900'
+                                }`}
+                              >
+                                {subject.obtained}
                               </td>
 
-                              <td className='px-4 py-3 text-center text-slate-600'>
-                                {subject.p2 || '-'}
-                              </td>
-
-                              <td className='px-4 py-3 text-center text-slate-500'>
-                                {subject.practical || '-'}
-                              </td>
-
-                              <td className='px-4 py-3 text-center font-black text-slate-950'>
+                              <td className='px-4 py-3 text-center font-semibold text-slate-600'>
                                 {subject.total}
                               </td>
 
@@ -933,7 +1130,7 @@ export default function ResultSearchPage() {
                                       : 'bg-emerald-100 text-emerald-700'
                                   }`}
                                 >
-                                  {subject.pass}
+                                  {subject.isFail ? 'FAIL' : 'PASS'}
                                 </span>
                               </td>
                             </tr>
@@ -943,14 +1140,17 @@ export default function ResultSearchPage() {
                         <tfoot className='bg-indigo-50'>
                           <tr>
                             <td
-                              colSpan={5}
+                              colSpan={2}
                               className='px-4 py-4 text-right font-bold text-slate-700'
                             >
                               Overall Total
                             </td>
 
                             <td className='px-4 py-4 text-center font-black text-indigo-700'>
-                              {parsedData.studentInfo.totalObtained} /{' '}
+                              {parsedData.studentInfo.totalObtained}
+                            </td>
+
+                            <td className='px-4 py-4 text-center font-black text-slate-800'>
                               {parsedData.studentInfo.totalMax}
                             </td>
 
@@ -987,7 +1187,17 @@ export default function ResultSearchPage() {
                     </div>
                   </div>
 
-                  <ResultChart subjects={parsedData.subjects} />
+                  <ResultChart
+                    subjects={parsedData.subjects.map((subject) => ({
+                      name: subject.name,
+                      p1: subject.obtained,
+                      p2: 0,
+                      practical: 0,
+                      total: subject.obtained,
+                      pass: subject.pass,
+                      isFail: subject.isFail,
+                    }))}
+                  />
                 </div>
 
                 <div className='rounded-2xl border border-indigo-100 bg-gradient-to-br from-indigo-50 to-purple-50 p-4 sm:p-6 print:hidden'>
